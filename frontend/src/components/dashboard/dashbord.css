@@ -1,0 +1,264 @@
+/* ---------- Global ---------- */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+}
+
+/* ---------- Page Wrapper (Centering logic here) ---------- */
+.app {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Center vertically */
+  width: 100%;
+  min-height: 100vh;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+/* ---------- Parent Invoice Container ---------- */
+.invoice-container {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  max-width: 1200px; 
+  padding: 24px;
+  background: transparent; /* Background kadhun takla kiwa white thevu shakto */
+  /* Border kadhun takli aahe */
+  margin: 0 auto; 
+}
+
+/* ---------- Bill Form & Invoice (Aatle 2 divs) ---------- */
+.invoice-left,
+.invoice-right {
+  flex: 1;
+  background: #ffffff;
+  padding: 20px;
+  border: 2px solid #333333; /* Hya don div chi border rahil */
+  border-radius: 10px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.08); /* Shadow thodi kami keli */
+}
+
+/* ---------- Form Layout ---------- */
+.form-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+input,
+select {
+  padding: 10px;
+  margin-top: 6px;
+  border: 1.5px solid #555;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* ---------- Buttons ---------- */
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #2196F3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.submit-btn:hover {
+  background-color: #1976d2;
+}
+
+/* ---------- Messages ---------- */
+.error-msg {
+  color: #f44336;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.success-msg {
+  color: #4CAF50;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* ---------- Invoice Preview ---------- */
+.header {
+  text-align: center;
+}
+
+.header h1 {
+  margin: 0;
+  color: #333;
+}
+
+.details {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+  line-height: 1.6;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-wrapper th,
+.table-wrapper td {
+  border: none;
+  padding: 12px;
+  text-align: left;
+}
+
+.table-wrapper thead tr {
+  background: #2196F3;
+  color: #fff;
+}
+
+.table-wrapper tfoot .total-row {
+  background: #FFC107;
+  font-weight: 600;
+}
+
+/* ---------- Summary ---------- */
+.summary {
+  margin-top: 20px;
+  text-align: right;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.summary p {
+  margin: 5px 0;
+}
+
+.summary span {
+  font-weight: bold;
+}
+
+.balance {
+  font-size: 1.2em;
+  color: #F44336;
+}
+
+/* ---------- Footer ---------- */
+.thank-you {
+  text-align: center;
+  margin: 30px 0 20px 0;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding-top: 10px;
+}
+
+.signature-text {
+  font-size: 0.9em;
+  margin-bottom: 30px;
+}
+
+.trader-name {
+  font-weight: bold;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+  .invoice-container {
+    flex-direction: column;
+    padding: 15px;
+  }
+  
+  .app {
+    padding: 10px;
+    align-items: flex-start;
+  }
+}
+/* ---------- Parent Invoice Container ---------- */
+.invoice-container {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  max-width: 1200px; 
+  padding: 24px;
+  
+  /* Hya khalcha 3 ghosti me kadhun taklya ahet */
+  background: transparent; 
+  border: none;
+  box-shadow: none;
+  
+  margin: 0 auto; 
+}
+
+/* ---------- Bill Form & Invoice (Aatle 2 boxes) ---------- */
+.invoice-left,
+.invoice-right {
+  flex: 1;
+  background: #ffffff; /* Aatlya boxes cha background white thevla aahe */
+  padding: 25px;
+  border: 2px solid #333333; /* Fakt hya don boxes na border rahil */
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Hya boxes na thodi shadow dili aahe */
+}
+/* Chrome, Safari, Edge, ani Opera madhun arrows kadhun taknya sathi */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox madhun arrows kadhun taknya sathi */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+/* ---------- Bill Form & Invoice (Attractive Shadow) ---------- */
+.invoice-left,
+.invoice-right {
+  flex: 1;
+  background: #ffffff;
+  padding: 25px;
+  border: 1px solid rgba(0, 0, 0, 0.05); /* बॉर्डर थोडी फिकट केली */
+  border-radius: 16px; /* थोडे जास्त राऊंड कोपरे */
+  
+  /* नवीन Attractive Shadow - यात मल्टी-लेयर शॅडो वापरली आहे */
+  box-shadow: 
+    0 10px 20px rgba(0, 0, 0, 0.04), 
+    0 2px 6px rgba(0, 0, 0, 0.04), 
+    0 0 1px rgba(0, 0, 0, 0.1);
+    
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* माऊस नेल्यावर हलका इफेक्ट */
+.invoice-left:hover,
+.invoice-right:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* मोबाईलसाठी गॅप कमी करणे */
+@media (max-width: 1024px) {
+  .invoice-container {
+    gap: 16px;
+    padding: 10px;
+  }
+}
+/*--------------------------old---*/
