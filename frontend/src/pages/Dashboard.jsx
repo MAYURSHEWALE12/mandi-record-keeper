@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Invoice from "../components/dashboard/Invoice";
 import { Zap } from "lucide-react";
+import "../styles/modern.css";
 
 const Dashboard = () => {
   const [liveBhav, setLiveBhav] = useState("ताजे बाजारभाव लोड होत आहेत, कृपया प्रतीक्षा करा...");
@@ -61,14 +62,11 @@ const Dashboard = () => {
           <Zap size={18} fill="white" />
           आजचे बाजारभाव
         </div>
-        <marquee scrollamount="7" style={{
-          fontSize: "17px",
-          fontWeight: "600",
-          color: "#0f172a",
-          padding: "0 16px",
-        }}>
-          {liveBhav}
-        </marquee>
+        <div className="marquee-track">
+          <div className="marquee-content">
+            {liveBhav}
+          </div>
+        </div>
       </div>
 
       <div style={{ padding: "0 32px 32px" }}>

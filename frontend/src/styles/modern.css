@@ -722,3 +722,24 @@ body {
 table.records-table {
   border-collapse: collapse;
 }
+
+.marquee-track {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.marquee-content {
+  display: inline-block;
+  white-space: nowrap;
+  padding: 0 16px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #0f172a;
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}

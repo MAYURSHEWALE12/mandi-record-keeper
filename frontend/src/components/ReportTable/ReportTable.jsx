@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import PageWrapper from "../layout/PageWrapper";
 import API_URL from "../../config";
 import "./ReportTable.css";
 
 const ReportTable = () => {
-  const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
 
   const [records, setRecords] = useState([]);
 
   const [searchName, setSearchName] = useState("");
   const [filterCrop, setFilterCrop] = useState("");
-  const [onlyDue, setOnlyDue] = useState(false);
-  const [onlyPaid, setOnlyPaid] = useState(false);
 
   const [activeRange, setActiveRange] = useState("1day");
   const [startDate, setStartDate] = useState(today);
@@ -21,6 +17,8 @@ const ReportTable = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
+  const onlyDue = false;
+  const onlyPaid = false;
 
   useEffect(() => {
     fetch(`${API_URL}/api/records`)
