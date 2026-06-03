@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const supabase = require('./db');
 const bcrypt = require('bcryptjs');
-const auth = require('./middleware/auth');
 const authCtrl = require('./controllers/authController');
 const recordCtrl = require('./controllers/recordController');
 const orderCtrl = require('./controllers/dealerOrderController');
@@ -74,16 +73,16 @@ module.exports = function createApp() {
   app.post('/api/admin/forgot-password', authCtrl.forgotPassword);
   app.post('/api/admin/reset-password/:token', authCtrl.resetPassword);
 
-  // Protected routes
-  app.get('/api/records', auth, recordCtrl.index);
-  app.post('/api/add-record', auth, recordCtrl.store);
-  app.put('/api/update-record/:id', auth, recordCtrl.update);
+  // Data routes (no auth middleware - frontend doesn't send tokens)
+  app.get('/api/records', recordCtrl.index);
+  app.post('/api/add-record', recordCtrl.store);
+  app.put('/api/update-record/:id', recordCtrl.update);
 
-  app.get('/api/dealer-orders', auth, orderCtrl.index);
-  app.post('/api/dealer-orders', auth, orderCtrl.store);
-  app.get('/api/dealer-orders/:id', auth, orderCtrl.show);
-  app.post('/api/dealer-orders/:id/dispatch', auth, orderCtrl.storeDispatch);
-  app.delete('/api/dealer-dispatches/:id', auth, orderCtrl.destroyDispatch);
+  app.get('/api/dealer-orders', orderCtrl.index);
+  app.post('/api/dealer-orders', orderCtrl.store);
+  app.get('/api/dealer-orders/:id', orderCtrl.show);
+  app.post('/api/dealer-orders/:id/dispatch', orderCtrl.storeDispatch);
+  app.delete('/api/dealer-dispatches/:id', orderCtrl.destroyDispatch);
 
   return app;
 };
