@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import API_URL from "../../config";
@@ -48,6 +49,7 @@ const DayStatsCards = ({ records = [] }) => {
 
 // --- Main Invoice Component ---
 const Invoice = () => {
+  const navigate = useNavigate();
   const [date, setDate] = useState("");
   const [customer, setCustomer] = useState("");
   const [farmerContact, setFarmerContact] = useState("");
@@ -62,6 +64,10 @@ const Invoice = () => {
 
   const invoiceRef = useRef(); 
   const today = new Date().toISOString().split("T")[0];
+
+  const handleEditClick = (rec) => {
+    navigate(`/payment-history?farmer=${encodeURIComponent(rec.farmerName)}`);
+  };
 
   const fetchRecords = async () => {
     try {
@@ -356,7 +362,7 @@ const Invoice = () => {
       <div style={{ marginTop: "40px", width: "100%", maxWidth: "1200px", margin: "40px auto" }}>
         <DayStatsCards records={records} />
         <div style={{ marginTop: "20px" }}>
-          <InvoiceRecordsTable records={records} onRecordsChange={setRecords} />
+          <InvoiceRecordsTable records={records} onRecordsChange={setRecords} onEditClick={handleEditClick} />
         </div>
       </div>
     </div>
