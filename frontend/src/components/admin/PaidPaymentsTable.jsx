@@ -76,7 +76,7 @@ const PaidPaymentsTable = () => {
           <tbody>
             {currentRecords.length > 0 ? currentRecords.map((rec) => {
               return (
-                <tr key={rec._id} style={{ borderBottom: '1px solid #eee' }}>
+                <tr key={rec.id || rec._id} style={{ borderBottom: '1px solid #eee' }}>
                   <td style={{ padding: '10px' }}>{rec.date}</td>
                   <td style={{ textAlign: 'left', padding: '10px', fontWeight: 'bold' }}>
                     {rec.farmerName}

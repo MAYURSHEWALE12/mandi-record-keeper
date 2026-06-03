@@ -136,7 +136,7 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
               // ✅ बदल: डेटाबेसचा billNo वापरला, नसेल तरच जुना नंबर वापरला
               const billNo = rec.billNo || String(indexOfFirstRecord + index + 1).padStart(4, '0');
               return (
-                <tr key={rec._id} style={{ borderBottom: '1px solid #eee' }}>
+                <tr key={rec.id || rec._id} style={{ borderBottom: '1px solid #eee' }}>
                   <td>{rec.date}</td>
                   <td style={{ textAlign: 'left', paddingLeft: '5px' }}>
                     <button onClick={() => onEditClick(rec)} style={{ background: "none", border: "none", color: "#007bff", cursor: "pointer", fontWeight: "bold", textAlign: 'left', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{rec.farmerName}</button>

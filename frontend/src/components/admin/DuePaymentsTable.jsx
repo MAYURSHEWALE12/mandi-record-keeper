@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import PageWrapper from "../layout/PageWrapper";
 import API_URL from "../../config";
 
 const DuePaymentsTable = ({ onEditClick }) => {
+  const navigate = useNavigate();
+  const handleClick = onEditClick || ((rec) => navigate(`/payment-history?farmer=${encodeURIComponent(rec.farmerName)}`));
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -80,11 +83,11 @@ const DuePaymentsTable = ({ onEditClick }) => {
             {currentRecords.length > 0 ? currentRecords.map((rec) => {
               const dueAmt = rec.totalAmount - rec.paidAmount;
               return (
-                <tr key={rec._id} style={{ borderBottom: '1px solid #eee' }}>
+                <tr key={rec.id || rec._id} style={{ borderBottom: '1px solid #eee' }}>
                   <td style={{ padding: '10px' }}>{rec.date}</td>
                   <td style={{ textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>
                     <button 
-                      onClick={() => onEditClick(rec)} 
+                      onClick={() => handleClick(rec)} 
                       style={{ background: "none", border: "none", color: "#007bff", cursor: "pointer", fontSize: '14px', fontWeight: 'bold' }}
                     >
                       {rec.farmerName}

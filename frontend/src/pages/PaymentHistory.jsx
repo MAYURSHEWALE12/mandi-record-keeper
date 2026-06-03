@@ -77,7 +77,7 @@ const PaymentHistory = () => {
             const currentRemaining = rec.totalAmount - rec.paidAmount;
 
             return (
-              <div key={rec._id || index} style={styles.mainCard}>
+              <div key={rec.id || rec._id || index} style={styles.mainCard}>
                 <div style={styles.cropInfoBar}>
                   <div style={styles.infoBox}>
                     <label style={styles.infoLabel}>पिक</label>

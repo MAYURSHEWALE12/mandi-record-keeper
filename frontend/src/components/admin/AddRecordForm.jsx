@@ -43,7 +43,7 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
       return;
     }
 
-    const isEditing = editingRecord && editingRecord._id;
+    const isEditing = editingRecord && (editingRecord.id || editingRecord._id);
 
     if (isEditing && Number(remainingPayment) > currentDue) {
       alert(`चूक: तुम्ही बाकी रकमेपेक्षा (₹${currentDue.toFixed(2)}) जास्त रक्कम भरू शकत नाही.`);
@@ -63,7 +63,7 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
     };
 
     try {
-      const url = isEditing ? `${API_URL}/api/update-record/${editingRecord._id}` : `${API_URL}/api/add-record`;
+      const url = isEditing ? `${API_URL}/api/update-record/${(editingRecord.id || editingRecord._id)}` : `${API_URL}/api/add-record`;
       
       const res = await fetch(url, {
         method: isEditing ? "PUT" : "POST",
