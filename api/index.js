@@ -7,7 +7,7 @@ let seeded = false;
 const app = createApp();
 
 app.use(async (req, res, next) => {
-  if (!seeded && req.path.startsWith('/api')) {
+  if (!seeded) {
     seeded = true;
     try {
       const { data, error } = await supabase
