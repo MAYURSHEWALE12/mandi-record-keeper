@@ -20,6 +20,12 @@ module.exports = function createApp() {
 
   app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'Trambkaraj Traders API', version: '1.0.0' }));
 
+  app.get('/api/debug', async (req, res) => {
+    const supabase = require('./db');
+    const { data } = await supabase.from('admins').select('id, email').limit(10);
+    res.json({ supabaseUrl: (process.env.SUPABASE_URL || '').substring(0, 20), adminCount: data?.length || 0, admins: data || [] });
+  });
+
   // Auth (no middleware)
   app.post('/api/admin/login', authCtrl.login);
   app.post('/api/admin/forgot-password', authCtrl.forgotPassword);
