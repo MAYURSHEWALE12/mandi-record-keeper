@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, Wallet, CheckCircle, LogOut, UserCog, BarChart3, Truck, ArrowLeftRight } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, CheckCircle, LogOut, UserCog, BarChart3, Truck, ArrowLeftRight, Menu, X } from "lucide-react";
 
 const farmerNavItems = [
   { path: "/dashboard", label: "डॅशबोर्ड", icon: LayoutDashboard },
@@ -18,6 +18,7 @@ const dealerNavItems = [
 const AppLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
   const isDealerPortal = location.pathname.startsWith("/dealer");
   const navItems = isDealerPortal ? dealerNavItems : farmerNavItems;
@@ -27,18 +28,40 @@ const AppLayout = ({ children }) => {
     navigate("/login");
   };
 
+  const toggleSidebar = () => setIsOpen(!isOpen);
+  const closeSidebar = () => setIsOpen(false);
+
   return (
     <div className="app-layout">
-      <aside className="sidebar">
+      {/* Mobile Top Header */}
+      <header className="mobile-header">
+        <button onClick={toggleSidebar} className="hamburger-btn">
+          <Menu size={24} />
+        </button>
+        <span className="mobile-brand-title">त्र्यंबकराज</span>
+      </header>
+
+      {/* Sidebar Overlay */}
+      {isOpen && <div className="sidebar-overlay" onClick={closeSidebar} />}
+
+      <aside className={`sidebar ${isOpen ? "open" : ""}`}>
         <div className="sidebar-brand">
-          <h1>त्र्यंबकराज</h1>
-          <p>{isDealerPortal ? "लॉजिस्टिक्स & डीलर" : "धान्य खरेदी विक्री"}</p>
+          <div className="sidebar-brand-text">
+            <h1>त्र्यंबकराज</h1>
+            <p>{isDealerPortal ? "लॉजिस्टिक्स & डीलर" : "धान्य खरेदी विक्री"}</p>
+          </div>
+          <button onClick={closeSidebar} className="sidebar-close-btn">
+            <X size={20} />
+          </button>
         </div>
         <nav className="sidebar-nav">
           {navItems.map((item) => (
             <button
               key={item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => {
+                navigate(item.path);
+                closeSidebar();
+              }}
               className={`sidebar-link ${location.pathname === item.path ? "active" : ""}`}
             >
               <item.icon size={20} />
@@ -48,7 +71,10 @@ const AppLayout = ({ children }) => {
 
           {/* Switch Portal Button */}
           <button
-            onClick={() => navigate("/select-dashboard")}
+            onClick={() => {
+              navigate("/select-dashboard");
+              closeSidebar();
+            }}
             className="sidebar-link"
             style={{ marginTop: "10px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "14px", borderRadius: 0, width: "100%" }}
           >
@@ -56,7 +82,13 @@ const AppLayout = ({ children }) => {
             <span>पोर्टल बदला</span>
           </button>
 
-          <button onClick={handleLogout} className="sidebar-link logout">
+          <button
+            onClick={() => {
+              handleLogout();
+              closeSidebar();
+            }}
+            className="sidebar-link logout"
+          >
             <LogOut size={20} />
             <span>लॉगआउट</span>
           </button>

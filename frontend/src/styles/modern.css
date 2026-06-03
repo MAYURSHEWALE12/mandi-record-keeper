@@ -696,8 +696,12 @@ body {
 }
 
 /* ============================================
-   HAMBURGER SIDEBAR TOGGLE
+   HAMBURGER SIDEBAR TOGGLE & MOBILE HEADER
    ============================================ */
+.mobile-header {
+  display: none;
+}
+
 .hamburger-btn {
   display: none;
   background: none;
@@ -705,6 +709,24 @@ body {
   cursor: pointer;
   padding: 4px;
   color: var(--text-primary);
+}
+
+.sidebar-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background 150ms ease;
+}
+
+.sidebar-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
 }
 
 .sidebar-overlay {
@@ -715,40 +737,119 @@ body {
    MOBILE — tablets & phones
    ============================================ */
 @media (max-width: 900px) {
-  .app-layout { flex-direction: column; }
-  
-  /* Hamburger */
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    background: var(--sidebar-bg);
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 110;
+    height: 56px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .mobile-brand-title {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: #fff;
+  }
+
   .hamburger-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 8px;
+    margin-right: 8px;
+    border-radius: 4px;
+  }
+
+  .hamburger-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
   }
 
   .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    flex-direction: row;
-    overflow-x: auto;
+    width: 240px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: -240px;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding: 0;
-    transition: none;
+    z-index: 200;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
   }
-  .sidebar-brand { display: none; }
+
+  .sidebar.open {
+    left: 0;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.35);
+  }
+
+  .sidebar-brand {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+  }
+
+  .sidebar-close-btn {
+    display: inline-flex;
+  }
+
   .sidebar-nav {
-    flex-direction: row;
-    padding: 8px 12px;
+    flex-direction: column;
+    padding: 16px 0;
     gap: 4px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
   }
+
   .sidebar-link {
-    white-space: nowrap;
-    font-size: 12.5px;
-    padding: 7px 10px;
+    white-space: normal;
+    font-size: 13.5px;
+    padding: 10px 18px;
+    width: 95%;
   }
-  .sidebar-link span { font-size: 12px; }
-  .sidebar-link.logout { border-top: none; margin-top: 0; padding-top: 7px; width: auto; }
-  .main-content { margin-left: 0; margin-top: 0; }
+
+  .sidebar-link span {
+    font-size: 13.5px;
+  }
+
+  .sidebar-link.logout {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: auto;
+    padding: 14px 18px;
+    width: 100%;
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 150;
+  }
+
+  .main-content {
+    margin-left: 0;
+    margin-top: 0;
+  }
   .page-body { padding: 16px; }
   .page-header { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
   .page-header h2 { font-size: 15px; }
