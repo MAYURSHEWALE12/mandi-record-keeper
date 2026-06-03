@@ -76,11 +76,11 @@ exports.storeDispatch = async (req, res) => {
   try {
     const { data: order, error: findError } = await supabase.from('dealer_orders').select('*').eq('id', req.params.id).single();
     if (findError || !order) return res.status(404).json({ error: 'Order not found' });
-    if (!req.body.itemName || !req.body.quantity)
-      return res.status(400).json({ error: 'itemName and quantity are required' });
+    if (!req.body.weight)
+      return res.status(400).json({ error: 'weight is required' });
 
     const dispatches = [...(order.dispatches || []), req.body];
-    const totalFulfilled = dispatches.reduce((s, d) => s + Number(d.quantity || 0), 0);
+    const totalFulfilled = dispatches.reduce((s, d) => s + Number(d.weight || d.quantity || 0), 0);
     const newStatus = totalFulfilled >= (order.total_ordered_weight || 0) ? 'fulfilled' : 'partially_fulfilled';
 
     const { data, error } = await supabase
