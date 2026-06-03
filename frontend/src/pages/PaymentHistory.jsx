@@ -10,7 +10,7 @@ const PaymentHistory = () => {
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   
-  const farmerName = queryParams.get("name")?.trim();
+  const farmerName = queryParams.get("farmer")?.trim() || queryParams.get("name")?.trim();
   const mobileNumber = queryParams.get("mobile")?.trim() || "";
 
   useEffect(() => {
@@ -30,6 +30,7 @@ const PaymentHistory = () => {
       }
     };
     if (farmerName) fetchHistory();
+    else setLoading(false);
   }, [farmerName]);
 
   const handleDownload = () => window.print();
