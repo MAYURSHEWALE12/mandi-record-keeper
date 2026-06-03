@@ -1,9 +1,37 @@
 const express = require('express');
 const cors = require('cors');
+const supabase = require('./db');
+const bcrypt = require('bcryptjs');
 const auth = require('./middleware/auth');
 const authCtrl = require('./controllers/authController');
 const recordCtrl = require('./controllers/recordController');
 const orderCtrl = require('./controllers/dealerOrderController');
+
+let seeded = false;
+
+async function seedAdmin() {
+  try {
+    const { data, error } = await supabase
+      .from('admins')
+      .select('id')
+      .eq('email', process.env.ADMIN_EMAIL || 'admin@example.com')
+      .limit(1);
+
+    if (error) { console.error('Seed check error:', error); return; }
+
+    if (!data || data.length === 0) {
+      const hashed = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin123', 12);
+      const { error: insertError } = await supabase.from('admins').insert({
+        email: process.env.ADMIN_EMAIL || 'admin@example.com',
+        password: hashed,
+        name: 'Admin',
+      });
+      if (insertError) console.error('Seed insert error:', insertError);
+    }
+  } catch (err) {
+    console.error('Seed error:', err);
+  }
+}
 
 module.exports = function createApp() {
   const app = express();
@@ -18,12 +46,27 @@ module.exports = function createApp() {
   }));
   app.use(express.json());
 
+  // Seed runs before any route
+  app.use(async (req, res, next) => {
+    if (!seeded && req.path.startsWith('/api')) {
+      await seedAdmin();
+      seeded = true;
+    }
+    next();
+  });
+
   app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'Trambkaraj Traders API', version: '1.0.0' }));
 
   app.get('/api/debug', async (req, res) => {
-    const supabase = require('./db');
-    const { data } = await supabase.from('admins').select('id, email').limit(10);
-    res.json({ supabaseUrl: (process.env.SUPABASE_URL || '').substring(0, 20), adminCount: data?.length || 0, admins: data || [] });
+    const { data, error } = await supabase.from('admins').select('id, email').limit(10);
+    res.json({
+      supabaseUrl: (process.env.SUPABASE_URL || '').substring(0, 25),
+      hasServiceKey: !!process.env.SUPABASE_SERVICE_KEY,
+      hasAnonKey: !!process.env.SUPABASE_ANON_KEY,
+      adminCount: data?.length || 0,
+      admins: data || [],
+      error: error?.message || null,
+    });
   });
 
   // Auth (no middleware)
