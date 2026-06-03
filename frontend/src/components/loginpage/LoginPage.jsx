@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./LoginPage.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../config";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -16,15 +17,15 @@ const LoginPage = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5001/api/admin/login",
+        `${API_URL}/api/admin/login`,
         { email, password }
       );
 
       // token save
       localStorage.setItem("token", res.data.token);
 
-      // admin page ला redirect
-      navigate("/dashboard");
+      // redirect to dashboard selection page
+      navigate("/select-dashboard");
     } catch (err) {
       alert("❌ Invalid Email or Password");
     }

@@ -1,12 +1,12 @@
-# Backend
-Backend/node_modules/
-
-# Frontend
-Frontend/node_modules/
-Frontend/build/
-
-# Env
+node_modules/
 .env
+vendor/
+build/
+dist/
+Backend-PHP/vendor/
+Backend-Node/node_modules/
+frontend/node_modules/
+frontend/build/
 
 # Logs
 npm-debug.log*

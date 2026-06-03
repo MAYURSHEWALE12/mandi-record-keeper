@@ -21,7 +21,7 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
   const filteredRecords = (records || []).filter((rec) => {
     const matchName = rec.farmerName.toLowerCase().includes(searchName.toLowerCase());
     const matchCrop = filterCrop ? rec.crop === filterCrop : true;
-    const matchDate = filterDate ? rec.date === filterDate : true; // फक्त निवडलेल्या तारखेचे रेकॉर्ड्स
+    const matchDate = filterDate ? rec.date === filterDate : true; 
     const matchDue = onlyDue ? rec.totalAmount - rec.paidAmount > 0 : true;
     const matchPaid = onlyPaid ? rec.totalAmount - rec.paidAmount === 0 : true;
     return matchName && matchCrop && matchDate && matchDue && matchPaid;
@@ -33,16 +33,44 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
   const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
 
   const handleExportCSV = () => {
-    const csvContent = [
-      ["Date", "Farmer Name", "Mobile", "Crop", "Quantity", "Rate", "Total Amount", "Paid Amount", "Due Amount"],
-      ...filteredRecords.map((rec) => [rec.date, rec.farmerName, rec.mobile || "", rec.crop, rec.quantity, rec.rate, rec.totalAmount, rec.paidAmount, rec.totalAmount - rec.paidAmount]),
-    ].map((e) => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", `mandi_records_${filterDate}.csv`);
-    link.click();
+
+  // Excel-safe date (DD-MM-YYYY)
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
   };
+
+  const rows = [
+    ["Date", "Farmer Name", "Mobile", "Crop", "Quantity", "Rate", "Total Amount", "Paid Amount", "Due Amount"],
+    ...filteredRecords.map((rec) => [
+      formatDate(rec.date),
+      rec.farmerName,
+      `\t${rec.mobile || ""}`,   // ✅ Mobile as text (Excel-safe)
+      rec.crop,
+      rec.quantity,
+      rec.rate,
+      rec.totalAmount,
+      rec.paidAmount,
+      rec.totalAmount - rec.paidAmount
+    ])
+  ];
+
+  // ⭐ UTF-8 BOM for Marathi / Hindi text
+  const csvContent =
+    "\uFEFF" +
+    rows.map(row => row.map(val => `"${val}"`).join(",")).join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `mandi_records_${filterDate}.csv`;
+  link.click();
+};
+
 
   const handleImportCSV = (e) => {
     const file = e.target.files[0];
@@ -105,7 +133,8 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
           </thead>
           <tbody>
             {currentRecords.length > 0 ? currentRecords.map((rec, index) => {
-              const billNo = String(indexOfFirstRecord + index + 1).padStart(4, '0');
+              // ✅ बदल: डेटाबेसचा billNo वापरला, नसेल तरच जुना नंबर वापरला
+              const billNo = rec.billNo || String(indexOfFirstRecord + index + 1).padStart(4, '0');
               return (
                 <tr key={rec._id} style={{ borderBottom: '1px solid #eee' }}>
                   <td>{rec.date}</td>
@@ -135,7 +164,8 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
               <hr style={{ border: 'none', borderTop: '1px solid #ccc', marginTop: '15px' }} />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '20px', lineHeight: '1.6' }}>
-              <div><p><strong>बिल क्रमांक:</strong> {selectedInvoice.displayBillNo}</p><p><strong>तारीख:</strong> {selectedInvoice.date}</p><p><strong>शेतकऱ्याचे नाव:</strong> {selectedInvoice.farmerName}</p><p><strong>मोबाईल:</strong> {selectedInvoice.mobile}</p></div>
+              {/* ✅ बदल: इथे पण डेटाबेसचा बिल नंबर दाखवण्याची सोय केली */}
+              <div><p><strong>बिल क्रमांक:</strong> {selectedInvoice.billNo || selectedInvoice.displayBillNo}</p><p><strong>तारीख:</strong> {selectedInvoice.date}</p><p><strong>शेतकऱ्याचे नाव:</strong> {selectedInvoice.farmerName}</p><p><strong>मोबाईल:</strong> {selectedInvoice.mobile}</p></div>
               <div><p><strong>व्यापाऱ्याचे नाव:</strong> त्र्यंबकराज ट्रेडर्स</p><p><strong>मोबाईल:</strong> +91 9876543210</p><p><strong>पत्ता:</strong> त्र्यंबकराज पेट्रोलियम निमगाव,<br/>नांदगाव रोड, ता.मालेगाव, जि. नाशिक.</p></div>
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '10px' }}>
@@ -159,9 +189,9 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
 
       <div className="csv-actions" style={{ marginTop: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", gap: "10px" }}>
-          <button className="primary-btn" onClick={handleExportCSV} style={{ backgroundColor: '#2196F3' }}>CSV एक्सपोर्ट 📤</button>
+          <button className="primary-btn" onClick={handleExportCSV} style={{ backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '5px', cursor: 'pointer' }}>CSV एक्सपोर्ट 📤</button>
           <input type="file" accept=".csv" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportCSV} />
-          <button className="primary-btn" onClick={() => fileInputRef.current.click()} style={{ backgroundColor: '#2196F3' }}>CSV इंपोर्ट 📥</button>
+          <button className="primary-btn" onClick={() => fileInputRef.current.click()} style={{ backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '5px', cursor: 'pointer' }}>CSV इंपोर्ट 📥</button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#e3f2fd', padding: '5px 15px', borderRadius: '25px' }}>
           <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#2196F3', fontSize: '18px' }}>◀</button>
@@ -173,4 +203,4 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
   );
 };
 
-export default RecordsTable;
+export default RecordsTable;//old

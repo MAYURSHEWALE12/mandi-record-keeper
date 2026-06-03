@@ -135,7 +135,8 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
           <tbody>
             {currentRecords.length > 0 ? (
               currentRecords.map((rec, index) => {
-                const billNo = String(indexOfFirstRecord + index + 1).padStart(4, '0');
+                // ✅ डेटाबेस मधून बिल नंबर घेतला, नसेल तरच जुना फॉर्मेट वापरला
+                const billNo = rec.billNo || String(indexOfFirstRecord + index + 1).padStart(4, '0');
                 return (
                   <tr key={rec._id || index} style={{ borderBottom: '1px solid #eee' }}>
                     <td>{rec.date}</td>
@@ -184,7 +185,8 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '20px', lineHeight: '1.6' }}>
               <div>
-                <p><strong>बिल क्रमांक:</strong> {selectedInvoice.displayBillNo}</p>
+                {/* ✅ डेटाबेसचा बिल नंबर इथे डिस्प्ले होईल */}
+                <p><strong>बिल क्रमांक:</strong> {selectedInvoice.billNo || selectedInvoice.displayBillNo}</p>
                 <p><strong>तारीख:</strong> {selectedInvoice.date}</p>
                 <p><strong>शेतकऱ्याचे नाव:</strong> {selectedInvoice.farmerName}</p>
                 <p><strong>मोबाईल:</strong> {selectedInvoice.mobile}</p>
@@ -258,4 +260,4 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
   );
 };
 
-export default InvoiceRecordsTable;//old
+export default InvoiceRecordsTable;

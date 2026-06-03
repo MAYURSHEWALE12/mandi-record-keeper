@@ -1,0 +1,9 @@
+<?php
+
+echo "Trambkaraj Traders - PHP Backend\n";
+echo "==============================\n\n";
+echo "Available commands:\n";
+echo "  composer start      - Start dev server on port 8000\n";
+echo "  composer migrate    - Run database migrations\n";
+echo "  composer seed       - Seed admin user\n";
+echo "  composer setup      - Migrate + seed\n\n";

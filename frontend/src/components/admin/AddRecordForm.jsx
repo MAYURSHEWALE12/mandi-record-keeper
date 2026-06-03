@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import API_URL from "../../config";
 
 const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
+  const navigate = useNavigate();
   const [date, setDate] = useState("");
   const [farmerName, setFarmerName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -28,8 +31,7 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
 
   const openHistory = () => {
     if (farmerName) {
-      const url = `/payment-history?name=${encodeURIComponent(farmerName)}`;
-      window.open(url, "_blank");
+      navigate(`/payment-history?name=${encodeURIComponent(farmerName)}`);
     }
   };
 
@@ -61,7 +63,7 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
     };
 
     try {
-      const url = isEditing ? `http://localhost:5001/update-record/${editingRecord._id}` : "http://localhost:5001/add-record";
+      const url = isEditing ? `${API_URL}/api/update-record/${editingRecord._id}` : `${API_URL}/api/add-record`;
       
       const res = await fetch(url, {
         method: isEditing ? "PUT" : "POST",
@@ -150,4 +152,4 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
   );
 };
 
-export default AddRecordForm;
+export default AddRecordForm;//old

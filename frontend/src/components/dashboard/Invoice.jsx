@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import "./dashbord.css";
+import API_URL from "../../config";
+import "./dashboard.css";
 import InvoiceRecordsTable from "./InvoiceRecordsTable"; 
 
 // --- DayStatsCards Component ---
@@ -64,7 +65,7 @@ const Invoice = () => {
 
   const fetchRecords = async () => {
     try {
-      const response = await fetch("http://localhost:5001/records");
+      const response = await fetch(`${API_URL}/api/records`);
       const data = await response.json();
       setRecords(data);
     } catch (err) {
@@ -158,7 +159,7 @@ const Invoice = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:5001/add-record", {
+      const res = await fetch(`${API_URL}/api/add-record`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(recordData),
