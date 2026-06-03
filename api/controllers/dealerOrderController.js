@@ -2,12 +2,16 @@ const supabase = require('../db');
 
 const toCamel = (r) => r ? {
   id: r.id,
+  poNo: r.po_no,
   dealerName: r.dealer_name,
   dealerPhone: r.dealer_phone,
+  place: r.place,
+  village: r.village,
+  totalOrderedWeight: r.total_ordered_weight,
   orderDate: r.order_date,
   expectedDelivery: r.expected_delivery,
   status: r.status,
-  dispatches: r.dispatches,
+  dispatches: r.dispatches || [],
   note: r.note,
   createdAt: r.created_at,
   updatedAt: r.updated_at,
@@ -40,8 +44,12 @@ exports.store = async (req, res) => {
     if (!req.body.dealerName) return res.status(400).json({ error: 'dealerName is required' });
 
     const { data, error } = await supabase.from('dealer_orders').insert({
+      po_no: req.body.poNo || '',
       dealer_name: req.body.dealerName,
       dealer_phone: req.body.dealerPhone || '',
+      place: req.body.place || '',
+      village: req.body.village || '',
+      total_ordered_weight: Number(req.body.totalOrderedWeight) || 0,
       order_date: req.body.orderDate || new Date().toISOString().split('T')[0],
       expected_delivery: req.body.expectedDelivery || null,
       status: req.body.status || 'pending',

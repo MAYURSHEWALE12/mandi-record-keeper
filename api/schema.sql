@@ -1,5 +1,11 @@
 -- Run this in Supabase SQL Editor (https://app.supabase.com → SQL Editor)
 
+-- Add missing columns to existing dealer_orders table (safe to re-run)
+ALTER TABLE dealer_orders ADD COLUMN IF NOT EXISTS po_no TEXT DEFAULT '';
+ALTER TABLE dealer_orders ADD COLUMN IF NOT EXISTS place TEXT DEFAULT '';
+ALTER TABLE dealer_orders ADD COLUMN IF NOT EXISTS village TEXT DEFAULT '';
+ALTER TABLE dealer_orders ADD COLUMN IF NOT EXISTS total_ordered_weight REAL DEFAULT 0;
+
 CREATE TABLE IF NOT EXISTS admins (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
@@ -36,8 +42,12 @@ CREATE TABLE IF NOT EXISTS records (
 
 CREATE TABLE IF NOT EXISTS dealer_orders (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  po_no TEXT DEFAULT '',
   dealer_name TEXT NOT NULL,
   dealer_phone TEXT DEFAULT '',
+  place TEXT DEFAULT '',
+  village TEXT DEFAULT '',
+  total_ordered_weight REAL DEFAULT 0,
   order_date DATE DEFAULT CURRENT_DATE,
   expected_delivery DATE,
   status TEXT DEFAULT 'pending',
