@@ -1,21 +1,28 @@
 const supabase = require('../db');
 
-const toCamel = (r) => r ? {
-  id: r.id,
-  poNo: r.po_no,
-  dealerName: r.dealer_name,
-  dealerPhone: r.dealer_phone,
-  place: r.place,
-  village: r.village,
-  totalOrderedWeight: r.total_ordered_weight,
-  orderDate: r.order_date,
-  expectedDelivery: r.expected_delivery,
-  status: r.status,
-  dispatches: r.dispatches || [],
-  note: r.note,
-  createdAt: r.created_at,
-  updatedAt: r.updated_at,
-} : null;
+const toCamel = (r) => {
+  if (!r) return null;
+  const dispatches = r.dispatches || [];
+  const fulfilledWeight = dispatches.reduce((sum, d) => sum + Number(d.quantity || 0), 0);
+  return {
+    id: r.id,
+    poNo: r.po_no,
+    dealerName: r.dealer_name,
+    dealerPhone: r.dealer_phone,
+    place: r.place,
+    village: r.village,
+    totalOrderedWeight: r.total_ordered_weight || 0,
+    fulfilledWeight,
+    remainingWeight: Math.max(0, (r.total_ordered_weight || 0) - fulfilledWeight),
+    orderDate: r.order_date,
+    expectedDelivery: r.expected_delivery,
+    status: r.status,
+    dispatches,
+    note: r.note,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  };
+};
 
 exports.index = async (req, res) => {
   try {
@@ -73,10 +80,12 @@ exports.storeDispatch = async (req, res) => {
       return res.status(400).json({ error: 'itemName and quantity are required' });
 
     const dispatches = [...(order.dispatches || []), req.body];
+    const totalFulfilled = dispatches.reduce((s, d) => s + Number(d.quantity || 0), 0);
+    const newStatus = totalFulfilled >= (order.total_ordered_weight || 0) ? 'fulfilled' : 'partially_fulfilled';
 
     const { data, error } = await supabase
       .from('dealer_orders')
-      .update({ dispatches, status: 'partial', updated_at: new Date().toISOString() })
+      .update({ dispatches, status: newStatus, updated_at: new Date().toISOString() })
       .eq('id', req.params.id)
       .select().single();
 

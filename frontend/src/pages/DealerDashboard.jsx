@@ -231,8 +231,8 @@ const DealerDashboard = () => {
 
   // Total stats for dealer portal
   const totalOrdersCount = orders.length;
-  const totalOrderedTons = orders.reduce((sum, o) => sum + o.totalOrderedWeight, 0);
-  const totalFulfilledTons = orders.reduce((sum, o) => sum + o.fulfilledWeight, 0);
+  const totalOrderedTons = orders.reduce((sum, o) => sum + (o.totalOrderedWeight || 0), 0);
+  const totalFulfilledTons = orders.reduce((sum, o) => sum + (o.fulfilledWeight || 0), 0);
   const totalPendingTons = Math.max(0, totalOrderedTons - totalFulfilledTons);
 
   return (
@@ -280,7 +280,9 @@ const DealerDashboard = () => {
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "20px" }}>
               {orders.map((o) => {
-                const pct = o.totalOrderedWeight > 0 ? (o.fulfilledWeight / o.totalOrderedWeight) * 100 : 0;
+                const fulfilledWt = o.fulfilledWeight || 0;
+                const orderedWt = o.totalOrderedWeight || 0;
+                const pct = orderedWt > 0 ? (fulfilledWt / orderedWt) * 100 : 0;
                 return (
                   <div key={o.id} className="card" style={{ margin: 0, padding: "20px", display: "flex", flexDirection: "column", gap: "12px", border: "1px solid #E6E1D8", position: "relative" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -301,7 +303,7 @@ const DealerDashboard = () => {
                     <div style={{ marginTop: "5px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#828B7E", marginBottom: "4px" }}>
                         <span>प्रगती (Progress)</span>
-                        <span>{o.fulfilledWeight.toFixed(1)} / {o.totalOrderedWeight.toFixed(1)} Tons ({pct.toFixed(0)}%)</span>
+                        <span>{fulfilledWt.toFixed(1)} / {orderedWt.toFixed(1)} Tons ({pct.toFixed(0)}%)</span>
                       </div>
                       <div style={{ width: "100%", height: "8px", background: "#F0EDE6", borderRadius: "4px", overflow: "hidden" }}>
                         <div style={{ width: `${Math.min(100, pct)}%`, height: "100%", background: o.status === "fulfilled" ? "#2e7d32" : "#4E653C" }}></div>
@@ -341,9 +343,9 @@ const DealerDashboard = () => {
               <p style={{ margin: 0 }}><strong>P.O. क्रमांक:</strong> {selectedOrder.poNo || "N/A"}</p>
               <p style={{ margin: 0 }}><strong>डीलर नाव:</strong> {selectedOrder.dealerName}</p>
               <p style={{ margin: 0 }}><strong>पत्ता:</strong> {selectedOrder.place} / {selectedOrder.village}</p>
-              <p style={{ margin: 0 }}><strong>एकूण ऑर्डर वजन:</strong> {selectedOrder.totalOrderedWeight} Tons</p>
-              <p style={{ margin: 0 }}><strong>पाठवलेले एकूण वजन:</strong> {selectedOrder.fulfilledWeight} Tons</p>
-              <p style={{ margin: 0 }}><strong>बाकी वजन:</strong> {selectedOrder.remainingWeight} Tons</p>
+              <p style={{ margin: 0 }}><strong>एकूण ऑर्डर वजन:</strong> {selectedOrder.totalOrderedWeight || 0} Tons</p>
+              <p style={{ margin: 0 }}><strong>पाठवलेले एकूण वजन:</strong> {selectedOrder.fulfilledWeight || 0} Tons</p>
+              <p style={{ margin: 0 }}><strong>बाकी वजन:</strong> {selectedOrder.remainingWeight || 0} Tons</p>
               <p style={{ margin: 0 }}>
                 <strong>स्थिती:</strong> 
                 <span style={{ marginLeft: "6px" }} className={`badge ${selectedOrder.status === "fulfilled" ? "badge-paid" : selectedOrder.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
