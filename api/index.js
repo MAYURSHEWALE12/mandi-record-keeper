@@ -1,19 +1,24 @@
-const mongoose = require('mongoose');
 const createApp = require('./app');
-const Admin = require('./models/Admin');
+const supabase = require('./db');
+const bcrypt = require('bcryptjs');
 
-let connected = false;
+let seeded = false;
 
-async function connectDB() {
-  if (connected) return;
-  await mongoose.connect(process.env.MONGODB_URI);
-  connected = true;
+async function seedAdmin() {
+  if (seeded) return;
+  seeded = true;
 
-  const exists = await Admin.findOne({ email: process.env.ADMIN_EMAIL || 'admin@example.com' });
-  if (!exists) {
-    await Admin.create({
+  const { data: existing } = await supabase
+    .from('admins')
+    .select('*')
+    .eq('email', process.env.ADMIN_EMAIL || 'admin@example.com')
+    .single();
+
+  if (!existing) {
+    const hashed = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin123', 12);
+    await supabase.from('admins').insert({
       email: process.env.ADMIN_EMAIL || 'admin@example.com',
-      password: process.env.ADMIN_PASSWORD || 'admin123',
+      password: hashed,
       name: 'Admin',
     });
   }
@@ -22,6 +27,6 @@ async function connectDB() {
 const app = createApp();
 
 module.exports = async (req, res) => {
-  await connectDB();
+  await seedAdmin();
   return app(req, res);
 };

@@ -1,20 +1,25 @@
 const jwt = require('jsonwebtoken');
-const Admin = require('../models/Admin');
+const bcrypt = require('bcryptjs');
+const supabase = require('../db');
 
 const genToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, {
   expiresIn: process.env.JWT_EXPIRES_IN || '24h',
 });
+
+const mapAdmin = (a) => a ? { id: a.id, email: a.email, name: a.name, reset_password_token: a.reset_password_token, reset_password_expires: a.reset_password_expires, password: a.password } : null;
 
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
-    const admin = await Admin.findOne({ email: email.toLowerCase() });
-    if (!admin || !(await admin.comparePassword(password)))
-      return res.status(401).json({ error: 'Invalid credentials' });
+    const { data, error } = await supabase.from('admins').select('*').eq('email', email.toLowerCase()).single();
+    if (error || !data) return res.status(401).json({ error: 'Invalid credentials' });
 
-    res.json({ token: genToken(admin._id), admin: { id: admin._id, email: admin.email, name: admin.name } });
+    const match = await bcrypt.compare(password, data.password);
+    if (!match) return res.status(401).json({ error: 'Invalid credentials' });
+
+    res.json({ token: genToken(data.id), admin: { id: data.id, email: data.email, name: data.name } });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Server error' });
@@ -26,27 +31,13 @@ exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
-    const admin = await Admin.findOne({ email: email.toLowerCase() });
-    if (!admin) return res.status(404).json({ error: 'Admin not found' });
+    const { data: admin, error } = await supabase.from('admins').select('*').eq('email', email.toLowerCase()).single();
+    if (error || !admin) return res.status(404).json({ error: 'Admin not found' });
 
-    const resetToken = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    admin.resetPasswordToken = resetToken;
-    admin.resetPasswordExpires = Date.now() + 3600000;
-    await admin.save();
+    const resetToken = jwt.sign({ id: admin.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const expires = new Date(Date.now() + 3600000).toISOString();
 
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: false,
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    });
-
-    await transporter.sendMail({
-      to: admin.email,
-      subject: 'Password Reset - Trambkaraj Trader',
-      html: `<p>Reset token: ${resetToken}</p>`,
-    });
+    await supabase.from('admins').update({ reset_password_token: resetToken, reset_password_expires: expires }).eq('id', admin.id);
 
     res.json({ message: 'Reset link sent to email', resetToken });
   } catch (error) {
@@ -65,17 +56,18 @@ exports.resetPassword = async (req, res) => {
     try { decoded = jwt.verify(token, process.env.JWT_SECRET); }
     catch { return res.status(400).json({ error: 'Invalid or expired token' }); }
 
-    const admin = await Admin.findOne({
-      _id: decoded.id,
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() },
-    });
-    if (!admin) return res.status(400).json({ error: 'Invalid or expired token' });
+    const { data: admin, error } = await supabase
+      .from('admins')
+      .select('*')
+      .eq('id', decoded.id)
+      .eq('reset_password_token', token)
+      .gte('reset_password_expires', new Date().toISOString())
+      .single();
 
-    admin.password = password;
-    admin.resetPasswordToken = undefined;
-    admin.resetPasswordExpires = undefined;
-    await admin.save();
+    if (error || !admin) return res.status(400).json({ error: 'Invalid or expired token' });
+
+    const hashed = await bcrypt.hash(password, 12);
+    await supabase.from('admins').update({ password: hashed, reset_password_token: null, reset_password_expires: null }).eq('id', admin.id);
 
     res.json({ message: 'Password reset successfully' });
   } catch (error) {

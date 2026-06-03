@@ -1,10 +1,43 @@
-const Record = require('../models/Record');
-const Counter = require('../models/Counter');
+const supabase = require('../db');
+
+const toCamel = (r) => r ? {
+  id: r.id,
+  billNo: r.bill_no,
+  farmerName: r.farmer_name,
+  farmerNumber: r.farmer_number,
+  commodity: r.commodity,
+  weight: r.weight,
+  weightDetails: r.weight_details,
+  totalAmount: r.total_amount,
+  paidAmount: r.paid_amount,
+  dueAmount: r.due_amount,
+  paymentStatus: r.payment_status,
+  payments: r.payments,
+  date: r.date,
+  createdAt: r.created_at,
+  updatedAt: r.updated_at,
+} : null;
+
+const toSnake = (d) => ({
+  bill_no: d.billNo,
+  farmer_name: d.farmerName,
+  farmer_number: d.farmerNumber || '',
+  commodity: d.commodity || [],
+  weight: d.weight || 0,
+  weight_details: d.weightDetails || '',
+  total_amount: Number(d.totalAmount),
+  paid_amount: Number(d.paidAmount) || 0,
+  due_amount: Number(d.dueAmount) || 0,
+  payment_status: d.paymentStatus || 'unpaid',
+  payments: d.payments || [],
+  date: d.date || new Date().toISOString().split('T')[0],
+});
 
 exports.index = async (req, res) => {
   try {
-    const records = await Record.find().sort({ billNo: -1 });
-    res.json(records);
+    const { data, error } = await supabase.from('records').select('*').order('bill_no', { ascending: false });
+    if (error) throw error;
+    res.json(data.map(toCamel));
   } catch (error) {
     console.error('Error fetching records:', error);
     res.status(500).json({ error: 'Server error' });
@@ -13,28 +46,37 @@ exports.index = async (req, res) => {
 
 exports.store = async (req, res) => {
   try {
-    const counter = await Counter.findByIdAndUpdate(
-      { _id: 'billNo' },
-      { $inc: { seq: 1 } },
-      { new: true, upsert: true }
-    );
+    const { data: c } = await supabase.from('bill_counters').select('seq').single();
+    const billNo = (c?.seq || 1000) + 1;
+    await supabase.from('bill_counters').update({ seq: billNo }).eq('id', 1);
 
-    const data = { ...req.body, billNo: counter.seq };
-    if (!data.farmerName || !data.totalAmount)
+    if (!req.body.farmerName || !req.body.totalAmount)
       return res.status(400).json({ error: 'farmerName and totalAmount are required' });
 
-    const paid = Number(data.paidAmount) || 0;
-    const total = Number(data.totalAmount);
-    data.paidAmount = paid;
-    data.dueAmount = total - paid;
-    data.paymentStatus = paid >= total ? 'paid' : paid > 0 ? 'partial' : 'unpaid';
+    const paid = Number(req.body.paidAmount) || 0;
+    const total = Number(req.body.totalAmount);
+    const payments = paid > 0 ? [{ paymentDate: new Date().toISOString(), amount: paid, note: 'Initial payment' }] : [];
+    const status = paid >= total ? 'paid' : paid > 0 ? 'partial' : 'unpaid';
 
-    if (paid > 0) {
-      data.payments = [{ paymentDate: new Date(), amount: paid, note: 'Initial payment' }];
-    }
+    const recordData = {
+      bill_no: billNo,
+      farmer_name: req.body.farmerName,
+      farmer_number: req.body.farmerNumber || '',
+      commodity: req.body.commodity || [],
+      weight: req.body.weight || 0,
+      weight_details: req.body.weightDetails || '',
+      total_amount: total,
+      paid_amount: paid,
+      due_amount: total - paid,
+      payment_status: status,
+      payments: payments,
+      date: req.body.date || new Date().toISOString().split('T')[0],
+    };
 
-    const record = await Record.create(data);
-    res.status(201).json(record);
+    const { data, error } = await supabase.from('records').insert(recordData).select().single();
+    if (error) throw error;
+
+    res.status(201).json(toCamel(data));
   } catch (error) {
     console.error('Error creating record:', error);
     res.status(500).json({ error: 'Server error' });
@@ -44,34 +86,42 @@ exports.store = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = { ...req.body };
+    const { data: existing, error: findError } = await supabase.from('records').select('*').eq('id', id).single();
+    if (findError || !existing) return res.status(404).json({ error: 'Record not found' });
 
-    const existing = await Record.findById(id);
-    if (!existing) return res.status(404).json({ error: 'Record not found' });
+    const total = Number(req.body.totalAmount) || existing.total_amount;
+    let paid = Number(req.body.paidAmount);
+    if (isNaN(paid)) paid = existing.paid_amount;
 
-    const total = Number(data.totalAmount) || existing.totalAmount;
-    let paid = Number(data.paidAmount);
-    if (isNaN(paid)) paid = existing.paidAmount;
-
-    if (data.newPayment && Number(data.newPayment) > 0) {
-      existing.payments.push({
-        paymentDate: new Date(),
-        amount: Number(data.newPayment),
-        note: data.paymentNote || '',
-      });
-      paid = existing.payments.reduce((s, p) => s + p.amount, 0);
-      data.payments = existing.payments;
+    let payments = existing.payments || [];
+    if (req.body.newPayment && Number(req.body.newPayment) > 0) {
+      payments = [...payments, { paymentDate: new Date().toISOString(), amount: Number(req.body.newPayment), note: req.body.paymentNote || '' }];
+      paid = payments.reduce((s, p) => s + p.amount, 0);
     }
 
-    data.paidAmount = paid;
-    data.dueAmount = total - paid;
-    data.paymentStatus = paid >= total ? 'paid' : paid > 0 ? 'partial' : 'unpaid';
+    const status = paid >= total ? 'paid' : paid > 0 ? 'partial' : 'unpaid';
 
-    delete data.newPayment;
-    delete data.paymentNote;
+    const updateData = {
+      farmer_name: req.body.farmerName || existing.farmer_name,
+      farmer_number: req.body.farmerNumber !== undefined ? req.body.farmerNumber : existing.farmer_number,
+      commodity: req.body.commodity || existing.commodity,
+      weight: req.body.weight !== undefined ? req.body.weight : existing.weight,
+      weight_details: req.body.weightDetails !== undefined ? req.body.weightDetails : existing.weight_details,
+      total_amount: total,
+      paid_amount: paid,
+      due_amount: total - paid,
+      payment_status: status,
+      payments: payments,
+      updated_at: new Date().toISOString(),
+    };
 
-    const record = await Record.findByIdAndUpdate(id, data, { new: true });
-    res.json(record);
+    delete req.body.newPayment;
+    delete req.body.paymentNote;
+
+    const { data, error } = await supabase.from('records').update(updateData).eq('id', id).select().single();
+    if (error) throw error;
+
+    res.json(toCamel(data));
   } catch (error) {
     console.error('Error updating record:', error);
     res.status(500).json({ error: 'Server error' });

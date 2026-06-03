@@ -18,25 +18,23 @@ module.exports = function createApp() {
   }));
   app.use(express.json());
 
-  // Health
   app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'Trambkaraj Traders API', version: '1.0.0' }));
 
-  // Auth
+  // Auth (no middleware)
   app.post('/api/admin/login', authCtrl.login);
   app.post('/api/admin/forgot-password', authCtrl.forgotPassword);
   app.post('/api/admin/reset-password/:token', authCtrl.resetPassword);
 
-  // Records
-  app.get('/api/records', recordCtrl.index);
-  app.post('/api/add-record', recordCtrl.store);
-  app.put('/api/update-record/:id', recordCtrl.update);
+  // Protected routes
+  app.get('/api/records', auth, recordCtrl.index);
+  app.post('/api/add-record', auth, recordCtrl.store);
+  app.put('/api/update-record/:id', auth, recordCtrl.update);
 
-  // Dealer Orders
-  app.get('/api/dealer-orders', orderCtrl.index);
-  app.post('/api/dealer-orders', orderCtrl.store);
-  app.get('/api/dealer-orders/:id', orderCtrl.show);
-  app.post('/api/dealer-orders/:id/dispatch', orderCtrl.storeDispatch);
-  app.delete('/api/dealer-dispatches/:id', orderCtrl.destroyDispatch);
+  app.get('/api/dealer-orders', auth, orderCtrl.index);
+  app.post('/api/dealer-orders', auth, orderCtrl.store);
+  app.get('/api/dealer-orders/:id', auth, orderCtrl.show);
+  app.post('/api/dealer-orders/:id/dispatch', auth, orderCtrl.storeDispatch);
+  app.delete('/api/dealer-dispatches/:id', auth, orderCtrl.destroyDispatch);
 
   return app;
 };
