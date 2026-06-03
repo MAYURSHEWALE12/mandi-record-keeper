@@ -3,7 +3,7 @@ const supabase = require('../db');
 const toCamel = (r) => {
   if (!r) return null;
   const dispatches = r.dispatches || [];
-  const fulfilledWeight = dispatches.reduce((sum, d) => sum + Number(d.quantity || 0), 0);
+  const fulfilledWeight = dispatches.reduce((sum, d) => sum + Number(d.weight || d.quantity || 0), 0);
   return {
     id: r.id,
     poNo: r.po_no,

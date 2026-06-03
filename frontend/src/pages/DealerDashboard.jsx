@@ -385,18 +385,18 @@ const DealerDashboard = () => {
                     <tbody>
                       {selectedOrder.dispatches.map((d) => (
                         <tr key={d.id}>
-                          <td>{d.billNo}</td>
-                          <td>{d.date}</td>
-                          <td><strong>{d.truckNo}</strong></td>
-                          <td>{d.cropType}</td>
-                          <td>{d.weight} Tons</td>
-                          <td>
+                          <td data-label="बिल नं.">{d.billNo}</td>
+                          <td data-label="तारीख">{d.date}</td>
+                          <td data-label="गाडी नंबर"><strong>{d.truckNo}</strong></td>
+                          <td data-label="माल प्रकार">{d.cropType}</td>
+                          <td data-label="वजन">{d.weight} Tons</td>
+                          <td data-label="भाडे">
                             <span style={{ fontSize: "11px", color: "#828B7E" }}>
                               एकूण: ₹{d.totalFreight || 0}<br />
                               बाकी: <span style={{ color: d.due_freight > 0 ? "red" : "green" }}>₹{d.due_freight || 0}</span>
                             </span>
                           </td>
-                          <td>
+                          <td data-label="कृती">
                             <div style={{ display: "flex", gap: "6px" }}>
                               <button 
                                 className="primary-btn btn-ghost btn-sm" 
@@ -431,8 +431,8 @@ const DealerDashboard = () => {
 
       {/* MODAL 1: ADD NEW ORDER FORM */}
       {showOrderForm && (
-        <div style={styles.modalOverlay}>
-          <div className="card" style={styles.modalContent}>
+        <div className="modal-overlay" style={styles.modalOverlay}>
+          <div className="card modal-content" style={styles.modalContent}>
             <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px" }}>नवीन डीलर ऑर्डर नोंदणी</h2>
             <form onSubmit={handleAddOrder} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div className="form-group">
@@ -468,8 +468,8 @@ const DealerDashboard = () => {
 
       {/* MODAL 2: ADD NEW TRUCK DISPATCH (TRUCK LOADING) FORM */}
       {showDispatchForm && (
-        <div style={styles.modalOverlay}>
-          <div className="card" style={{ ...styles.modalContent, maxWidth: "750px" }}>
+        <div className="modal-overlay" style={styles.modalOverlay}>
+          <div className="card modal-content" style={{ ...styles.modalContent, maxWidth: "750px" }}>
             <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px", marginBottom: "15px" }}>
               🚚 नवीन गाडी (ट्रक) लोडिंग नोंदणी
             </h2>
@@ -610,8 +610,8 @@ const DealerDashboard = () => {
 
       {/* MODAL 3: DOUBLE BILL PREVIEW MODAL */}
       {showInvoicePreview && selectedDispatchForPreview && (
-        <div style={styles.modalOverlay}>
-          <div className="card" style={{ ...styles.modalContent, maxWidth: "1100px", padding: "15px" }}>
+        <div className="modal-overlay" style={styles.modalOverlay}>
+          <div className="card modal-content" style={{ ...styles.modalContent, maxWidth: "1100px", padding: "15px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px", alignItems: "center" }}>
               <h3 style={{ margin: 0 }}>पावती बिल प्रिव्ह्यू (Invoice Double Slip Preview)</h3>
               <div style={{ display: "flex", gap: "8px" }}>
@@ -623,6 +623,7 @@ const DealerDashboard = () => {
             {/* Visual Double Slip Layout matching the uploaded bill image */}
             <div 
               ref={invoiceRef} 
+              className="invoice-preview-slips"
               style={{
                 display: "flex",
                 background: "#fcfbf9",

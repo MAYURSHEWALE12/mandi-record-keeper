@@ -77,15 +77,15 @@ const PaidPaymentsTable = () => {
             {currentRecords.length > 0 ? currentRecords.map((rec) => {
               return (
                 <tr key={rec.id || rec._id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '10px' }}>{rec.date}</td>
-                  <td style={{ textAlign: 'left', padding: '10px', fontWeight: 'bold' }}>
+                  <td data-label="तारीख" style={{ padding: '10px' }}>{rec.date}</td>
+                  <td data-label="शेतकरी" style={{ textAlign: 'left', padding: '10px', fontWeight: 'bold' }}>
                     {rec.farmerName}
                   </td>
-                  <td>{rec.mobile}</td>
-                  <td>{rec.crop}</td>
-                  <td>₹{rec.totalAmount}</td>
-                  <td>₹{rec.paidAmount}</td>
-                  <td style={{ color: "green", fontWeight: "bold" }}>● पूर्ण भरले</td>
+                  <td data-label="मोबाइल">{rec.mobile}</td>
+                  <td data-label="पिक">{rec.crop}</td>
+                  <td data-label="एकूण">₹{rec.totalAmount}</td>
+                  <td data-label="दिलेली">₹{rec.paidAmount}</td>
+                  <td data-label="स्थिती" style={{ color: "green", fontWeight: "bold" }}>● पूर्ण भरले</td>
                 </tr>
               );
             }) : (

@@ -139,22 +139,22 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
                 const billNo = rec.billNo || String(indexOfFirstRecord + index + 1).padStart(4, '0');
                 return (
                   <tr key={rec._id || index} style={{ borderBottom: '1px solid #eee' }}>
-                    <td>{rec.date}</td>
-                    <td style={{ textAlign: 'left', paddingLeft: '5px' }}>
+                    <td data-label="तारीख">{rec.date}</td>
+                    <td data-label="शेतकरी" style={{ textAlign: 'left', paddingLeft: '5px' }}>
                       <button onClick={() => onEditClick && onEditClick(rec)} style={{ background: "none", border: "none", color: "#007bff", cursor: "pointer", fontWeight: "bold", textAlign: 'left', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {rec.farmerName}
                       </button>
                     </td>
-                    <td>{rec.mobile}</td>
-                    <td>{rec.crop}</td>
-                    <td>{rec.quantity}</td>
-                    <td>₹{rec.rate}</td>
-                    <td>₹{rec.totalAmount}</td>
-                    <td>₹{rec.paidAmount}</td>
-                    <td style={{ color: rec.totalAmount - rec.paidAmount > 0 ? "red" : "green", fontWeight: "bold" }}>
+                    <td data-label="मोबाइल">{rec.mobile}</td>
+                    <td data-label="पिक">{rec.crop}</td>
+                    <td data-label="प्रमाण">{rec.quantity}</td>
+                    <td data-label="दर">₹{rec.rate}</td>
+                    <td data-label="एकूण">₹{rec.totalAmount}</td>
+                    <td data-label="दिलेली">₹{rec.paidAmount}</td>
+                    <td data-label="बाकी" style={{ color: rec.totalAmount - rec.paidAmount > 0 ? "red" : "green", fontWeight: "bold" }}>
                       ₹{(rec.totalAmount - rec.paidAmount).toFixed(2)}
                     </td>
-                    <td>
+                    <td data-label="इनव्हॉइस">
                       <button onClick={() => setSelectedInvoice({ ...rec, displayBillNo: billNo })} style={{ backgroundColor: "#2196F3", color: "white", border: "none", padding: "4px 8px", borderRadius: "4px", cursor: "pointer", fontSize: '12px' }}>PDF 📄</button>
                     </td>
                   </tr>

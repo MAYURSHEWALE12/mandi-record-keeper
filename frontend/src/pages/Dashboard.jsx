@@ -36,7 +36,7 @@ const Dashboard = () => {
         <h2>चलन जनरेटर</h2>
       </div>
 
-      <div style={{
+      <div className="dashboard-marquee" style={{
         margin: "16px 32px",
         display: "flex",
         alignItems: "center",
@@ -47,7 +47,7 @@ const Dashboard = () => {
         overflow: "hidden",
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}>
-        <div style={{
+        <div className="dashboard-marquee-label" style={{
           background: "linear-gradient(135deg, #10b981, #059669)",
           color: "white",
           padding: "0 20px",
@@ -69,7 +69,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div style={{ padding: "0 32px 32px" }}>
+      <div className="dashboard-invoice-wrap" style={{ padding: "0 32px 32px" }}>
         <Invoice />
       </div>
     </div>

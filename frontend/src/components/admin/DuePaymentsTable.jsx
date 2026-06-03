@@ -84,8 +84,8 @@ const DuePaymentsTable = ({ onEditClick }) => {
               const dueAmt = rec.totalAmount - rec.paidAmount;
               return (
                 <tr key={rec.id || rec._id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '10px' }}>{rec.date}</td>
-                  <td style={{ textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>
+                  <td data-label="तारीख" style={{ padding: '10px' }}>{rec.date}</td>
+                  <td data-label="शेतकरी" style={{ textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>
                     <button 
                       onClick={() => handleClick(rec)} 
                       style={{ background: "none", border: "none", color: "#007bff", cursor: "pointer", fontSize: '14px', fontWeight: 'bold' }}
@@ -93,11 +93,11 @@ const DuePaymentsTable = ({ onEditClick }) => {
                       {rec.farmerName}
                     </button>
                   </td>
-                  <td>{rec.mobile}</td>
-                  <td>{rec.crop}</td>
-                  <td>₹{rec.totalAmount}</td>
-                  <td>₹{rec.paidAmount}</td>
-                  <td style={{ color: "red", fontWeight: "bold" }}>₹{dueAmt.toFixed(2)}</td>
+                  <td data-label="मोबाइल">{rec.mobile}</td>
+                  <td data-label="पिक">{rec.crop}</td>
+                  <td data-label="एकूण">₹{rec.totalAmount}</td>
+                  <td data-label="दिलेली">₹{rec.paidAmount}</td>
+                  <td data-label="बाकी" style={{ color: "red", fontWeight: "bold" }}>₹{dueAmt.toFixed(2)}</td>
                 </tr>
               );
             }) : (
