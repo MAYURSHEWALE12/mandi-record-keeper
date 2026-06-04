@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const authCtrl = require('./controllers/authController');
 const recordCtrl = require('./controllers/recordController');
 const orderCtrl = require('./controllers/dealerOrderController');
+const dealerCtrl = require('./controllers/dealerController');
 
 let seeded = false;
 
@@ -83,6 +84,12 @@ module.exports = function createApp() {
   app.get('/api/dealer-orders/:id', orderCtrl.show);
   app.post('/api/dealer-orders/:id/dispatch', orderCtrl.storeDispatch);
   app.delete('/api/dealer-dispatches/:id', orderCtrl.destroyDispatch);
+  app.delete('/api/dealer-orders/:id', orderCtrl.destroy);
+
+  // Registered Dealers/Companies routes
+  app.get('/api/dealers', dealerCtrl.index);
+  app.post('/api/dealers', dealerCtrl.store);
+  app.delete('/api/dealers/:id', dealerCtrl.destroy);
 
   return app;
 };

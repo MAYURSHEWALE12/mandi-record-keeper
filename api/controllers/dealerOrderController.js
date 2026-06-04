@@ -129,3 +129,14 @@ exports.destroyDispatch = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
+exports.destroy = async (req, res) => {
+  try {
+    const { error } = await supabase.from('dealer_orders').delete().eq('id', req.params.id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting dealer order:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
