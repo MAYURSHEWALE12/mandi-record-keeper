@@ -24,7 +24,9 @@ const DealerDashboard = () => {
 
   // Registered Companies States
   const [dealers, setDealers] = useState([]);
-  const [activeTab, setActiveTab] = useState("orders"); // orders, companies
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem("dealer_activeTab") || "orders";
+  });
   const [selectedCompanyFilter, setSelectedCompanyFilter] = useState("");
   const [newCompanyName, setNewCompanyName] = useState("");
   const [newCompanyPlace, setNewCompanyPlace] = useState("");
@@ -81,13 +83,48 @@ const DealerDashboard = () => {
   const [paymentNote, setPaymentNote] = useState("");
   const [paymentOrderId, setPaymentOrderId] = useState("");
 
+  // Sync states to localStorage
+  useEffect(() => {
+    localStorage.setItem("dealer_activeTab", activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (selectedCompany) {
+      localStorage.setItem("dealer_selectedCompanyId", selectedCompany.id);
+    } else {
+      localStorage.removeItem("dealer_selectedCompanyId");
+    }
+  }, [selectedCompany]);
+
+  useEffect(() => {
+    if (selectedOrder) {
+      localStorage.setItem("dealer_selectedOrderId", selectedOrder.id);
+    } else {
+      localStorage.removeItem("dealer_selectedOrderId");
+    }
+  }, [selectedOrder]);
+
   // Load orders
   const fetchOrders = async () => {
     try {
       setLoading(true);
       const res = await fetch(`${API_URL}/api/dealer-orders`);
       const data = await res.json();
-      setOrders(Array.isArray(data) ? data : []);
+      const ordersList = Array.isArray(data) ? data : [];
+      setOrders(ordersList);
+
+      const savedOrderId = localStorage.getItem("dealer_selectedOrderId");
+      if (savedOrderId) {
+        try {
+          const detailRes = await fetch(`${API_URL}/api/dealer-orders/${savedOrderId}`);
+          if (detailRes.ok) {
+            const detailData = await detailRes.json();
+            setSelectedOrder(detailData);
+          }
+        } catch (e) {
+          console.error("Error reloading order detail on refresh:", e);
+        }
+      }
       setLoading(false);
     } catch (err) {
       console.error("Error fetching dealer orders:", err);
@@ -99,7 +136,16 @@ const DealerDashboard = () => {
     try {
       const res = await fetch(`${API_URL}/api/dealers`);
       const data = await res.json();
-      setDealers(Array.isArray(data) ? data : []);
+      const dealersList = Array.isArray(data) ? data : [];
+      setDealers(dealersList);
+
+      const savedCompanyId = localStorage.getItem("dealer_selectedCompanyId");
+      if (savedCompanyId) {
+        const found = dealersList.find(d => d.id === savedCompanyId);
+        if (found) {
+          setSelectedCompany(found);
+        }
+      }
     } catch (err) {
       console.error("Error fetching dealers:", err);
     }
