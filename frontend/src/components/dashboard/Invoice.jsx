@@ -66,7 +66,7 @@ const Invoice = () => {
   const today = new Date().toISOString().split("T")[0];
 
   const handleEditClick = (rec) => {
-    navigate(`/payment-history?farmer=${encodeURIComponent(rec.farmerName)}`);
+    navigate(`/admin`, { state: { editRecord: rec } });
   };
 
   const fetchRecords = async () => {

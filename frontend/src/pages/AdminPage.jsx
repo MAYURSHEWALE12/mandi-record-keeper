@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import StatsCards from "../components/admin/StatsCards";
 import DayStatsCards from "../components/admin/DayStatsCards";
 import AddRecordForm from "../components/admin/AddRecordForm";
@@ -6,8 +7,18 @@ import RecordsTable from "../components/admin/RecordsTable";
 import API_URL from "../config";
 
 const AdminPage = () => {
+  const location = useLocation();
   const [records, setRecords] = useState([]);
   const [editingRecord, setEditingRecord] = useState(null);
+
+  useEffect(() => {
+    if (location.state && location.state.editRecord) {
+      setEditingRecord(location.state.editRecord);
+      // Clear navigation state so a reload doesn't trigger edit mode again
+      window.history.replaceState({}, document.title);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [location.state]);
 
   const fetchRecords = async () => {
     try {
