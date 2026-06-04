@@ -1983,6 +1983,9 @@ const DealerDashboard = () => {
                     placeholder="0"
                   />
                 </div>
+              </div>
+
+              <div className="form-row">
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>इतर घट/कपात (₹)</label>
                   <input 
