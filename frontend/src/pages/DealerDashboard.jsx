@@ -902,6 +902,194 @@ const DealerDashboard = () => {
     );
   };
 
+  const renderAllTrucksLog = () => {
+    const allDispatches = orders.flatMap(o => 
+      (o.dispatches || []).map(d => ({
+        ...d,
+        dealerName: o.dealerName,
+        orderId: o.id,
+        poNo: o.poNo
+      }))
+    );
+    allDispatches.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
+          <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>🚚 सर्व ट्रक्स व वाहतूक लॉग (All Trucks Log)</h2>
+        </div>
+
+        <div className="card" style={{ padding: "20px", margin: 0 }}>
+          {allDispatches.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
+              कोणताही ट्रक लोड केलेला नाही.
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <table className="records-table" style={{ fontSize: "13px" }}>
+                <thead>
+                  <tr>
+                    <th>तारीख</th>
+                    <th>कंपनी नाव</th>
+                    <th>गाडी नंबर</th>
+                    <th>माल प्रकार</th>
+                    <th>लोड वजन (Tons)</th>
+                    <th>मिळालेले वजन (Tons)</th>
+                    <th>कटती / वजाती</th>
+                    <th>Passed Value</th>
+                    <th>कृती</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allDispatches.map((d) => {
+                    const loadedWeight = Number(d.weight || 0);
+                    const receivedWeight = d.compWeight ? Number(d.compWeight) : null;
+                    const totalCuts = Number(d.compDamageCut || 0) + Number(d.compMoistureCut || 0) + Number(d.compOtherCut || 0);
+                    
+                    return (
+                      <tr key={d.id}>
+                        <td data-label="तारीख">{d.date}</td>
+                        <td data-label="कंपनी नाव">
+                          <strong>{d.dealerName}</strong>
+                          {d.poNo && <span style={{ display: "block", fontSize: "11px", color: "#828B7E" }}>PO: {d.poNo}</span>}
+                        </td>
+                        <td data-label="गाडी नंबर"><strong>{d.truckNo}</strong></td>
+                        <td data-label="माल प्रकार">{d.cropType}</td>
+                        <td data-label="लोड वजन">{loadedWeight.toFixed(2)} Tons</td>
+                        <td data-label="मिळालेले वजन">
+                          {receivedWeight !== null ? `${receivedWeight.toFixed(2)} Tons` : <span style={{ color: "#828B7E" }}>प्रलंबित</span>}
+                        </td>
+                        <td data-label="कटती / वजाती">
+                          {receivedWeight !== null ? (
+                            <span style={{ fontSize: "11px", color: totalCuts > 0 ? "red" : "green" }}>
+                              नुकसानी: ₹{d.compDamageCut || 0}<br />
+                              ओलावा: ₹{d.compMoistureCut || 0}<br />
+                              इतर: ₹{d.compOtherCut || 0}
+                            </span>
+                          ) : (
+                            <span style={{ color: "#828B7E" }}>-</span>
+                          )}
+                        </td>
+                        <td data-label="Passed Value">
+                          {d.passedAmount ? (
+                            <strong>₹{Number(d.passedAmount).toLocaleString("en-IN")}</strong>
+                          ) : (
+                            <span style={{ color: "#828B7E" }}>अंदाजे: ₹{(loadedWeight * Number(d.rate || 0)).toLocaleString("en-IN")}</span>
+                          )}
+                        </td>
+                        <td data-label="कृती">
+                          <button 
+                            className="primary-btn btn-ghost btn-sm" 
+                            style={{ padding: "4px 8px" }}
+                            onClick={() => {
+                              const o = orders.find(ord => ord.id === d.orderId);
+                              if (o) {
+                                setSelectedOrder(o);
+                                setSelectedDispatchForPreview(d);
+                                setShowInvoicePreview(true);
+                              } else {
+                                alert("ऑर्डर सापडली नाही.");
+                              }
+                            }}
+                          >
+                            <FileText size={14} /> बिल
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderAllPaymentsLedger = () => {
+    const allPayments = orders.flatMap(o => 
+      (o.payments || []).map(p => ({
+        ...p,
+        dealerName: o.dealerName,
+        orderId: o.id,
+        poNo: o.poNo
+      }))
+    );
+    allPayments.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
+          <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>💸 सर्व जमा पेमेंट व्यवहार यादी (All Payments Ledger)</h2>
+        </div>
+
+        <div className="card" style={{ padding: "20px", margin: 0 }}>
+          {allPayments.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
+              कोणताही पेमेंट व्यवहार नोंदवलेला नाही.
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <table className="records-table">
+                <thead>
+                  <tr>
+                    <th>तारीख</th>
+                    <th>कंपनी नाव</th>
+                    <th>ऑर्डर PO क्रमांक</th>
+                    <th>पेमेंट प्रकार</th>
+                    <th>रेफरन्स नंबर</th>
+                    <th>माहिती / नोंद</th>
+                    <th>रक्कम</th>
+                    <th>कृती</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allPayments.map((p) => (
+                    <tr key={p.id}>
+                      <td data-label="तारीख">{p.date}</td>
+                      <td data-label="कंपनी नाव"><strong>{p.dealerName}</strong></td>
+                      <td data-label="ऑर्डर PO क्रमांक">{p.poNo || "N/A"}</td>
+                      <td data-label="पेमेंट प्रकार">{p.mode}</td>
+                      <td data-label="रेफरन्स नंबर">{p.refNo || "-"}</td>
+                      <td data-label="माहिती / नोंद">{p.note || "-"}</td>
+                      <td data-label="रक्कम" style={{ color: "#2e7d32", fontWeight: "700" }}>
+                        ₹{Number(p.amount || 0).toLocaleString("en-IN")}
+                      </td>
+                      <td data-label="कृती">
+                        <button 
+                          className="primary-btn btn-danger btn-sm" 
+                          style={{ padding: "4px 8px", background: "#C94A4A" }}
+                          onClick={async () => {
+                            if (!window.confirm("हे पेमेंट नक्की हटवायचे आहे का?")) return;
+                            try {
+                              const res = await fetch(`${API_URL}/api/dealer-orders/${p.orderId}/payment/${p.id}`, {
+                                method: "DELETE"
+                              });
+                              if (res.ok) {
+                                refreshData();
+                              } else {
+                                alert("पेमेंट हटवताना चूक झाली.");
+                              }
+                            } catch (err) {
+                              console.error(err);
+                            }
+                          }}
+                        >
+                          <Trash2 size={14} /> हटवा
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <PageWrapper title="🚚 डीलर ऑर्डर्स व ट्रक लोडिंग व्यवस्थापन">
       
@@ -927,25 +1115,72 @@ const DealerDashboard = () => {
         </div>
       )}
 
-      {/* Tab Navigation */}
-      {!selectedOrder && !selectedCompany && (
-        <div style={{ display: "flex", gap: "10px", marginBottom: "24px", borderBottom: "2px solid #E6E1D8", paddingBottom: "10px" }}>
+      {/* Premium Navbar */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        background: "#F7F5F0",
+        padding: "12px 20px",
+        borderRadius: "12px",
+        border: "1px solid #E6E1D8",
+        marginBottom: "24px",
+        flexWrap: "wrap",
+        gap: "15px",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.02)"
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <span style={{ fontSize: "20px" }}>🌾</span>
+          <span style={{ fontWeight: "700", color: "#2B2F2A", fontSize: "16px" }}>Trambkaraj Dashboard</span>
+        </div>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           <button 
-            className={`primary-btn ${activeTab === "orders" ? "" : "btn-ghost"}`}
-            onClick={() => { setActiveTab("orders"); setSelectedCompanyFilter(""); }}
-            style={{ padding: "8px 16px" }}
+            className={`primary-btn ${(activeTab === "orders" || (selectedOrder && !selectedCompany)) ? "" : "btn-ghost"}`}
+            onClick={() => {
+              setActiveTab("orders");
+              setSelectedCompany(null);
+              setSelectedOrder(null);
+              setSelectedCompanyFilter("");
+            }}
+            style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "14px", fontWeight: "600" }}
           >
             📄 डीलर ऑर्डर्स
           </button>
           <button 
-            className={`primary-btn ${activeTab === "companies" ? "" : "btn-ghost"}`}
-            onClick={() => setActiveTab("companies")}
-            style={{ padding: "8px 16px" }}
+            className={`primary-btn ${(activeTab === "companies" || selectedCompany) ? "" : "btn-ghost"}`}
+            onClick={() => {
+              setActiveTab("companies");
+              setSelectedCompany(null);
+              setSelectedOrder(null);
+            }}
+            style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "14px", fontWeight: "600" }}
           >
-            🏢 कंपनी नोंदणी / यादी
+            🏢 कंपन्या (Companies)
+          </button>
+          <button 
+            className={`primary-btn ${activeTab === "all_trucks" && !selectedCompany && !selectedOrder ? "" : "btn-ghost"}`}
+            onClick={() => {
+              setActiveTab("all_trucks");
+              setSelectedCompany(null);
+              setSelectedOrder(null);
+            }}
+            style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "14px", fontWeight: "600" }}
+          >
+            🚚 ट्रक्स & वाहतूक (All Trucks)
+          </button>
+          <button 
+            className={`primary-btn ${activeTab === "all_payments" && !selectedCompany && !selectedOrder ? "" : "btn-ghost"}`}
+            onClick={() => {
+              setActiveTab("all_payments");
+              setSelectedCompany(null);
+              setSelectedOrder(null);
+            }}
+            style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "14px", fontWeight: "600" }}
+          >
+            💸 सर्व पेमेंट्स (All Payments)
           </button>
         </div>
-      )}
+      </div>
 
       {/* Conditional Rendering: Main Dashboard, Company Profile Dashboard or Selected Order Details */}
       {selectedCompany ? (
@@ -1031,7 +1266,7 @@ const DealerDashboard = () => {
               </div>
             )}
           </div>
-        ) : (
+        ) : activeTab === "companies" ? (
           /* COMPANY REGISTRATION & MANAGEMENT TAB */
           <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
             {/* Left Column: Register New Company */}
@@ -1127,7 +1362,11 @@ const DealerDashboard = () => {
               )}
             </div>
           </div>
-        )
+        ) : activeTab === "all_trucks" ? (
+          renderAllTrucksLog()
+        ) : activeTab === "all_payments" ? (
+          renderAllPaymentsLedger()
+        ) : null
       ) : (
         /* Selected Order Details Portal */
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
