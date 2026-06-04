@@ -31,7 +31,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <div className="page-header">
         <h2>चलन जनरेटर</h2>
       </div>

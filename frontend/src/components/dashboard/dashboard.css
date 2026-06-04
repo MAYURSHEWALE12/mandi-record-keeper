@@ -32,12 +32,13 @@ body {
 .invoice-left,
 .invoice-right {
   flex: 1;
-  background: #ffffff;
+  background: var(--bg-card);
+  color: var(--text-primary);
   padding: 25px;
   border-radius: 16px;
   
   /* Suruvatila border nako (transparent thevli aahe layout halu naye mhanun) */
-  border: 2px solid transparent; 
+  border: 2px solid var(--border); 
   
   /* Smooth animation sathi */
   transition: all 0.3s ease;
@@ -72,9 +73,12 @@ input,
 select {
   padding: 10px;
   margin-top: 6px;
-  border: 1.5px solid #ddd;
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
   border-radius: 6px;
   font-size: 14px;
+  outline: none;
 }
 
 /* Number arrows kadhun takla */
@@ -119,7 +123,7 @@ table {
 
 .table-wrapper td {
   padding: 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border);
 }
 
 /* ---------- Responsive ---------- */
