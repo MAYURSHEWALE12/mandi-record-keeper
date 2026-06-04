@@ -12,14 +12,15 @@
   gap: 15px;
   justify-content: flex-start;
   margin-bottom: 20px;
-  border-bottom: 2px solid #eee;
+  border-bottom: 2px solid var(--border);
   padding-bottom: 15px;
 }
 
 .range-filter-bar button {
   padding: 10px 25px;
-  border: 1px solid #ddd;
-  background: #f9f9f9;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-primary);
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
@@ -27,10 +28,10 @@
 }
 
 .range-filter-bar button.active {
-  background: #2196F3;
+  background: var(--accent);
   color: white;
-  border-color: #2196F3;
-  box-shadow: 0 4px 6px rgba(33, 150, 243, 0.3);
+  border-color: var(--accent);
+  box-shadow: 0 4px 6px rgba(78, 101, 60, 0.15);
 }
 
 .custom-date-inputs {
@@ -38,9 +39,10 @@
   gap: 10px;
   align-items: center;
   margin-bottom: 20px;
-  background: #e3f2fd;
+  background: var(--accent-bg);
   padding: 15px;
   border-radius: 8px;
+  color: var(--text-primary);
 }
 
 .search-filters {

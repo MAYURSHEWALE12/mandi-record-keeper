@@ -69,102 +69,101 @@ const ReportTable = () => {
   return (
     <PageWrapper title="📊 रिपोर्ट">
       <div className="card">
-      </div>
-
-      {/* 🔘 Date Filter */}
-      <div className="range-filter-bar">
-        {["1day", "7day", "1month", "6month", "custom"].map(r => (
-          <button
-            key={r}
-            className={activeRange === r ? "active" : ""}
-            onClick={() => handleRangeClick(r)}
-          >
-            {r === "1day" ? "आज" : r === "7day" ? "7 दिवस" : r === "1month" ? "1 महिना" : r === "6month" ? "6 महिने" : "Custom"}
-          </button>
-        ))}
-      </div>
-
-      {activeRange === "custom" && (
-        <div className="custom-date-inputs">
-          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
-          <span>ते</span>
-          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+        {/* 🔘 Date Filter */}
+        <div className="range-filter-bar">
+          {["1day", "7day", "1month", "6month", "custom"].map(r => (
+            <button
+              key={r}
+              className={activeRange === r ? "active" : ""}
+              onClick={() => handleRangeClick(r)}
+            >
+              {r === "1day" ? "आज" : r === "7day" ? "7 दिवस" : r === "1month" ? "1 महिना" : r === "6month" ? "6 महिने" : "Custom"}
+            </button>
+          ))}
         </div>
-      )}
 
-      {/* 🔍 Filters */}
-      <div className="filters">
-        <input className="filter-input" placeholder="नाव शोधा" value={searchName} onChange={e => setSearchName(e.target.value)} />
-        <CustomDropdown
-          value={filterCrop}
-          onChange={setFilterCrop}
-          options={[
-            { value: "", label: "सर्व पिके" },
-            { value: "मका", label: "मका" },
-            { value: "गहू", label: "गहू" },
-            { value: "कांदा", label: "कांदा" }
-          ]}
-          placeholder="सर्व पिके"
-          style={{ minWidth: "160px", width: "160px" }}
-        />
-      </div>
+        {activeRange === "custom" && (
+          <div className="custom-date-inputs">
+            <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+            <span>ते</span>
+            <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+          </div>
+        )}
 
-      {/* 📋 Table */}
-      <div className="table-responsive">
-        <table className="records-table">
-          <thead>
-            <tr>
-              <th>तारीख</th>
-              <th>शेतकरी</th>
-              <th>मोबाईल</th>
-              <th>पीक</th>
-              <th>प्रमाण</th>
-              <th>दर</th>
-              <th>एकूण ₹</th>
-              <th>बाकी ₹</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentRecords.length ? currentRecords.map((rec, i) => (
-              <tr key={i}>
-                <td>{rec.date}</td>
-                <td>{rec.farmerName}</td>
-                <td>{rec.mobile || "-"}</td>
-                <td>{rec.crop}</td>
-                <td>{rec.quantity}</td>
-                <td>₹{rec.rate}</td>
-                <td>₹{rec.totalAmount}</td>
-                <td style={{ color: rec.totalAmount - rec.paidAmount > 0 ? "red" : "green", fontWeight: "bold" }}>
-                  ₹{rec.totalAmount - rec.paidAmount}
-                </td>
+        {/* 🔍 Filters */}
+        <div className="filters">
+          <input className="filter-input" placeholder="नाव शोधा" value={searchName} onChange={e => setSearchName(e.target.value)} />
+          <CustomDropdown
+            value={filterCrop}
+            onChange={setFilterCrop}
+            options={[
+              { value: "", label: "सर्व पिके" },
+              { value: "मका", label: "मका" },
+              { value: "गहू", label: "गहू" },
+              { value: "कांदा", label: "कांदा" }
+            ]}
+            placeholder="सर्व पिके"
+            style={{ minWidth: "160px", width: "160px" }}
+          />
+        </div>
+
+        {/* 📋 Table */}
+        <div className="table-responsive">
+          <table className="records-table">
+            <thead>
+              <tr>
+                <th>तारीख</th>
+                <th>शेतकरी</th>
+                <th>मोबाईल</th>
+                <th>पीक</th>
+                <th>प्रमाण</th>
+                <th>दर</th>
+                <th>एकूण ₹</th>
+                <th>बाकी ₹</th>
               </tr>
-            )) : (
-              <tr><td colSpan="8">रेकॉर्ड सापडले नाहीत</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {currentRecords.length ? currentRecords.map((rec, i) => (
+                <tr key={i}>
+                  <td>{rec.date}</td>
+                  <td>{rec.farmerName}</td>
+                  <td>{rec.mobile || "-"}</td>
+                  <td>{rec.crop}</td>
+                  <td>{rec.quantity}</td>
+                  <td>₹{rec.rate}</td>
+                  <td>₹{rec.totalAmount}</td>
+                  <td style={{ color: rec.totalAmount - rec.paidAmount > 0 ? "red" : "green", fontWeight: "bold" }}>
+                    ₹{rec.totalAmount - rec.paidAmount}
+                  </td>
+                </tr>
+              )) : (
+                <tr><td colSpan="8">रेकॉर्ड सापडले नाहीत</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      {/* ✅ Pagination RIGHT side – Blue Pill */}
-      <div style={{
-        display: "flex",
-        justifyContent: "flex-end",
-        marginTop: "15px"
-      }}>
+        {/* ✅ Pagination RIGHT side – Blue Pill */}
         <div style={{
-          background: "#E3F2FD",
-          color: "#2196F3",
-          padding: "6px 14px",
-          borderRadius: "25px",
           display: "flex",
-          alignItems: "center",
-          gap: "14px",
-          fontWeight: "bold",
-          flexWrap: "nowrap"
+          justifyContent: "flex-end",
+          marginTop: "15px"
         }}>
-          <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>◀</button>
-          <span>पान {currentPage} / {totalPages || 1}</span>
-          <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage(p => p + 1)}>▶</button>
+          <div style={{
+            background: "#E3F2FD",
+            color: "#2196F3",
+            padding: "6px 14px",
+            borderRadius: "25px",
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+            fontWeight: "bold",
+            flexWrap: "nowrap"
+          }}>
+            <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>◀</button>
+            <span>पान {currentPage} / {totalPages || 1}</span>
+            <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage(p => p + 1)}>▶</button>
+          </div>
         </div>
       </div>
     </PageWrapper>
