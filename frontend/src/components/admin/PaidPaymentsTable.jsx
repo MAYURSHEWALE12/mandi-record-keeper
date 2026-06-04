@@ -106,20 +106,20 @@ const PaidPaymentsTable = () => {
       <div className="table-responsive" style={{ width: '100%', overflowX: 'auto' }}>
         <table className="records-table" style={{ width: '100%', fontSize: '14px', borderCollapse: 'collapse', textAlign: 'center' }}>
           <thead>
-            <tr style={{ backgroundColor: '#e8f5e9' }}>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>तारीख</th>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>शेतकरी</th>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>मोबाइल</th>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>पिक</th>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>एकूण रक्कम</th>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>दिलेली रक्कम</th>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>स्थिती</th>
+            <tr style={{ backgroundColor: 'var(--accent-bg)' }}>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>तारीख</th>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>शेतकरी</th>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>मोबाइल</th>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>पिक</th>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>एकूण रक्कम</th>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>दिलेली रक्कम</th>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>स्थिती</th>
             </tr>
           </thead>
           <tbody>
             {currentRecords.length > 0 ? currentRecords.map((rec) => {
               return (
-                <tr key={rec.id || rec._id} style={{ borderBottom: '1px solid #eee' }}>
+                <tr key={rec.id || rec._id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                   <td data-label="तारीख" style={{ padding: '10px' }}>{rec.date}</td>
                   <td data-label="शेतकरी" style={{ textAlign: 'left', padding: '10px', fontWeight: 'bold' }}>
                     {rec.farmerName}

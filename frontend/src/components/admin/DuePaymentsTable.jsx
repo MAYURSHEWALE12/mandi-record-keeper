@@ -112,21 +112,21 @@ const DuePaymentsTable = ({ onEditClick }) => {
       <div className="table-responsive">
         <table className="records-table" style={{ width: '100%', textAlign: 'center', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>तारीख</th>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>शेतकरी</th>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>मोबाइल</th>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>पिक</th>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>एकूण</th>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>दिलेली</th>
-              <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6' }}>बाकी</th>
+            <tr style={{ backgroundColor: 'var(--border-light)' }}>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>तारीख</th>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>शेतकरी</th>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>मोबाइल</th>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>पिक</th>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>एकूण</th>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>दिलेली</th>
+              <th style={{ padding: '12px', borderBottom: '2px solid var(--border)' }}>बाकी</th>
             </tr>
           </thead>
           <tbody>
             {currentRecords.length > 0 ? currentRecords.map((rec) => {
               const dueAmt = rec.totalAmount - rec.paidAmount;
               return (
-                <tr key={rec.id || rec._id} style={{ borderBottom: '1px solid #eee' }}>
+                <tr key={rec.id || rec._id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                   <td data-label="तारीख" style={{ padding: '10px' }}>{rec.date}</td>
                   <td data-label="शेतकरी" style={{ textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>
                     <button 

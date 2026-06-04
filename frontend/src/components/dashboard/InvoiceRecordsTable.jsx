@@ -243,7 +243,7 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
       <div className="table-responsive" style={{ width: '100%', overflowX: 'hidden' }}>
         <table className="records-table" style={{ width: '100%', fontSize: '14px', borderCollapse: 'collapse', textAlign: 'center' }}>
           <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
+            <tr style={{ backgroundColor: 'var(--border-light)' }}>
               <th style={{ width: '12%', padding: '10px' }}>तारीख</th>
               <th style={{ width: '18%', padding: '10px' }}>शेतकरी</th>
               <th style={{ width: '12%', padding: '10px' }}>मोबाइल</th>
