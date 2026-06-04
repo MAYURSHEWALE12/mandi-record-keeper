@@ -38,7 +38,7 @@ const ResetPassword = () => {
     >
       <div className="login-card">
         <div className="brand">
-          <h2>Trambakraj Traders</h2>
+          <h2>KT Traders</h2>
         </div>
         <form className="login-form" onSubmit={handleResetPassword}>
           <div className="input-group">

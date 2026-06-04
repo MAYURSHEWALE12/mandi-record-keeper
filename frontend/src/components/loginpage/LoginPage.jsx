@@ -45,7 +45,7 @@ const LoginPage = () => {
       <div className="login-card">
         {/* Logo + Title */}
         <div className="brand">
-          <h2>Trambakraj Traders</h2>
+          <h2>KT Traders</h2>
         </div>
 
         {/* Form */}

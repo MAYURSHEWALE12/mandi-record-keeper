@@ -38,7 +38,7 @@ const AppLayout = ({ children }) => {
         <button onClick={toggleSidebar} className="hamburger-btn">
           <Menu size={24} />
         </button>
-        <span className="mobile-brand-title">त्र्यंबकराज</span>
+        <span className="mobile-brand-title">के.टी. ट्रेडर्स</span>
       </header>
 
       {/* Sidebar Overlay */}
@@ -47,7 +47,7 @@ const AppLayout = ({ children }) => {
       <aside className={`sidebar ${isOpen ? "open" : ""}`}>
         <div className="sidebar-brand">
           <div className="sidebar-brand-text">
-            <h1>त्र्यंबकराज</h1>
+            <h1>के.टी. ट्रेडर्स</h1>
             <p>{isDealerPortal ? "लॉजिस्टिक्स & डीलर" : "धान्य खरेदी विक्री"}</p>
           </div>
           <button onClick={closeSidebar} className="sidebar-close-btn">

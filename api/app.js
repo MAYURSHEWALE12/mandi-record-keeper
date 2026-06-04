@@ -55,7 +55,7 @@ module.exports = function createApp() {
     next();
   });
 
-  app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'Trambkaraj Traders API', version: '1.0.0' }));
+  app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'KT Traders API', version: '1.0.0' }));
 
   app.get('/api/debug', async (req, res) => {
     const { data, error } = await supabase.from('admins').select('id, email').limit(10);

@@ -1,7 +1,7 @@
 {
-  "name": "trambkaraj-trader-backend",
+  "name": "kt-traders-backend",
   "version": "1.0.0",
-  "description": "Node.js backend for Trambkaraj Trader (Supabase)",
+  "description": "Node.js backend for KT Traders (Supabase)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
