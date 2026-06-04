@@ -108,9 +108,9 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
             required={true}
           />
         </div>
-        <div className="form-group"><label>प्रमाण (क्विंटल)</label><input type="number" step="any" min="0" value={quantity} onChange={(e) => setQuantity(e.target.value)} required /></div>
-        <div className="form-group"><label>दर (₹)</label><input type="number" min="0" value={rate} onChange={(e) => setRate(e.target.value)} required /></div>
-        <div className="form-group"><label>एकूण रक्कम (₹)</label><input type="number" value={totalAmount} readOnly style={{ background: "#f0f0f0" }} /></div>
+        <div className="form-group"><label>प्रमाण (क्विंटल)</label><input type="number" step="any" min="0" value={quantity} onChange={(e) => setQuantity(e.target.value)} readOnly={!!editingRecord} required /></div>
+        <div className="form-group"><label>दर (₹)</label><input type="number" min="0" value={rate} onChange={(e) => setRate(e.target.value)} readOnly={!!editingRecord} required /></div>
+        <div className="form-group"><label>एकूण रक्कम (₹)</label><input type="number" value={totalAmount} readOnly /></div>
         <div className="form-group">
           <label>{editingRecord ? "आधी भरलेली रक्कम (₹)" : "दिलेली रक्कम (₹)"}</label>
           <input 
@@ -119,7 +119,6 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
             value={paidAmount} 
             onChange={(e) => setPaidAmount(e.target.value)} 
             readOnly={!!editingRecord} 
-            style={editingRecord ? { background: "#f0f0f0" } : {}} 
             required 
           />
         </div>
