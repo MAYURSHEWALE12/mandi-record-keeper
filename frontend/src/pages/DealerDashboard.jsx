@@ -8,7 +8,6 @@ import { Truck, Plus, FileText, Trash2, ArrowLeft } from "lucide-react";
 const DealerDashboard = () => {
   // States
   const [orders, setOrders] = useState([]);
-  const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [showDispatchForm, setShowDispatchForm] = useState(false);
   const [showInvoicePreview, setShowInvoicePreview] = useState(false);
