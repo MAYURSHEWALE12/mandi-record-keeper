@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API_URL from "../../config";
+import CustomDropdown from "../common/CustomDropdown";
 
 const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
   const navigate = useNavigate();
@@ -99,10 +100,13 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
         <div className="form-group"><label>मोबाइल</label><input type="text" placeholder="10 अंकी नंबर" value={mobile} onChange={(e) => setMobile(e.target.value)} required /></div>
         <div className="form-group">
           <label>पिक निवडा</label>
-          <select value={crop} onChange={(e) => setCrop(e.target.value)} required>
-            <option value="">पिक निवडा</option>
-            <option>मका</option><option>गहू</option><option>कांदा</option><option>ज्वारी</option><option>बाजरी</option><option>ऊस</option>
-          </select>
+          <CustomDropdown
+            value={crop}
+            onChange={setCrop}
+            options={["मका", "गहू", "कांदा", "ज्वारी", "बाजरी", "ऊस"]}
+            placeholder="पिक निवडा"
+            required={true}
+          />
         </div>
         <div className="form-group"><label>प्रमाण (क्विंटल)</label><input type="number" step="any" min="0" value={quantity} onChange={(e) => setQuantity(e.target.value)} required /></div>
         <div className="form-group"><label>दर (₹)</label><input type="number" min="0" value={rate} onChange={(e) => setRate(e.target.value)} required /></div>

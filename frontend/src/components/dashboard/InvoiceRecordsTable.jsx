@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf"; 
+import CustomDropdown from "../common/CustomDropdown";
 
 const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
   const [searchName, setSearchName] = useState("");
@@ -100,10 +101,21 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
 
       <div className="filters">
         <input className="filter-input" placeholder="नाव शोधा" value={searchName} onChange={(e) => { setSearchName(e.target.value); setCurrentPage(1); }} />
-        <select className="filter-input" value={filterCrop} onChange={(e) => { setFilterCrop(e.target.value); setCurrentPage(1); }}>
-          <option value="">सर्व पिके</option>
-          <option value="मका">मका</option><option value="गहू">गहू</option><option value="कांदा">कांदा</option><option value="ज्वारी">ज्वारी</option><option value="बाजरी">बाजरी</option><option value="ऊस">ऊस</option>
-        </select>
+        <CustomDropdown
+          value={filterCrop}
+          onChange={(val) => { setFilterCrop(val); setCurrentPage(1); }}
+          options={[
+            { value: "", label: "सर्व पिके" },
+            { value: "मका", label: "मका" },
+            { value: "गहू", label: "गहू" },
+            { value: "कांदा", label: "कांदा" },
+            { value: "ज्वारी", label: "ज्वारी" },
+            { value: "बाजरी", label: "बाजरी" },
+            { value: "ऊस", label: "ऊस" }
+          ]}
+          placeholder="सर्व पिके"
+          style={{ minWidth: "160px", width: "160px" }}
+        />
         
         {/* तारीख फिल्टर - सुरुवातीला आजची तारीख असेल */}
         <input type="date" className="filter-input" value={filterDate} onChange={(e) => { setFilterDate(e.target.value); setCurrentPage(1); }} />

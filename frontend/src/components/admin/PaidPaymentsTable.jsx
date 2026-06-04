@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PageWrapper from "../layout/PageWrapper";
 import API_URL from "../../config";
+import CustomDropdown from "../common/CustomDropdown";
 
 const PaidPaymentsTable = () => {
   const [records, setRecords] = useState([]);
@@ -51,12 +52,18 @@ const PaidPaymentsTable = () => {
 
       <div className="filters">
         <input className="filter-input" placeholder="शेतकऱ्याचे नाव शोधा" value={searchName} onChange={(e) => { setSearchName(e.target.value); setCurrentPage(1); }} />
-        <select className="filter-input" value={filterCrop} onChange={(e) => { setFilterCrop(e.target.value); setCurrentPage(1); }}>
-          <option value="">सर्व पिके</option>
-          <option value="मका">मका</option>
-          <option value="गहू">गहू</option>
-          <option value="कांदा">कांदा</option>
-        </select>
+        <CustomDropdown
+          value={filterCrop}
+          onChange={(val) => { setFilterCrop(val); setCurrentPage(1); }}
+          options={[
+            { value: "", label: "सर्व पिके" },
+            { value: "मका", label: "मका" },
+            { value: "गहू", label: "गहू" },
+            { value: "कांदा", label: "कांदा" }
+          ]}
+          placeholder="सर्व पिके"
+          style={{ minWidth: "160px", width: "160px" }}
+        />
         <input type="date" className="filter-input" value={filterDate} onChange={(e) => { setFilterDate(e.target.value); setCurrentPage(1); }} />
       </div>
 

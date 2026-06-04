@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PageWrapper from "../layout/PageWrapper";
 import API_URL from "../../config";
+import CustomDropdown from "../common/CustomDropdown";
 import "./ReportTable.css";
 
 const ReportTable = () => {
@@ -94,12 +95,18 @@ const ReportTable = () => {
       {/* 🔍 Filters */}
       <div className="filters">
         <input className="filter-input" placeholder="नाव शोधा" value={searchName} onChange={e => setSearchName(e.target.value)} />
-        <select className="filter-input" value={filterCrop} onChange={e => setFilterCrop(e.target.value)}>
-          <option value="">सर्व पिके</option>
-          <option value="मका">मका</option>
-          <option value="गहू">गहू</option>
-          <option value="कांदा">कांदा</option>
-        </select>
+        <CustomDropdown
+          value={filterCrop}
+          onChange={setFilterCrop}
+          options={[
+            { value: "", label: "सर्व पिके" },
+            { value: "मका", label: "मका" },
+            { value: "गहू", label: "गहू" },
+            { value: "कांदा", label: "कांदा" }
+          ]}
+          placeholder="सर्व पिके"
+          style={{ minWidth: "160px", width: "160px" }}
+        />
       </div>
 
       {/* 📋 Table */}

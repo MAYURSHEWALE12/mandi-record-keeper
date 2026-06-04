@@ -3,7 +3,8 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import API_URL from "../config";
 import PageWrapper from "../components/layout/PageWrapper";
-import { Truck, Plus, FileText, Trash2, ArrowLeft } from "lucide-react";
+import { Truck, Plus, FileText, Trash2, ArrowLeft, ChevronDown } from "lucide-react";
+import CustomDropdown from "../components/common/CustomDropdown";
 
 const DealerDashboard = () => {
   // States
@@ -27,6 +28,18 @@ const DealerDashboard = () => {
     return localStorage.getItem("dealer_activeTab") || "orders";
   });
   const [selectedCompanyFilter, setSelectedCompanyFilter] = useState("");
+  const [isCompanyDropdownOpen, setIsCompanyDropdownOpen] = useState(false);
+  const companyDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (companyDropdownRef.current && !companyDropdownRef.current.contains(event.target)) {
+        setIsCompanyDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   const [newCompanyName, setNewCompanyName] = useState("");
   const [newCompanyPlace, setNewCompanyPlace] = useState("");
   const [newCompanyVillage, setNewCompanyVillage] = useState("");
@@ -1156,18 +1169,41 @@ const DealerDashboard = () => {
               <div style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>
                 <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>डीलर ऑर्डर्स यादी (Dealers)</h2>
                 
-                {/* Company Filter Dropdown */}
-                <select 
-                  className="filter-input" 
-                  value={selectedCompanyFilter} 
-                  onChange={(e) => setSelectedCompanyFilter(e.target.value)}
-                  style={{ margin: 0, height: "38px" }}
-                >
-                  <option value="">सर्व कंपन्या (All Companies)</option>
-                  {dealers.map(d => (
-                    <option key={d.id} value={d.name}>{d.name}</option>
-                  ))}
-                </select>
+                {/* Custom Premium Dropdown */}
+                <div className="custom-dropdown-container" ref={companyDropdownRef}>
+                  <div 
+                    className="custom-dropdown-trigger" 
+                    onClick={() => setIsCompanyDropdownOpen(!isCompanyDropdownOpen)}
+                  >
+                    <span>{selectedCompanyFilter || "सर्व कंपन्या (All Companies)"}</span>
+                    <ChevronDown size={16} style={{ transition: "transform 150ms ease", transform: isCompanyDropdownOpen ? "rotate(180deg)" : "rotate(0)" }} />
+                  </div>
+                  {isCompanyDropdownOpen && (
+                    <div className="custom-dropdown-menu">
+                      <div 
+                        className={`custom-dropdown-item ${!selectedCompanyFilter ? "selected" : ""}`}
+                        onClick={() => {
+                          setSelectedCompanyFilter("");
+                          setIsCompanyDropdownOpen(false);
+                        }}
+                      >
+                        सर्व कंपन्या (All Companies)
+                      </div>
+                      {dealers.map(d => (
+                        <div 
+                          key={d.id} 
+                          className={`custom-dropdown-item ${selectedCompanyFilter === d.name ? "selected" : ""}`}
+                          onClick={() => {
+                            setSelectedCompanyFilter(d.name);
+                            setIsCompanyDropdownOpen(false);
+                          }}
+                        >
+                          {d.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <button className="primary-btn" onClick={() => setShowOrderForm(true)}>
@@ -1457,10 +1493,9 @@ const DealerDashboard = () => {
               </div>
               <div className="form-group">
                 <label>डीलर / कंपनीचे नाव (Company Name) *</label>
-                <select
+                <CustomDropdown
                   value={dealerName}
-                  onChange={(e) => {
-                    const selectedName = e.target.value;
+                  onChange={(selectedName) => {
                     setDealerName(selectedName);
                     const found = dealers.find(d => d.name === selectedName);
                     if (found) {
@@ -1471,13 +1506,12 @@ const DealerDashboard = () => {
                       setVillage("");
                     }
                   }}
-                  required
-                >
-                  <option value="">कंपनी निवडा (Select Registered Company)</option>
-                  {dealers.map((d) => (
-                    <option key={d.id} value={d.name}>{d.name}</option>
-                  ))}
-                </select>
+                  options={[
+                    { value: "", label: "कंपनी निवडा (Select Registered Company)" },
+                    ...dealers.map((d) => ({ value: d.name, label: d.name }))
+                  ]}
+                  placeholder="कंपनी निवडा (Select Registered Company)"
+                />
                 <span style={{ fontSize: "11px", color: "#828B7E", marginTop: "4px" }}>
                   (नवीन कंपनी जोडण्यासाठी 'कंपनी नोंदणी / यादी' टॅब वापरा)
                 </span>
@@ -1579,13 +1613,12 @@ const DealerDashboard = () => {
               <div className="form-row">
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>मालाचा प्रकार (Crop Type)</label>
-                  <select value={cropType} onChange={(e) => setCropType(e.target.value)}>
-                    <option>मका</option>
-                    <option>गहू</option>
-                    <option>कांदा</option>
-                    <option>ज्वारी</option>
-                    <option>बाजरी</option>
-                  </select>
+                  <CustomDropdown
+                    value={cropType}
+                    onChange={setCropType}
+                    options={["मका", "गहू", "कांदा", "ज्वारी", "बाजरी"]}
+                    placeholder="मालाचा प्रकार निवडा"
+                  />
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>नग / गोण्या (Bags)</label>
@@ -2034,17 +2067,17 @@ const DealerDashboard = () => {
               
               <div className="form-group">
                 <label>निवडलेली ऑर्डर (Linked P.O. Number) *</label>
-                <select 
-                  value={paymentOrderId} 
-                  onChange={(e) => setPaymentOrderId(e.target.value)} 
-                  required
-                >
-                  {orders
+                <CustomDropdown
+                  value={paymentOrderId}
+                  onChange={setPaymentOrderId}
+                  options={orders
                     .filter(o => o.dealerName === selectedCompany?.name)
-                    .map(o => (
-                      <option key={o.id} value={o.id}>P.O. {o.poNo || "N/A"} ({o.orderDate})</option>
-                    ))}
-                </select>
+                    .map(o => ({
+                      value: o.id,
+                      label: `P.O. ${o.poNo || "N/A"} (${o.orderDate})`
+                    }))}
+                  placeholder="ऑर्डर निवडा (Select Order)"
+                />
               </div>
 
               <div className="form-row">
@@ -2072,13 +2105,12 @@ const DealerDashboard = () => {
               <div className="form-row">
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>पेमेंट प्रकार (Payment Mode) *</label>
-                  <select value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)}>
-                    <option>Bank Transfer</option>
-                    <option>RTGS / NEFT</option>
-                    <option>Cheque</option>
-                    <option>Cash</option>
-                    <option>UPI</option>
-                  </select>
+                  <CustomDropdown
+                    value={paymentMode}
+                    onChange={setPaymentMode}
+                    options={["Bank Transfer", "RTGS / NEFT", "Cheque", "Cash", "UPI"]}
+                    placeholder="पेमेंट प्रकार निवडा"
+                  />
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>रेफरन्स नं. (Cheque/Ref No)</label>

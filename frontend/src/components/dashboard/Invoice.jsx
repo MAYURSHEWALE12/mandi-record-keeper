@@ -5,6 +5,7 @@ import jsPDF from "jspdf";
 import API_URL from "../../config";
 import "./dashboard.css";
 import InvoiceRecordsTable from "./InvoiceRecordsTable"; 
+import CustomDropdown from "../common/CustomDropdown";
 
 // --- DayStatsCards Component ---
 const DayStatsCards = ({ records = [] }) => {
@@ -225,19 +226,24 @@ const Invoice = () => {
               </div>
               <div className="form-group">
                 <label>पिकाचे नाव:</label>
-                <select value={crop} onChange={(e) => setCrop(e.target.value)}>
-                  <option value="">पिक निवडा</option>
-                  <option>मका</option>
-                  <option>गहू</option>
-                  <option>ज्वारी</option>
-                  <option>बाजरी</option>
-                  <option>तांदूळ</option>
-                  <option>तूरडाळ</option>
-                  <option>मुगडाळ</option>
-                  <option>कांदा</option>
-                  <option>बटाटा</option>
-                  <option>ऊस</option>
-                </select>
+                <CustomDropdown
+                  value={crop}
+                  onChange={setCrop}
+                  options={[
+                    { value: "", label: "पिक निवडा" },
+                    { value: "मका", label: "मका" },
+                    { value: "गहू", label: "गहू" },
+                    { value: "ज्वारी", label: "ज्वारी" },
+                    { value: "बाजरी", label: "बाजरी" },
+                    { value: "तांदूळ", label: "तांदूळ" },
+                    { value: "तूरडाळ", label: "तूरडाळ" },
+                    { value: "मुगडाळ", label: "मुगडाळ" },
+                    { value: "कांदा", label: "कांदा" },
+                    { value: "बटाटा", label: "बटाटा" },
+                    { value: "ऊस", label: "ऊस" }
+                  ]}
+                  placeholder="पिक निवडा"
+                />
               </div>
             </div>
 
