@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutDashboard, FileText, Wallet, CheckCircle, LogOut, UserCog, BarChart3, Truck, ArrowLeftRight, Menu, X } from "lucide-react";
 
@@ -12,13 +12,27 @@ const farmerNavItems = [
 ];
 
 const dealerNavItems = [
-  { path: "/dealer-dashboard", label: "डीलर डॅशबोर्ड", icon: Truck },
+  { path: "/dealer-dashboard", label: "डीलर ऑर्डर्स", icon: FileText, tab: "orders" },
+  { path: "/dealer-dashboard", label: "कंपन्या (Companies)", icon: UserCog, tab: "companies" },
+  { path: "/dealer-dashboard", label: "ट्रक्स & वाहतूक", icon: Truck, tab: "all_trucks" },
+  { path: "/dealer-dashboard", label: "सर्व पेमेंट्स", icon: Wallet, tab: "all_payments" },
 ];
 
 const AppLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [dealerActiveTab, setDealerActiveTab] = useState(() => {
+    return localStorage.getItem("dealer_activeTab") || "orders";
+  });
+
+  useEffect(() => {
+    const handleTabChange = () => {
+      setDealerActiveTab(localStorage.getItem("dealer_activeTab") || "orders");
+    };
+    window.addEventListener("dealer-tab-changed", handleTabChange);
+    return () => window.removeEventListener("dealer-tab-changed", handleTabChange);
+  }, []);
 
   const isDealerPortal = location.pathname.startsWith("/dealer");
   const navItems = isDealerPortal ? dealerNavItems : farmerNavItems;
@@ -57,12 +71,26 @@ const AppLayout = ({ children }) => {
         <nav className="sidebar-nav">
           {navItems.map((item) => (
             <button
-              key={item.path}
+              key={item.tab ? `${item.path}-${item.tab}` : item.path}
               onClick={() => {
+                if (item.tab) {
+                  localStorage.setItem("dealer_activeTab", item.tab);
+                  localStorage.removeItem("dealer_selectedCompany");
+                  localStorage.removeItem("dealer_selectedOrder");
+                  window.dispatchEvent(new Event("dealer-tab-changed"));
+                }
                 navigate(item.path);
                 closeSidebar();
               }}
-              className={`sidebar-link ${location.pathname === item.path ? "active" : ""}`}
+              className={`sidebar-link ${
+                item.tab 
+                  ? (location.pathname === item.path && dealerActiveTab === item.tab)
+                    ? "active" 
+                    : ""
+                  : (location.pathname === item.path)
+                    ? "active" 
+                    : ""
+              }`}
             >
               <item.icon size={20} />
               <span>{item.label}</span>

@@ -92,9 +92,10 @@ const DealerDashboard = () => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  // Sync states to localStorage
+  // Sync states to localStorage & dispatch sidebar state events
   useEffect(() => {
     localStorage.setItem("dealer_activeTab", activeTab);
+    window.dispatchEvent(new Event("dealer-tab-changed"));
   }, [activeTab]);
 
   useEffect(() => {
@@ -107,6 +108,7 @@ const DealerDashboard = () => {
     } else {
       localStorage.removeItem("dealer_selectedCompany");
     }
+    window.dispatchEvent(new Event("dealer-tab-changed"));
   }, [selectedCompany]);
 
   useEffect(() => {
@@ -115,7 +117,33 @@ const DealerDashboard = () => {
     } else {
       localStorage.removeItem("dealer_selectedOrder");
     }
+    window.dispatchEvent(new Event("dealer-tab-changed"));
   }, [selectedOrder]);
+
+  // Listen for sidebar updates
+  useEffect(() => {
+    const handleTabChange = () => {
+      const savedTab = localStorage.getItem("dealer_activeTab") || "orders";
+      if (savedTab !== activeTab) {
+        setActiveTab(savedTab);
+      }
+      
+      const savedCompany = localStorage.getItem("dealer_selectedCompany");
+      const parsedCompany = savedCompany ? JSON.parse(savedCompany) : null;
+      // Simple shallow check
+      if ((parsedCompany ? parsedCompany.id : null) !== (selectedCompany ? selectedCompany.id : null)) {
+        setSelectedCompany(parsedCompany);
+      }
+      
+      const savedOrder = localStorage.getItem("dealer_selectedOrder");
+      const parsedOrder = savedOrder ? JSON.parse(savedOrder) : null;
+      if ((parsedOrder ? parsedOrder.id : null) !== (selectedOrder ? selectedOrder.id : null)) {
+        setSelectedOrder(parsedOrder);
+      }
+    };
+    window.addEventListener("dealer-tab-changed", handleTabChange);
+    return () => window.removeEventListener("dealer-tab-changed", handleTabChange);
+  }, [activeTab, selectedCompany, selectedOrder]);
 
   // Load orders
   const fetchOrders = async () => {
