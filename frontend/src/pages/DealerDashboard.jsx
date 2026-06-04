@@ -55,6 +55,7 @@ const DealerDashboard = () => {
   const invoiceRef = useRef();
   const leftSlipRef = useRef();
   const rightSlipRef = useRef();
+  const ledgerRef = useRef();
 
   // Company Profile Dashboard States
   const [selectedCompany, setSelectedCompany] = useState(null);
@@ -389,6 +390,20 @@ const DealerDashboard = () => {
     
     pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
     pdf.save(`Loading_Goods_Receipt_Bill_${selectedDispatchForPreview.billNo}.pdf`);
+  };
+
+  // PDF Download for Company Account Ledger Statement
+  const downloadLedgerPDF = async () => {
+    const element = ledgerRef.current;
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    const imgData = canvas.toDataURL("image/png");
+    
+    const pdf = new jsPDF("p", "mm", "a4");
+    const imgWidth = 210;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    pdf.save(`${selectedCompany.name}_Ledger_Statement.pdf`);
   };
 
   // Total stats for dealer portal
@@ -767,7 +782,12 @@ const DealerDashboard = () => {
 
           {profileTab === "payments" && (
             <div>
-              <h3 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "15px" }}>कंपनीकडून जमा पेमेंट व्यवहार (Ledger)</h3>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
+                <h3 style={{ fontSize: "16px", fontWeight: "700", margin: 0 }}>कंपनीकडून जमा पेमेंट व्यवहार (Ledger)</h3>
+                <button className="primary-btn btn-success btn-sm" onClick={downloadLedgerPDF}>
+                  📄 खाते उतारा (Download Statement)
+                </button>
+              </div>
               {companyPayments.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणताही पेमेंट व्यवहार नोंदवला नाही.</div>
               ) : (
@@ -1818,6 +1838,167 @@ const DealerDashboard = () => {
                 <button type="button" className="primary-btn btn-ghost" style={{ flex: 1, justifyContent: "center" }} onClick={() => setShowPaymentModal(false)}>रद्द करा</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* HIDDEN PRINTABLE LEDGER CONTAINER */}
+      {selectedCompany && (
+        <div 
+          ref={ledgerRef} 
+          style={{
+            position: "absolute",
+            left: "-9999px",
+            top: "-9999px",
+            width: "790px",
+            padding: "35px",
+            background: "#ffffff",
+            color: "#000000",
+            fontFamily: "sans-serif",
+            boxSizing: "border-box"
+          }}
+        >
+          {/* Statement Header */}
+          <div style={{ textAlign: "center", borderBottom: "2px solid #000", paddingBottom: "15px", marginBottom: "20px" }}>
+            <h1 style={{ margin: 0, fontSize: "24px", color: "#8B0000" }}>मे. के.टी. ट्रेडर्स</h1>
+            <h3 style={{ margin: "2px 0 0 0", fontSize: "16px" }}>K. T. TRADERS</h3>
+            <p style={{ margin: "4px 0 0 0", fontSize: "11px" }}>मार्केट यार्ड, मालेगाव कॅम्प जि. नाशिक | मो. 9850291298, 9767128838</p>
+            <h2 style={{ marginTop: "15px", marginBottom: 0, fontSize: "18px", borderTop: "1px solid #ddd", paddingTop: "10px", fontWeight: "bold" }}>
+              लेजर खाते उतारा (Account Statement)
+            </h2>
+          </div>
+
+          {/* Company Info Block */}
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px", fontSize: "12px", background: "#f9f9f9", padding: "12px", borderRadius: "5px", border: "1px solid #eee" }}>
+            <div>
+              <strong>कंपनीचे नाव:</strong> {selectedCompany.name}<br />
+              <strong>पत्ता:</strong> {selectedCompany.place} / {selectedCompany.village}
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <strong>तारीख:</strong> {new Date().toLocaleDateString("en-IN")}<br />
+              <strong>प्रत:</strong> खातेदार प्रत
+            </div>
+          </div>
+
+          {/* Account Summary Stats */}
+          {(() => {
+            const companyOrders = orders.filter(o => o.dealerName === selectedCompany.name);
+            const companyDispatches = companyOrders.flatMap(o => (o.dispatches || []).map(d => ({ ...d, poNo: o.poNo })));
+            const companyPayments = companyOrders.flatMap(o => (o.payments || []).map(p => ({ ...p, poNo: o.poNo })));
+
+            const totalSent = companyDispatches.reduce((sum, d) => sum + Number(d.amount || 0), 0);
+            const totalCuts = companyDispatches.reduce((sum, d) => sum + Number(d.lossAmt || 0), 0);
+            const totalPassed = totalSent - totalCuts;
+            const totalPaid = companyPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+            const totalBalance = totalPassed - totalPaid;
+
+            // Compile transactions
+            const txs = [
+              ...companyDispatches.map(d => ({
+                date: d.date,
+                timestamp: new Date(d.date).getTime(),
+                details: `गाडी नं: ${d.truckNo} (${d.cropType})`,
+                weight: d.weight,
+                sentAmt: d.amount,
+                cuts: d.lossAmt || 0,
+                passedAmt: d.passedAmt || d.amount,
+                paidAmt: 0
+              })),
+              ...companyPayments.map(p => ({
+                date: p.date,
+                timestamp: new Date(p.date).getTime(),
+                details: `पेमेंट जमा (${p.mode}) ${p.refNo ? "Ref: "+p.refNo : ""}`,
+                weight: 0,
+                sentAmt: 0,
+                cuts: 0,
+                passedAmt: 0,
+                paidAmt: p.amount
+              }))
+            ];
+            txs.sort((a, b) => a.timestamp - b.timestamp);
+
+            let runningBal = 0;
+
+            return (
+              <>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "10px", marginBottom: "25px", textAlign: "center" }}>
+                  <div style={{ border: "1px solid #ddd", padding: "8px", borderRadius: "4px" }}>
+                    <span style={{ fontSize: "9px", color: "#666" }}>एकूण माल (Sent)</span>
+                    <div style={{ fontWeight: "bold", fontSize: "11px", marginTop: "3px" }}>₹{totalSent.toFixed(2)}</div>
+                  </div>
+                  <div style={{ border: "1px solid #ddd", padding: "8px", borderRadius: "4px" }}>
+                    <span style={{ fontSize: "9px", color: "#666" }}>एकूण घट (Cuts)</span>
+                    <div style={{ fontWeight: "bold", fontSize: "11px", marginTop: "3px", color: "red" }}>₹{totalCuts.toFixed(2)}</div>
+                  </div>
+                  <div style={{ border: "1px solid #ddd", padding: "8px", borderRadius: "4px" }}>
+                    <span style={{ fontSize: "9px", color: "#666" }}>कंपनी मंजूर</span>
+                    <div style={{ fontWeight: "bold", fontSize: "11px", marginTop: "3px", color: "green" }}>₹{totalPassed.toFixed(2)}</div>
+                  </div>
+                  <div style={{ border: "1px solid #ddd", padding: "8px", borderRadius: "4px" }}>
+                    <span style={{ fontSize: "9px", color: "#666" }}>एकूण जमा (Paid)</span>
+                    <div style={{ fontWeight: "bold", fontSize: "11px", marginTop: "3px", color: "blue" }}>₹{totalPaid.toFixed(2)}</div>
+                  </div>
+                  <div style={{ border: "1px solid #ddd", padding: "8px", borderRadius: "4px", background: "#f2f7f2" }}>
+                    <span style={{ fontSize: "9px", color: "#666" }}>बाकी (Outstanding)</span>
+                    <div style={{ fontWeight: "bold", fontSize: "11px", marginTop: "3px", color: totalBalance > 0 ? "orange" : "green" }}>₹{totalBalance.toFixed(2)}</div>
+                  </div>
+                </div>
+
+                <h3 style={{ fontSize: "13px", fontWeight: "bold", borderBottom: "1px solid #000", paddingBottom: "5px", marginBottom: "10px" }}>व्यवहार तपशील (Transaction Ledger)</h3>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10.5px" }}>
+                  <thead>
+                    <tr style={{ background: "#eaeaea", borderBottom: "2px solid #000" }}>
+                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "left" }}>दिनांक</th>
+                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "left" }}>तपशील / गाडी नंबर</th>
+                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "center" }}>वजन (T)</th>
+                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>मूळ माल (₹)</th>
+                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>घट (₹)</th>
+                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>मंजूर (₹)</th>
+                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>जमा (₹)</th>
+                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>बाकी (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {txs.map((tx, idx) => {
+                      runningBal = runningBal + tx.passedAmt - tx.paidAmt;
+                      return (
+                        <tr key={idx} style={{ borderBottom: "1px solid #eee" }}>
+                          <td style={{ border: "1px solid #ddd", padding: "6px" }}>{tx.date}</td>
+                          <td style={{ border: "1px solid #ddd", padding: "6px" }}>{tx.details}</td>
+                          <td style={{ border: "1px solid #ddd", padding: "6px", textAlign: "center" }}>
+                            {tx.weight > 0 ? `${tx.weight} T` : "-"}
+                          </td>
+                          <td style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>
+                            {tx.sentAmt > 0 ? `₹${tx.sentAmt.toFixed(2)}` : "-"}
+                          </td>
+                          <td style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right", color: tx.cuts > 0 ? "red" : "black" }}>
+                            {tx.cuts > 0 ? `₹${tx.cuts.toFixed(2)}` : "-"}
+                          </td>
+                          <td style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>
+                            {tx.passedAmt > 0 ? `₹${tx.passedAmt.toFixed(2)}` : "-"}
+                          </td>
+                          <td style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right", color: "green", fontWeight: tx.paidAmt > 0 ? "bold" : "normal" }}>
+                            {tx.paidAmt > 0 ? `₹${tx.paidAmt.toFixed(2)}` : "-"}
+                          </td>
+                          <td style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right", fontWeight: "bold" }}>
+                            ₹{runningBal.toFixed(2)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </>
+            );
+          })()}
+
+          {/* Signature Area */}
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "50px", fontSize: "11px" }}>
+            <div>* खातेदाराची स्वाक्षरी</div>
+            <div style={{ textAlign: "right" }}>
+              <strong>तर्फे : के.टी. ट्रेडर्स</strong><br /><br /><br />
+              <span>अधिकृत सही</span>
+            </div>
           </div>
         </div>
       )}
