@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, Wallet, CheckCircle, LogOut, UserCog, BarChart3, Truck, ArrowLeftRight, Menu, X } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, CheckCircle, LogOut, UserCog, BarChart3, Truck, ArrowLeftRight, Menu, X, Sun, Moon } from "lucide-react";
 
 const farmerNavItems = [
   { path: "/dashboard", label: "डॅशबोर्ड", icon: LayoutDashboard },
@@ -25,6 +25,21 @@ const AppLayout = ({ children }) => {
   const [dealerActiveTab, setDealerActiveTab] = useState(() => {
     return localStorage.getItem("dealer_activeTab") || "orders";
   });
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
+
+  const toggleTheme = () => {
+    const nextDark = !isDark;
+    setIsDark(nextDark);
+    if (nextDark) {
+      document.body.classList.add("dark-theme");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.body.classList.remove("dark-theme");
+      localStorage.setItem("theme", "light");
+    }
+  };
 
   useEffect(() => {
     const handleTabChange = () => {
@@ -96,6 +111,16 @@ const AppLayout = ({ children }) => {
               <span>{item.label}</span>
             </button>
           ))}
+
+          {/* Dark Mode Switcher */}
+          <button
+            onClick={toggleTheme}
+            className="sidebar-link"
+            style={{ width: "100%" }}
+          >
+            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            <span>{isDark ? "लाईट थीम (Light)" : "डार्क थीम (Dark)"}</span>
+          </button>
 
           {/* Switch Portal Button */}
           <button
