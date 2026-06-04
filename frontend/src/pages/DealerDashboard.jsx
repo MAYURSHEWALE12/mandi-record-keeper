@@ -412,6 +412,10 @@ const DealerDashboard = () => {
   const totalFulfilledTons = orders.reduce((sum, o) => sum + (o.fulfilledWeight || 0), 0);
   const totalPendingTons = Math.max(0, totalOrderedTons - totalFulfilledTons);
 
+  const currentOrderForPreview = selectedDispatchForPreview 
+    ? (orders.find(o => o.id === selectedDispatchForPreview.orderId) || selectedOrder || {}) 
+    : {};
+
   const openCuttingModal = (dispatch, orderId) => {
     setSelectedDispatchForCutting(dispatch);
     setCuttingDispatchOrderId(orderId);
@@ -1437,17 +1441,17 @@ const DealerDashboard = () => {
                 </div>
 
                 <div style={styles.slipFieldLine}>
-                  <strong>बिल नं. / P.O. No:</strong> <span style={styles.fieldValue}>{selectedOrder.poNo || "N/A"}</span>
+                  <strong>बिल नं. / P.O. No:</strong> <span style={styles.fieldValue}>{currentOrderForPreview.poNo || "N/A"}</span>
                 </div>
                 <div style={styles.slipFieldLine}>
-                  <strong>श्रीमान:</strong> <span style={styles.fieldValue}>{selectedOrder.dealerName}</span>
+                  <strong>श्रीमान:</strong> <span style={styles.fieldValue}>{currentOrderForPreview.dealerName}</span>
                 </div>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <div style={{ ...styles.slipFieldLine, flex: 1 }}>
-                    <strong>ठिकाण:</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.deliveryPlace || selectedOrder.place}</span>
+                    <strong>ठिकाण:</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.deliveryPlace || currentOrderForPreview.place}</span>
                   </div>
                   <div style={{ ...styles.slipFieldLine, flex: 1 }}>
-                    <strong>गांव:</strong> <span style={styles.fieldValue}>{selectedOrder.village}</span>
+                    <strong>गांव:</strong> <span style={styles.fieldValue}>{currentOrderForPreview.village}</span>
                   </div>
                 </div>
                 
@@ -1551,10 +1555,10 @@ const DealerDashboard = () => {
                 </div>
 
                 <div style={styles.slipFieldLine}>
-                  <strong>मे. (Company Name):</strong> <span style={styles.fieldValue}>{selectedOrder.dealerName}</span>
+                  <strong>मे. (Company Name):</strong> <span style={styles.fieldValue}>{currentOrderForPreview.dealerName}</span>
                 </div>
                 <div style={styles.slipFieldLine}>
-                  <strong>डिलिव्हरी (Delivery):</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.deliveryPlace || selectedOrder.place}</span>
+                  <strong>डिलिव्हरी (Delivery):</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.deliveryPlace || currentOrderForPreview.place}</span>
                 </div>
                 
                 <div style={{ display: "flex", gap: "10px" }}>
@@ -1591,7 +1595,7 @@ const DealerDashboard = () => {
                     </tr>
                     <tr>
                       <td colSpan="3" style={{ fontSize: "9px" }}>
-                        <strong>P.O. NO:</strong> {selectedOrder.poNo || "N/A"}<br />
+                        <strong>P.O. NO:</strong> {currentOrderForPreview.poNo || "N/A"}<br />
                         <strong>Moisture:</strong> {selectedDispatchForPreview.moisture ? `${selectedDispatchForPreview.moisture}%` : "-"}
                       </td>
                       <td style={{ fontWeight: "bold", background: "#f9f9f9" }}>एकूण (Total)</td>
