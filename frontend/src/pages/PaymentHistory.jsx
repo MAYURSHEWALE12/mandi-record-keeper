@@ -2,6 +2,222 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PageWrapper from "../components/layout/PageWrapper";
 import API_URL from "../config";
+import { ArrowLeft, Printer, Phone, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
+
+// Inline styles for the Flat Organic Theme
+const historyStyles = {
+  container: {
+    maxWidth: "800px",
+    margin: "0 auto",
+    padding: "10px",
+    fontFamily: "system-ui, -apple-system, sans-serif",
+  },
+  actionHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "20px",
+  },
+  btnBack: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "8px 16px",
+    background: "#fff",
+    border: "1px solid #c4beb4",
+    borderRadius: "8px",
+    color: "#4e653c",
+    fontWeight: "600",
+    fontSize: "13.5px",
+    cursor: "pointer",
+    transition: "all 0.15s ease",
+  },
+  btnPrint: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "8px 16px",
+    background: "#4e653c",
+    border: "none",
+    borderRadius: "8px",
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: "13.5px",
+    cursor: "pointer",
+    transition: "all 0.15s ease",
+  },
+  profileCard: {
+    background: "#fff",
+    border: "1px solid #e6e1d8",
+    borderRadius: "12px",
+    padding: "20px",
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    marginBottom: "24px",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)",
+  },
+  avatarCircle: {
+    width: "48px",
+    height: "48px",
+    borderRadius: "50%",
+    background: "#f0ede4",
+    color: "#4e653c",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "20px",
+  },
+  farmerName: {
+    margin: 0,
+    fontSize: "20px",
+    fontWeight: "800",
+    color: "#2b2f2a",
+    letterSpacing: "-0.3px",
+  },
+  subTitle: {
+    margin: "2px 0 0 0",
+    fontSize: "12.5px",
+    color: "#828b7e",
+    fontWeight: "500",
+  },
+  phoneBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    background: "#f7f5ef",
+    border: "1px solid #e6e1d8",
+    padding: "6px 12px",
+    borderRadius: "20px",
+    fontSize: "13px",
+    fontWeight: "600",
+    color: "#4e653c",
+    marginLeft: "auto",
+  },
+  recordCard: {
+    background: "#fff",
+    border: "1px solid #e6e1d8",
+    borderRadius: "12px",
+    marginBottom: "24px",
+    overflow: "hidden",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)",
+  },
+  cardHeader: {
+    background: "#fdfcf9",
+    borderBottom: "1px dashed #e6e1d8",
+    padding: "14px 20px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  billNoText: {
+    fontSize: "13px",
+    fontWeight: "700",
+    color: "#828b7e",
+  },
+  dateText: {
+    fontSize: "13px",
+    color: "#828b7e",
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+  },
+  gridInfo: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr) auto",
+    padding: "16px 20px",
+    gap: "16px",
+    alignItems: "center",
+    borderBottom: "1px solid #f7f5ef",
+  },
+  infoCol: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+  },
+  infoLabel: {
+    fontSize: "10.5px",
+    fontWeight: "700",
+    color: "#828b7e",
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
+  },
+  infoValue: {
+    fontSize: "14.5px",
+    fontWeight: "700",
+    color: "#2b2f2a",
+  },
+  totalBillBadge: {
+    background: "#e8f5e9",
+    border: "1px solid #c8e6c9",
+    padding: "8px 14px",
+    borderRadius: "8px",
+    textAlign: "right",
+  },
+  totalBillText: {
+    fontSize: "18px",
+    fontWeight: "800",
+    color: "#2e7d32",
+  },
+  tableHeader: {
+    display: "grid",
+    gridTemplateColumns: "1.5fr 1fr 1fr",
+    background: "#faf8f5",
+    padding: "10px 20px",
+    fontSize: "12px",
+    fontWeight: "700",
+    color: "#828b7e",
+    borderBottom: "1px solid #e6e1d8",
+  },
+  tableRow: {
+    display: "grid",
+    gridTemplateColumns: "1.5fr 1fr 1fr",
+    padding: "12px 20px",
+    fontSize: "13.5px",
+    borderBottom: "1px solid #f7f5ef",
+    alignItems: "center",
+  },
+  amountPaid: {
+    fontWeight: "700",
+    color: "#2e7d32",
+  },
+  amountDue: {
+    fontWeight: "700",
+    color: "#c94a4a",
+  },
+  badgeFullPaid: {
+    background: "#e8f5e9",
+    color: "#2e7d32",
+    padding: "2px 8px",
+    borderRadius: "4px",
+    fontSize: "11px",
+    fontWeight: "700",
+  },
+  cardFooter: {
+    background: "#faf8f5",
+    padding: "14px 20px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderTop: "1px solid #e6e1d8",
+  },
+  footerStatusPaid: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    color: "#2e7d32",
+    fontWeight: "700",
+    fontSize: "13.5px",
+  },
+  footerStatusPending: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    color: "#c94a4a",
+    fontWeight: "700",
+    fontSize: "13.5px",
+  }
+};
 
 const PaymentHistory = () => {
   const [history, setHistory] = useState([]);
@@ -37,13 +253,13 @@ const PaymentHistory = () => {
 
   const handleBackToAdmin = () => {
     if (window.history.length > 1) navigate(-1);
-    else window.close();
+    else navigate("/admin");
   };
 
   if (loading) {
     return (
-      <div style={styles.centerWrapper}>
-        <div style={styles.spinner}></div>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}>
+        <div style={{ width: 40, height: 40, border: "4px solid #ddd", borderTop: "4px solid #4e653c", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
       </div>
     );
   }
@@ -53,93 +269,129 @@ const PaymentHistory = () => {
 
   return (
     <PageWrapper title={`${farmerName || "शेतकरी"} - पेमेंट हिस्ट्री`}>
-      <div style={styles.container}>
-        <div className="no-print" style={styles.actionButtons}>
-          <button onClick={handleBackToAdmin} style={styles.backBtn}>⬅ मागे जा</button>
-          <button onClick={handleDownload} style={styles.downloadBtn}>प्रिंट / PDF 📥</button>
+      <div style={historyStyles.container}>
+        
+        {/* Actions header */}
+        <div className="no-print" style={historyStyles.actionHeader}>
+          <button onClick={handleBackToAdmin} style={historyStyles.btnBack}>
+            <ArrowLeft size={16} /> मागे जा
+          </button>
+          <button onClick={handleDownload} style={historyStyles.btnPrint}>
+            <Printer size={16} /> प्रिंट / PDF
+          </button>
         </div>
 
-        <div style={styles.profileCard}>
-          <div style={styles.profileIcon}>👤</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ ...styles.farmerTitle, fontSize: 14, color: "#64748b", fontWeight: 600 }}>
-              बिल नं: {displayBillNo}
-            </div>
-            <h1 style={styles.farmerTitle}>{farmerName}</h1>
-            <p style={{ margin: 0, color: "#64748b" }}>खातेदार पेमेंट इतिहास</p>
+        {/* Profile Details */}
+        <div style={historyStyles.profileCard}>
+          <div style={historyStyles.avatarCircle}>👤</div>
+          <div>
+            <div style={historyStyles.subTitle}>बिल क्रमांक: No. {displayBillNo}</div>
+            <h1 style={historyStyles.farmerName}>{farmerName}</h1>
+            <p style={historyStyles.subTitle}>खातेदार पेमेंट इतिहास (Farmer Payment Ledger)</p>
           </div>
-          {mobileNumber && <div style={styles.contactBadge}>📞 {mobileNumber}</div>}
+          {mobileNumber && (
+            <div style={historyStyles.phoneBadge}>
+              <Phone size={14} /> {mobileNumber}
+            </div>
+          )}
         </div>
 
+        {/* Payment History Lists */}
         {history.length === 0 ? (
-          <div style={styles.noDataCard}>रेकॉर्ड सापडले नाही.</div>
+          <div style={{ textAlign: "center", padding: "40px", background: "#fff", border: "1px solid #e6e1d8", borderRadius: "12px", color: "#828b7e" }}>
+            या खातेदारासाठी कोणतेही पेमेंट रेकॉर्ड सापडले नाही.
+          </div>
         ) : (
           history.map((rec, index) => {
-            const currentRemaining = rec.totalAmount - rec.paidAmount;
+            const currentRemaining = Number(rec.totalAmount || 0) - Number(rec.paidAmount || 0);
+
+            // Dynamically calculate the remaining balance after each payment
+            let runningPaid = 0;
+            const paymentsList = rec.payments && rec.payments.length > 0
+              ? rec.payments
+              : [{ date: rec.date, amount: rec.paidAmount }];
+
+            const paymentsWithRemaining = paymentsList.map((p) => {
+              runningPaid += Number(p.amount || 0);
+              const remaining = Number(rec.totalAmount || 0) - runningPaid;
+              return {
+                ...p,
+                remaining: remaining >= 0 ? remaining : 0
+              };
+            });
 
             return (
-              <div key={rec.id || rec._id || index} style={styles.mainCard}>
-                <div style={styles.cropInfoBar}>
-                  <div style={styles.infoBox}>
-                    <label style={styles.infoLabel}>पिक</label>
-                    <span style={styles.infoValue}>{rec.crop || "-"}</span>
-                  </div>
-                  <div style={styles.infoBox}>
-                    <label style={styles.infoLabel}>प्रमाण</label>
-                    <span style={styles.infoValue}>{rec.quantity || "-"}</span>
-                  </div>
-                  <div style={styles.infoBox}>
-                    <label style={styles.infoLabel}>दर</label>
-                    <span style={styles.infoValue}>₹{rec.rate || "0"}</span>
-                  </div>
+              <div key={rec.id || rec._id || index} style={historyStyles.recordCard}>
+                
+                {/* Card Header */}
+                <div style={historyStyles.cardHeader}>
+                  <span style={historyStyles.billNoText}>बिल क्रमांक: {rec.billNo || "N/A"}</span>
+                  <span style={historyStyles.dateText}>
+                    <Calendar size={14} /> {rec.date}
+                  </span>
+                </div>
 
-                  {/* ✅ UPDATED TOTAL BILL BADGE Prathmesh Malusare */}
-                  <div style={styles.totalBadge}>
-                    <span style={styles.totalLabel}>एकूण बिल</span>
-                    <span style={styles.totalAmount}>₹{rec.totalAmount}</span>
+                {/* Details Grid */}
+                <div style={historyStyles.gridInfo}>
+                  <div style={historyStyles.infoCol}>
+                    <span style={historyStyles.infoLabel}>पिक</span>
+                    <span style={historyStyles.infoValue}>{rec.crop || "माहिती नाही"}</span>
+                  </div>
+                  <div style={historyStyles.infoCol}>
+                    <span style={historyStyles.infoLabel}>प्रमाण</span>
+                    <span style={historyStyles.infoValue}>{rec.quantity ? `${rec.quantity} क्विंटल` : "---"}</span>
+                  </div>
+                  <div style={historyStyles.infoCol}>
+                    <span style={historyStyles.infoLabel}>दर</span>
+                    <span style={historyStyles.infoValue}>{rec.rate ? `₹${rec.rate}` : "₹0"}</span>
+                  </div>
+                  <div style={historyStyles.totalBillBadge}>
+                    <span style={historyStyles.infoLabel}>एकूण बिल</span>
+                    <div style={historyStyles.totalBillText}>₹{rec.totalAmount}</div>
                   </div>
                 </div>
 
-                <div style={styles.tableWrapper}>
-                  <div style={styles.tableHeaderGrid}>
-                    <div style={styles.gridHeaderItem}>पेमेंट तारीख</div>
-                    <div style={styles.gridHeaderItem}>जमा रक्कम</div>
-                    <div style={{ ...styles.gridHeaderItem, textAlign: "right" }}>बाकी</div>
+                {/* Payments Table */}
+                <div>
+                  <div style={historyStyles.tableHeader}>
+                    <div>पेमेंट तारीख</div>
+                    <div>जमा रक्कम</div>
+                    <div style={{ textAlign: "right" }}>बाकी</div>
                   </div>
 
-                  {rec.payments?.length > 0 ? (
-                    rec.payments.map((p, i) => (
-                      <div key={i} style={styles.tableRowGrid}>
-                        <div style={styles.gridBodyItem}>{p.date}</div>
-                        <div style={styles.gridBodyItemAmount}>+ ₹{p.amount}</div>
-                        <div style={{ ...styles.gridBodyItem, textAlign: "right" }}>
-                          {p.remaining <= 0
-                            ? <span style={styles.successBadge}>पूर्ण</span>
-                            : <span style={styles.dangerText}>₹{p.remaining}</span>}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div style={styles.tableRowGrid}>
-                      <div style={styles.gridBodyItem}>{rec.date}</div>
-                      <div style={styles.gridBodyItemAmount}>+ ₹{rec.paidAmount}</div>
-                      <div style={{ ...styles.gridBodyItem, textAlign: "right" }}>
-                        {currentRemaining <= 0
-                          ? <span style={styles.successBadge}>पूर्ण</span>
-                          : <span style={styles.dangerText}>₹{currentRemaining}</span>}
+                  {paymentsWithRemaining.map((p, idx) => (
+                    <div key={idx} style={historyStyles.tableRow}>
+                      <div>{p.date}</div>
+                      <div style={historyStyles.amountPaid}>+ ₹{p.amount}</div>
+                      <div style={{ textAlign: "right" }}>
+                        {p.remaining <= 0 ? (
+                          <span style={historyStyles.badgeFullPaid}>पूर्ण</span>
+                        ) : (
+                          <span style={historyStyles.amountDue}>₹{p.remaining}</span>
+                        )}
                       </div>
                     </div>
-                  )}
+                  ))}
                 </div>
 
-                <div style={styles.footerBar}>
-                  <div style={{ fontSize: 13, color: "#94a3b8" }}>
-                    तारीख: {rec.date} | बिल: {rec.billNo}
-                  </div>
-                  <div style={currentRemaining <= 0 ? styles.statusPaid : styles.statusPending}>
-                    {currentRemaining <= 0 ? "✅ हिशोब चुकता" : `बाकी: ₹${currentRemaining}`}
+                {/* Card Footer status info */}
+                <div style={historyStyles.cardFooter}>
+                  <span style={{ fontSize: "12.5px", color: "#828b7e" }}>
+                    तपशील: {rec.crop || "धान्य"} खरेदी व्यवहार
+                  </span>
+                  <div>
+                    {currentRemaining <= 0 ? (
+                      <span style={historyStyles.footerStatusPaid}>
+                        <CheckCircle2 size={16} /> हिशोब चुकता (Paid)
+                      </span>
+                    ) : (
+                      <span style={historyStyles.footerStatusPending}>
+                        <AlertCircle size={16} /> बाकी: ₹{currentRemaining}
+                      </span>
+                    )}
                   </div>
                 </div>
+
               </div>
             );
           })
@@ -147,40 +399,6 @@ const PaymentHistory = () => {
       </div>
     </PageWrapper>
   );
-};
-
-const styles = {
-  screenWrapper: { display: "flex", justifyContent: "center", backgroundColor: "#f4f7f6", minHeight: "100vh", padding: "30px 10px" },
-  centerWrapper: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" },
-  container: { width: "100%", maxWidth: "800px", fontFamily: "sans-serif" },
-  spinner: { width: 40, height: 40, border: "4px solid #ddd", borderTop: "4px solid #10b981", borderRadius: "50%" },
-  actionButtons: { display: "flex", justifyContent: "space-between", marginBottom: 20 },
-  backBtn: { padding: "10px 20px", borderRadius: 8, border: "1px solid #ddd", background: "#fff", fontWeight: 600 },
-  downloadBtn: { padding: "10px 20px", borderRadius: 8, border: "none", background: "#1e293b", color: "#fff", fontWeight: 600 },
-  profileCard: { background: "#fff", padding: 20, borderRadius: 12, display: "flex", alignItems: "center", gap: 15, marginBottom: 20 },
-  profileIcon: { width: 50, height: 50, background: "#f1f5f9", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" },
-  farmerTitle: { margin: 0, fontSize: 24, color: "#1e293b" },
-  contactBadge: { background: "#f1f5f9", padding: "8px 12px", borderRadius: 8, fontWeight: 600 },
-  mainCard: { background: "#fff", borderRadius: 12, marginBottom: 30, overflow: "hidden", border: "1px solid #e2e8f0" },
-  cropInfoBar: { display: "flex", padding: 20, justifyContent: "space-between", alignItems: "center" },
-  infoBox: { display: "flex", flexDirection: "column" },
-  infoLabel: { fontSize: 11, color: "#94a3b8", fontWeight: 700 },
-  infoValue: { fontSize: 16, fontWeight: 700 },
-  totalBadge: { background: "#10b981", color: "#fff", padding: "12px 18px", borderRadius: 10, textAlign: "center", display: "flex", flexDirection: "column", gap: 6 },
-  totalLabel: { fontSize: 12, fontWeight: 600, opacity: 0.9 },
-  totalAmount: { fontSize: 20, fontWeight: 800 },
-  tableWrapper: { padding: "10px 0" },
-  tableHeaderGrid: { display: "grid", gridTemplateColumns: "1.2fr 1fr 0.8fr", padding: "12px 20px", background: "#f8fafc" },
-  tableRowGrid: { display: "grid", gridTemplateColumns: "1.2fr 1fr 0.8fr", padding: "15px 20px" },
-  gridHeaderItem: { fontSize: 13, fontWeight: 700, color: "#64748b" },
-  gridBodyItem: { fontSize: 15 },
-  gridBodyItemAmount: { fontSize: 15, fontWeight: 700, color: "#059669" },
-  successBadge: { background: "#dcfce7", color: "#166534", padding: "3px 10px", borderRadius: 5 },
-  dangerText: { color: "#ef4444", fontWeight: 700 },
-  footerBar: { padding: "15px 20px", display: "flex", justifyContent: "space-between", background: "#f8fafc" },
-  statusPaid: { color: "#10b981", fontWeight: 700 },
-  statusPending: { color: "#ef4444", fontWeight: 700 },
-  noDataCard: { textAlign: "center", padding: 40 }
 };
 
 export default PaymentHistory;
