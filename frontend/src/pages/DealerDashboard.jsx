@@ -1158,7 +1158,7 @@ const DealerDashboard = () => {
 
 
       {/* Conditional Rendering: Main Dashboard, Company Profile Dashboard or Selected Order Details */}
-      {selectedCompany ? (
+      {selectedCompany && !selectedOrder ? (
         renderCompanyProfile()
       ) : !selectedOrder ? (
         activeTab === "orders" ? (
