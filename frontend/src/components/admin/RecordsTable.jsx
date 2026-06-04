@@ -28,7 +28,7 @@ const slipStyles = {
     width: "36px",
     height: "36px",
     borderRadius: "50%",
-    background: "#2E8B57",
+    background: "#8B0000",
     color: "#fff",
     display: "flex",
     alignItems: "center",
@@ -43,7 +43,7 @@ const slipStyles = {
     margin: 0,
     fontSize: "20px",
     fontWeight: "bold",
-    color: "#2E8B57"
+    color: "#8B0000"
   },
   subTitle: {
     margin: "2px 0 0 0",
@@ -282,16 +282,16 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
           <div ref={invoiceRef} style={slipStyles.container}>
             {/* Header */}
             <div style={slipStyles.header}>
-              <div style={slipStyles.logoCircle}>TT</div>
-              <div style={slipStyles.titleArea}>
-                <h2 style={slipStyles.mainTitle}>त्र्यंबकराज ट्रेडर्स</h2>
-                <h3 style={slipStyles.subTitle}>मका व धान्य खरेदी-विक्री</h3>
-              </div>
-            </div>
+              <div style={slipStyles.logoCircle}>KT</div>
+             <div style={slipStyles.titleArea}>
+               <h2 style={slipStyles.mainTitle}>मे. के.टी. ट्रेडर्स</h2>
+               <h3 style={slipStyles.subTitle}>K. T. TRADERS</h3>
+             </div>
+           </div>
 
-            <div style={slipStyles.addressLine}>
-              त्र्यंबकराज पेट्रोलियम निमगाव, नांदगाव रोड, ता. मालेगाव, जि. नाशिक. मो. +91 9876543210
-            </div>
+           <div style={slipStyles.addressLine}>
+             मार्केट यार्ड, श्री व्यंकटेश बँकच्या मागे, मालेगाव कॅम्प जि. नाशिक. मो. 9850291298, 9767128838
+           </div>
 
             <div style={slipStyles.metaLine}>
               <div><strong>बिल क्रमांक:</strong> No. {selectedInvoice.billNo || selectedInvoice.displayBillNo}</div>
@@ -354,7 +354,7 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
                 <div>...............................</div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ marginBottom: "25px", fontWeight: "bold" }}>तर्फे: त्र्यंबकराज ट्रेडर्स</div>
+                <div style={{ marginBottom: "25px", fontWeight: "bold" }}>तर्फे: के.टी. ट्रेडर्स</div>
                 <div>...............................</div>
               </div>
             </div>

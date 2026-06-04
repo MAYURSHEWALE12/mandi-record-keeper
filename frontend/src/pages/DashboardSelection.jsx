@@ -25,7 +25,7 @@ const DashboardSelection = () => {
     >
       <div style={{ textAlign: "center", marginBottom: "40px" }}>
         <h1 style={{ fontSize: "32px", fontWeight: "800", color: "#2B2F2A", margin: "0 0 10px 0" }}>
-          त्र्यंबकराज ट्रेडर्स
+          के.टी. ट्रेडर्स
         </h1>
         <p style={{ fontSize: "16px", color: "#828B7E", margin: 0 }}>
           धान्य व्यापार व लॉजिस्टिक्स मॅनेजमेंट सिस्टीम

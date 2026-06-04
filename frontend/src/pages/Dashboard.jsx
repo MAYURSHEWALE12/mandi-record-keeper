@@ -18,10 +18,10 @@ const Dashboard = () => {
           const formattedData = data.records.map(item =>
             `${item.commodity} (${item.market}): ₹${item.modal_price}`
           ).join("   |   ");
-          setLiveBhav(formattedData + "   |   त्र्यंबकराज ट्रेडर्स Live Update   |   ");
+          setLiveBhav(formattedData + "   |   के.टी. ट्रेडर्स Live Update   |   ");
         }
       } catch (error) {
-        setLiveBhav("मका ₹२,३५० | सोयाबीन ₹४,८०० | कापूस ₹७,५०० | तूर ₹९,६०० | गहू ₹२,९०० | त्र्यंबकराज ट्रेडर्स");
+        setLiveBhav("मका ₹२,३५० | सोयाबीन ₹४,८०० | कापूस ₹७,५०० | तूर ₹९,६०० | गहू ₹२,९०० | के.टी. ट्रेडर्स");
       }
     };
 

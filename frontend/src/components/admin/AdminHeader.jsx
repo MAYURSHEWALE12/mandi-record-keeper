@@ -24,7 +24,7 @@ const AdminHeader = () => {
             fontFamily: "'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
           }}
         >
-          त्र्यंबकराज ट्रेडर्स
+          के.टी. ट्रेडर्स
         </h1>
       </div>
 
