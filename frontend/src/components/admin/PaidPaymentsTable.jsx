@@ -44,7 +44,14 @@ const PaidPaymentsTable = () => {
   const currentRecords = paidRecordsOnly.slice(indexOfFirstRecord, indexOfLastRecord);
   const totalPages = Math.ceil(paidRecordsOnly.length / recordsPerPage);
 
-  if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>🔄 डेटा लोड होत आहे...</div>;
+  if (loading) {
+    return (
+      <div className="spinner-wrapper">
+        <div className="spinner-ring"></div>
+        <span>डेटा लोड होत आहे...</span>
+      </div>
+    );
+  }
 
   return (
     <PageWrapper title={`पूर्ण पेमेंट (एकूण: ${paidRecordsOnly.length})`}>

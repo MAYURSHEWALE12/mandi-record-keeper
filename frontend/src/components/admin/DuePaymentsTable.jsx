@@ -50,7 +50,14 @@ const DuePaymentsTable = ({ onEditClick }) => {
   const currentRecords = dueRecordsOnly.slice(indexOfFirstRecord, indexOfLastRecord);
   const totalPages = Math.ceil(dueRecordsOnly.length / recordsPerPage);
 
-  if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>🔄 डेटा लोड होत आहे...</div>;
+  if (loading) {
+    return (
+      <div className="spinner-wrapper">
+        <div className="spinner-ring"></div>
+        <span>डेटा लोड होत आहे...</span>
+      </div>
+    );
+  }
 
   return (
     <PageWrapper title={`बाकी पेमेंट (एकूण: ${dueRecordsOnly.length})`}>

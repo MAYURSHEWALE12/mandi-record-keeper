@@ -1213,7 +1213,10 @@ const DealerDashboard = () => {
 
             {/* Orders List Layout */}
             {loading ? (
-              <div style={{ padding: "50px", textAlign: "center", color: "#828B7E" }}>🔄 ऑर्डर्स लोड होत आहेत...</div>
+              <div className="spinner-wrapper">
+                <div className="spinner-ring"></div>
+                <span>ऑर्डर्स लोड होत आहेत...</span>
+              </div>
             ) : orders.filter(o => !selectedCompanyFilter || o.dealerName === selectedCompanyFilter).length === 0 ? (
               <div className="card" style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
                 नोंदवलेली कोणतीही डीलर ऑर्डर सापडली नाही.

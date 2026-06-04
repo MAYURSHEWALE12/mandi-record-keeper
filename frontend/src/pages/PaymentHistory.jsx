@@ -258,8 +258,9 @@ const PaymentHistory = () => {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}>
-        <div style={{ width: 40, height: 40, border: "4px solid #ddd", borderTop: "4px solid #4e653c", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
+      <div className="spinner-wrapper" style={{ height: "80vh" }}>
+        <div className="spinner-ring"></div>
+        <span>पेमेंट इतिहास लोड होत आहे...</span>
       </div>
     );
   }
