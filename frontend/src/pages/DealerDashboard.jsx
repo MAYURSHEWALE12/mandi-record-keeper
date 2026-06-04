@@ -224,6 +224,7 @@ const DealerDashboard = () => {
   useEffect(() => {
     fetchOrders();
     fetchDealers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const refreshData = async () => {
