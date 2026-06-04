@@ -214,4 +214,18 @@ class DealerOrderController extends Controller
 
         return $this->json($response, ['success' => true]);
     }
+
+    // DELETE /api/dealer-orders/{id}
+    public function destroy(Request $request, Response $response, array $args): Response
+    {
+        $id = $args['id'];
+        $order = DealerOrder::find($id);
+
+        if (!$order) {
+            return $this->error($response, 'Dealer order not found', 404);
+        }
+
+        $order->delete();
+        return $this->json($response, ['success' => true]);
+    }
 }

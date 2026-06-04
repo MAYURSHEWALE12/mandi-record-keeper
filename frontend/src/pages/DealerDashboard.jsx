@@ -291,6 +291,27 @@ const DealerDashboard = () => {
     }
   };
 
+  // Delete Order
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm("तुम्हाला खात्री आहे की ही संपूर्ण ऑर्डर आणि त्यावरील सर्व ट्रक नोंदी हटवायच्या आहेत?")) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/dealer-orders/${orderId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        alert("ऑर्डर यशस्वीरित्या हटवली ✅");
+        setSelectedOrder(null);
+        fetchOrders();
+      } else {
+        alert("ऑर्डर हटवताना चूक झाली.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // PDF Download for Bill
   const downloadReceiptPDF = async () => {
     const element = invoiceRef.current;
@@ -569,6 +590,14 @@ const DealerDashboard = () => {
 
               <button className="primary-btn" style={{ marginTop: "10px", width: "100%", justifyContent: "center" }} onClick={() => setShowDispatchForm(true)}>
                 <Truck size={16} /> नवीन ट्रक लोड करा (Dispatch Truck)
+              </button>
+
+              <button 
+                className="primary-btn btn-danger" 
+                style={{ marginTop: "10px", width: "100%", justifyContent: "center", background: "#C94A4A" }} 
+                onClick={() => handleDeleteOrder(selectedOrder.id)}
+              >
+                <Trash2 size={16} /> ऑर्डर हटवा (Delete Order)
               </button>
             </div>
 

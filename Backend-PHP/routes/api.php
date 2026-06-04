@@ -18,6 +18,7 @@ $app->post('/api/dealer-orders', [\App\Http\Controllers\Api\DealerOrderControlle
 $app->get('/api/dealer-orders/{id}', [\App\Http\Controllers\Api\DealerOrderController::class, 'show']);
 $app->post('/api/dealer-orders/{id}/dispatch', [\App\Http\Controllers\Api\DealerOrderController::class, 'storeDispatch']);
 $app->delete('/api/dealer-dispatches/{id}', [\App\Http\Controllers\Api\DealerOrderController::class, 'destroyDispatch']);
+$app->delete('/api/dealer-orders/{id}', [\App\Http\Controllers\Api\DealerOrderController::class, 'destroy']);
 
 // Registered Dealers/Companies routes
 $app->get('/api/dealers', [\App\Http\Controllers\Api\DealerController::class, 'index']);
