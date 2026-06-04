@@ -19,6 +19,11 @@ $app->get('/api/dealer-orders/{id}', [\App\Http\Controllers\Api\DealerOrderContr
 $app->post('/api/dealer-orders/{id}/dispatch', [\App\Http\Controllers\Api\DealerOrderController::class, 'storeDispatch']);
 $app->delete('/api/dealer-dispatches/{id}', [\App\Http\Controllers\Api\DealerOrderController::class, 'destroyDispatch']);
 
+// Registered Dealers/Companies routes
+$app->get('/api/dealers', [\App\Http\Controllers\Api\DealerController::class, 'index']);
+$app->post('/api/dealers', [\App\Http\Controllers\Api\DealerController::class, 'store']);
+$app->delete('/api/dealers/{id}', [\App\Http\Controllers\Api\DealerController::class, 'destroy']);
+
 // Admin auth routes
 $app->post('/api/admin/login', [AdminController::class, 'login']);
 $app->post('/api/admin/forgot-password', [AdminController::class, 'forgotPassword']);

@@ -22,6 +22,15 @@ const DealerDashboard = () => {
   const [village, setVillage] = useState("");
   const [totalOrderedWeight, setTotalOrderedWeight] = useState("");
 
+  // Registered Companies States
+  const [dealers, setDealers] = useState([]);
+  const [activeTab, setActiveTab] = useState("orders"); // orders, companies
+  const [selectedCompanyFilter, setSelectedCompanyFilter] = useState("");
+  const [newCompanyName, setNewCompanyName] = useState("");
+  const [newCompanyPlace, setNewCompanyPlace] = useState("");
+  const [newCompanyVillage, setNewCompanyVillage] = useState("");
+  const [companyLoading, setCompanyLoading] = useState(false);
+
   // New Dispatch Form States
   const [dispatchBillNo, setDispatchBillNo] = useState("");
   const [dispatchDate, setDispatchDate] = useState(new Date().toISOString().split("T")[0]);
@@ -59,8 +68,76 @@ const DealerDashboard = () => {
     }
   };
 
+  const fetchDealers = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/dealers`);
+      const data = await res.json();
+      setDealers(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching dealers:", err);
+    }
+  };
+
+  const handleAddCompany = async (e) => {
+    e.preventDefault();
+    if (!newCompanyName) {
+      alert("कृपया कंपनीचे नाव भरा.");
+      return;
+    }
+
+    try {
+      setCompanyLoading(true);
+      const res = await fetch(`${API_URL}/api/dealers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newCompanyName,
+          place: newCompanyPlace,
+          village: newCompanyVillage,
+        }),
+      });
+
+      const data = await res.json();
+      setCompanyLoading(false);
+
+      if (res.ok) {
+        alert("नवीन कंपनी यशस्वीरित्या नोंदवली ✅");
+        setNewCompanyName("");
+        setNewCompanyPlace("");
+        setNewCompanyVillage("");
+        fetchDealers();
+      } else {
+        alert(data.error || "कंपनी सेव्ह करताना चूक झाली.");
+      }
+    } catch (err) {
+      console.error(err);
+      setCompanyLoading(false);
+      alert("सर्व्हरशी संपर्क होऊ शकला नाही.");
+    }
+  };
+
+  const handleDeleteCompany = async (id) => {
+    if (!window.confirm("तुम्हाला खात्री आहे की ही कंपनी यादीतून हटवायची आहे?")) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/dealers/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        alert("कंपनी यशस्वीरित्या हटवली ✅");
+        fetchDealers();
+      } else {
+        alert("कंपनी हटवताना चूक झाली.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
+    fetchDealers();
   }, []);
 
   // Fetch full details of selected order (including dispatches)
@@ -258,69 +335,206 @@ const DealerDashboard = () => {
         </div>
       </div>
 
+      {/* Tab Navigation */}
+      {!selectedOrder && (
+        <div style={{ display: "flex", gap: "10px", marginBottom: "24px", borderBottom: "2px solid #E6E1D8", paddingBottom: "10px" }}>
+          <button 
+            className={`primary-btn ${activeTab === "orders" ? "" : "btn-ghost"}`}
+            onClick={() => { setActiveTab("orders"); setSelectedCompanyFilter(""); }}
+            style={{ padding: "8px 16px" }}
+          >
+            📄 डीलर ऑर्डर्स
+          </button>
+          <button 
+            className={`primary-btn ${activeTab === "companies" ? "" : "btn-ghost"}`}
+            onClick={() => setActiveTab("companies")}
+            style={{ padding: "8px 16px" }}
+          >
+            🏢 कंपनी नोंदणी / यादी
+          </button>
+        </div>
+      )}
+
       {/* Conditional Rendering: Main Dashboard or Selected Order Details */}
       {!selectedOrder ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          
-          {/* Header Action */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>डीलर ऑर्डर्स यादी (Dealers)</h2>
-            <button className="primary-btn" onClick={() => setShowOrderForm(true)}>
-              <Plus size={16} /> नवीन ऑर्डर नोंदवा (Add Order)
-            </button>
+        activeTab === "orders" ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            
+            {/* Header Action & Filter */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>
+                <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>डीलर ऑर्डर्स यादी (Dealers)</h2>
+                
+                {/* Company Filter Dropdown */}
+                <select 
+                  className="filter-input" 
+                  value={selectedCompanyFilter} 
+                  onChange={(e) => setSelectedCompanyFilter(e.target.value)}
+                  style={{ margin: 0, height: "38px" }}
+                >
+                  <option value="">सर्व कंपन्या (All Companies)</option>
+                  {dealers.map(d => (
+                    <option key={d.id} value={d.name}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <button className="primary-btn" onClick={() => setShowOrderForm(true)}>
+                <Plus size={16} /> नवीन ऑर्डर नोंदवा (Add Order)
+              </button>
+            </div>
+
+            {/* Orders List Layout */}
+            {loading ? (
+              <div style={{ padding: "50px", textAlign: "center", color: "#828B7E" }}>🔄 ऑर्डर्स लोड होत आहेत...</div>
+            ) : orders.filter(o => !selectedCompanyFilter || o.dealerName === selectedCompanyFilter).length === 0 ? (
+              <div className="card" style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
+                नोंदवलेली कोणतीही डीलर ऑर्डर सापडली नाही.
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "20px" }}>
+                {orders
+                  .filter(o => !selectedCompanyFilter || o.dealerName === selectedCompanyFilter)
+                  .map((o) => {
+                    const fulfilledWt = o.fulfilledWeight || 0;
+                    const orderedWt = o.totalOrderedWeight || 0;
+                    const pct = orderedWt > 0 ? (fulfilledWt / orderedWt) * 100 : 0;
+                    return (
+                      <div key={o.id} className="card" style={{ margin: 0, padding: "20px", display: "flex", flexDirection: "column", gap: "12px", border: "1px solid #E6E1D8", position: "relative" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                          <div>
+                            <span style={{ fontSize: "12px", color: "#828B7E", fontWeight: "600", textTransform: "uppercase" }}>P.O. नं: {o.poNo || "N/A"}</span>
+                            <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#2B2F2A", margin: "2px 0 0 0" }}>{o.dealerName}</h3>
+                          </div>
+                          <span className={`badge ${o.status === "fulfilled" ? "badge-paid" : o.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
+                            {o.status === "fulfilled" ? "पूर्ण" : o.status === "partially_fulfilled" ? "अंशतः पूर्ण" : "बाकी"}
+                          </span>
+                        </div>
+
+                        <div style={{ fontSize: "14px", color: "#4A5148" }}>
+                          📍 <strong>ठिकाण:</strong> {o.place || "-"}, {o.village || "-"}
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div style={{ marginTop: "5px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#828B7E", marginBottom: "4px" }}>
+                            <span>प्रगती (Progress)</span>
+                            <span>{fulfilledWt.toFixed(1)} / {orderedWt.toFixed(1)} Tons ({pct.toFixed(0)}%)</span>
+                          </div>
+                          <div style={{ width: "100%", height: "8px", background: "#F0EDE6", borderRadius: "4px", overflow: "hidden" }}>
+                            <div style={{ width: `${Math.min(100, pct)}%`, height: "100%", background: o.status === "fulfilled" ? "#2e7d32" : "#4E653C" }}></div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                          <button className="primary-btn btn-ghost btn-sm" style={{ flex: 1, justifyContent: "center" }} onClick={() => handleOrderSelect(o.id)}>
+                            तपशील & ट्रक नोंदी 📜
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
           </div>
-
-          {/* Orders List Layout */}
-          {loading ? (
-            <div style={{ padding: "50px", textAlign: "center", color: "#828B7E" }}>🔄 ऑर्डर्स लोड होत आहेत...</div>
-          ) : orders.length === 0 ? (
-            <div className="card" style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
-              नोंदवलेली कोणतीही डीलर ऑर्डर सापडली नाही. नवीन ऑर्डर जोडण्यासाठी वरील बटणावर क्लिक करा.
+        ) : (
+          /* COMPANY REGISTRATION & MANAGEMENT TAB */
+          <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+            {/* Left Column: Register New Company */}
+            <div className="card" style={{ flex: "1 1 320px", margin: 0, padding: "20px" }}>
+              <h3 style={{ fontSize: "16px", fontWeight: "700", borderBottom: "1px solid #E6E1D8", paddingBottom: "8px", marginBottom: "15px" }}>
+                🏢 नवीन कंपनी नोंदणी
+              </h3>
+              <form onSubmit={handleAddCompany} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                <div className="form-group">
+                  <label>कंपनी / डीलर नाव (Company Name) *</label>
+                  <input 
+                    type="text" 
+                    placeholder="उदा. मे. के.टी. सिमेंट्स" 
+                    value={newCompanyName} 
+                    onChange={(e) => setNewCompanyName(e.target.value)} 
+                    required 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>शहर / तालुका (Place)</label>
+                  <input 
+                    type="text" 
+                    placeholder="उदा. मालेगाव" 
+                    value={newCompanyPlace} 
+                    onChange={(e) => setNewCompanyPlace(e.target.value)} 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>गांव (Village)</label>
+                  <input 
+                    type="text" 
+                    placeholder="उदा. निमगाव" 
+                    value={newCompanyVillage} 
+                    onChange={(e) => setNewCompanyVillage(e.target.value)} 
+                  />
+                </div>
+                <button type="submit" className="primary-btn" style={{ justifyContent: "center", marginTop: "10px" }} disabled={companyLoading}>
+                  {companyLoading ? "नोंदणी होत आहे..." : "कंपनी जतन करा (Register)"}
+                </button>
+              </form>
             </div>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "20px" }}>
-              {orders.map((o) => {
-                const fulfilledWt = o.fulfilledWeight || 0;
-                const orderedWt = o.totalOrderedWeight || 0;
-                const pct = orderedWt > 0 ? (fulfilledWt / orderedWt) * 100 : 0;
-                return (
-                  <div key={o.id} className="card" style={{ margin: 0, padding: "20px", display: "flex", flexDirection: "column", gap: "12px", border: "1px solid #E6E1D8", position: "relative" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                      <div>
-                        <span style={{ fontSize: "12px", color: "#828B7E", fontWeight: "600", textTransform: "uppercase" }}>P.O. नं: {o.poNo || "N/A"}</span>
-                        <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#2B2F2A", margin: "2px 0 0 0" }}>{o.dealerName}</h3>
-                      </div>
-                      <span className={`badge ${o.status === "fulfilled" ? "badge-paid" : o.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
-                        {o.status === "fulfilled" ? "पूर्ण" : o.status === "partially_fulfilled" ? "अंशतः पूर्ण" : "बाकी"}
-                      </span>
-                    </div>
 
-                    <div style={{ fontSize: "14px", color: "#4A5148" }}>
-                      📍 <strong>ठिकाण:</strong> {o.place || "-"}, {o.village || "-"}
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div style={{ marginTop: "5px" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#828B7E", marginBottom: "4px" }}>
-                        <span>प्रगती (Progress)</span>
-                        <span>{fulfilledWt.toFixed(1)} / {orderedWt.toFixed(1)} Tons ({pct.toFixed(0)}%)</span>
-                      </div>
-                      <div style={{ width: "100%", height: "8px", background: "#F0EDE6", borderRadius: "4px", overflow: "hidden" }}>
-                        <div style={{ width: `${Math.min(100, pct)}%`, height: "100%", background: o.status === "fulfilled" ? "#2e7d32" : "#4E653C" }}></div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-                      <button className="primary-btn btn-ghost btn-sm" style={{ flex: 1, justifyContent: "center" }} onClick={() => handleOrderSelect(o.id)}>
-                        तपशील & ट्रक नोंदी 📜
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Right Column: Registered Companies List */}
+            <div className="card" style={{ flex: "2 1 500px", margin: 0, padding: "20px" }}>
+              <h3 style={{ fontSize: "16px", fontWeight: "700", borderBottom: "1px solid #E6E1D8", paddingBottom: "8px", marginBottom: "15px" }}>
+                नोंदणीकृत कंपन्यांची यादी ({dealers.length})
+              </h3>
+              {dealers.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
+                  अजून कोणतीही कंपनी नोंदणीकृत केलेली नाही.
+                </div>
+              ) : (
+                <div className="table-responsive">
+                  <table className="records-table">
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: "left" }}>कंपनीचे नाव</th>
+                        <th>शहर/तालुका</th>
+                        <th>गांव</th>
+                        <th style={{ width: "20%" }}>कृती (Actions)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dealers.map((d) => (
+                        <tr key={d.id}>
+                          <td data-label="कंपनीचे नाव" style={{ textAlign: "left" }}>
+                            <button 
+                              onClick={() => {
+                                setSelectedCompanyFilter(d.name);
+                                setActiveTab("orders");
+                              }}
+                              style={{ background: "none", border: "none", color: "#007bff", cursor: "pointer", fontWeight: "bold", fontSize: "14px" }}
+                              title="या कंपनीच्या ऑर्डर्स पहा"
+                            >
+                              {d.name}
+                            </button>
+                          </td>
+                          <td data-label="शहर/तालुका">{d.place || "-"}</td>
+                          <td data-label="गांव">{d.village || "-"}</td>
+                          <td data-label="कृती">
+                            <button 
+                              className="primary-btn btn-danger btn-sm" 
+                              style={{ padding: "4px 8px", background: "#C94A4A", margin: "0 auto" }}
+                              onClick={() => handleDeleteCompany(d.id)}
+                            >
+                              <Trash2 size={14} /> हटवा
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )
       ) : (
         /* Selected Order Details Portal */
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -440,8 +654,31 @@ const DealerDashboard = () => {
                 <input type="text" placeholder="उदा. PO-12345" value={poNo} onChange={(e) => setPoNo(e.target.value)} />
               </div>
               <div className="form-group">
-                <label>डीलर / कंपनीचे नाव (Company Name)</label>
-                <input type="text" placeholder="उदा. मे. के.टी. ट्रेडर्स" value={dealerName} onChange={(e) => setDealerName(e.target.value)} required />
+                <label>डीलर / कंपनीचे नाव (Company Name) *</label>
+                <select
+                  value={dealerName}
+                  onChange={(e) => {
+                    const selectedName = e.target.value;
+                    setDealerName(selectedName);
+                    const found = dealers.find(d => d.name === selectedName);
+                    if (found) {
+                      setPlace(found.place || "");
+                      setVillage(found.village || "");
+                    } else {
+                      setPlace("");
+                      setVillage("");
+                    }
+                  }}
+                  required
+                >
+                  <option value="">कंपनी निवडा (Select Registered Company)</option>
+                  {dealers.map((d) => (
+                    <option key={d.id} value={d.name}>{d.name}</option>
+                  ))}
+                </select>
+                <span style={{ fontSize: "11px", color: "#828B7E", marginTop: "4px" }}>
+                  (नवीन कंपनी जोडण्यासाठी 'कंपनी नोंदणी / यादी' टॅब वापरा)
+                </span>
               </div>
               <div className="form-row">
                 <div className="form-group" style={{ flex: 1 }}>
