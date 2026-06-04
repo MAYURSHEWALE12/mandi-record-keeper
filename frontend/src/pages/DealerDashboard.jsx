@@ -60,8 +60,13 @@ const DealerDashboard = () => {
   const ledgerRef = useRef();
 
   // Company Profile Dashboard States
-  const [selectedCompany, setSelectedCompany] = useState(null);
-  const [profileTab, setProfileTab] = useState("orders"); // orders, trucks, payments
+  const [selectedCompany, setSelectedCompany] = useState(() => {
+    const saved = localStorage.getItem("dealer_selectedCompany");
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [profileTab, setProfileTab] = useState(() => {
+    return localStorage.getItem("dealer_profileTab") || "orders";
+  }); // orders, trucks, payments
 
   // Cutting Modal States
   const [showCuttingModal, setShowCuttingModal] = useState(false);
@@ -83,24 +88,33 @@ const DealerDashboard = () => {
   const [paymentNote, setPaymentNote] = useState("");
   const [paymentOrderId, setPaymentOrderId] = useState("");
 
+  const [selectedOrder, setSelectedOrder] = useState(() => {
+    const saved = localStorage.getItem("dealer_selectedOrder");
+    return saved ? JSON.parse(saved) : null;
+  });
+
   // Sync states to localStorage
   useEffect(() => {
     localStorage.setItem("dealer_activeTab", activeTab);
   }, [activeTab]);
 
   useEffect(() => {
+    localStorage.setItem("dealer_profileTab", profileTab);
+  }, [profileTab]);
+
+  useEffect(() => {
     if (selectedCompany) {
-      localStorage.setItem("dealer_selectedCompanyId", selectedCompany.id);
+      localStorage.setItem("dealer_selectedCompany", JSON.stringify(selectedCompany));
     } else {
-      localStorage.removeItem("dealer_selectedCompanyId");
+      localStorage.removeItem("dealer_selectedCompany");
     }
   }, [selectedCompany]);
 
   useEffect(() => {
     if (selectedOrder) {
-      localStorage.setItem("dealer_selectedOrderId", selectedOrder.id);
+      localStorage.setItem("dealer_selectedOrder", JSON.stringify(selectedOrder));
     } else {
-      localStorage.removeItem("dealer_selectedOrderId");
+      localStorage.removeItem("dealer_selectedOrder");
     }
   }, [selectedOrder]);
 
@@ -113,10 +127,10 @@ const DealerDashboard = () => {
       const ordersList = Array.isArray(data) ? data : [];
       setOrders(ordersList);
 
-      const savedOrderId = localStorage.getItem("dealer_selectedOrderId");
-      if (savedOrderId) {
+      // If we have a selected order, reload detail from database to get fresh dispatches/payments
+      if (selectedOrder) {
         try {
-          const detailRes = await fetch(`${API_URL}/api/dealer-orders/${savedOrderId}`);
+          const detailRes = await fetch(`${API_URL}/api/dealer-orders/${selectedOrder.id}`);
           if (detailRes.ok) {
             const detailData = await detailRes.json();
             setSelectedOrder(detailData);
@@ -139,9 +153,9 @@ const DealerDashboard = () => {
       const dealersList = Array.isArray(data) ? data : [];
       setDealers(dealersList);
 
-      const savedCompanyId = localStorage.getItem("dealer_selectedCompanyId");
-      if (savedCompanyId) {
-        const found = dealersList.find(d => d.id === savedCompanyId);
+      // If we have a selected company, refresh it from the new list
+      if (selectedCompany) {
+        const found = dealersList.find(d => d.id === selectedCompany.id);
         if (found) {
           setSelectedCompany(found);
         }
