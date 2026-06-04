@@ -3,6 +3,118 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf"; 
 import CustomDropdown from "../common/CustomDropdown";
 
+const slipStyles = {
+  container: {
+    width: "100%",
+    maxWidth: "500px",
+    background: "#fcfbf9",
+    border: "1.5px solid #000",
+    padding: "24px",
+    fontFamily: "sans-serif",
+    color: "#000",
+    boxSizing: "border-box",
+    margin: "0 auto",
+    borderRadius: "12px",
+    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08)"
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    borderBottom: "2px solid #000",
+    paddingBottom: "10px"
+  },
+  logoCircle: {
+    width: "36px",
+    height: "36px",
+    borderRadius: "50%",
+    background: "#2E8B57",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "14px",
+    fontWeight: "bold"
+  },
+  titleArea: {
+    flex: 1
+  },
+  mainTitle: {
+    margin: 0,
+    fontSize: "20px",
+    fontWeight: "bold",
+    color: "#2E8B57"
+  },
+  subTitle: {
+    margin: "2px 0 0 0",
+    fontSize: "12px",
+    fontWeight: "bold",
+    color: "#555"
+  },
+  addressLine: {
+    fontSize: "9px",
+    margin: "4px 0",
+    borderBottom: "1px solid #000",
+    paddingBottom: "2px",
+    color: "#444"
+  },
+  metaLine: {
+    display: "flex",
+    justifyContent: "space-between",
+    margin: "8px 0",
+    fontSize: "11px"
+  },
+  fieldLine: {
+    borderBottom: "1px dotted #555",
+    paddingBottom: "3px",
+    marginBottom: "8px",
+    fontSize: "11px",
+    display: "flex",
+    alignItems: "center"
+  },
+  fieldLabel: {
+    fontWeight: "bold"
+  },
+  fieldValue: {
+    marginLeft: "6px",
+    fontWeight: "600",
+    color: "#222"
+  },
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+    marginTop: "12px",
+    fontSize: "11px"
+  },
+  th: {
+    border: "1px solid #000",
+    padding: "6px",
+    background: "#e8e8e8",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  td: {
+    border: "1px solid #000",
+    padding: "6px",
+    textAlign: "center"
+  },
+  summaryArea: {
+    marginTop: "15px",
+    fontSize: "11px"
+  },
+  balanceText: {
+    color: "#C94A4A",
+    fontWeight: "bold",
+    fontSize: "13px"
+  },
+  footerSignatures: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginTop: "35px",
+    fontSize: "11px"
+  }
+};
+
 const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
   const [searchName, setSearchName] = useState("");
   const [filterCrop, setFilterCrop] = useState("");
@@ -188,67 +300,83 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
             <button onClick={() => setSelectedInvoice(null)} style={{ padding: '10px 20px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>बंद करा ✖</button>
           </div>
 
-          <div ref={invoiceRef} style={{ width: '100%', maxWidth: '500px', backgroundColor: 'white', padding: '35px', borderRadius: '15px', fontFamily: 'sans-serif', color: '#333' }}>
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 'bold' }}>त्र्यंबकराज ट्रेडर्स</h1>
-              <p style={{ margin: '5px 0' }}>मका व्यापार व्यवसाय</p>
-              <hr style={{ border: 'none', borderTop: '1px solid #ccc', marginTop: '15px' }} />
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '20px', lineHeight: '1.6' }}>
-              <div>
-                {/* ✅ डेटाबेसचा बिल नंबर इथे डिस्प्ले होईल */}
-                <p><strong>बिल क्रमांक:</strong> {selectedInvoice.billNo || selectedInvoice.displayBillNo}</p>
-                <p><strong>तारीख:</strong> {selectedInvoice.date}</p>
-                <p><strong>शेतकऱ्याचे नाव:</strong> {selectedInvoice.farmerName}</p>
-                <p><strong>मोबाईल:</strong> {selectedInvoice.mobile}</p>
-              </div>
-              <div>
-                <p><strong>व्यापाऱ्याचे नाव:</strong> त्र्यंबकराज ट्रेडर्स</p>
-                <p><strong>मोबाईल:</strong> +91 9876543210</p>
-                <p><strong>पत्ता:</strong> त्र्यंबकराज पेट्रोलियम निमगाव,<br/>नांदगाव रोड, ता.मालेगाव,<br/> जि. नाशिक.</p>
+          <div ref={invoiceRef} style={slipStyles.container}>
+            {/* Header */}
+            <div style={slipStyles.header}>
+              <div style={slipStyles.logoCircle}>TT</div>
+              <div style={slipStyles.titleArea}>
+                <h2 style={slipStyles.mainTitle}>त्र्यंबकराज ट्रेडर्स</h2>
+                <h3 style={slipStyles.subTitle}>मका व धान्य खरेदी-विक्री</h3>
               </div>
             </div>
 
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '10px' }}>
+            <div style={slipStyles.addressLine}>
+              त्र्यंबकराज पेट्रोलियम निमगाव, नांदगाव रोड, ता. मालेगाव, जि. नाशिक. मो. +91 9876543210
+            </div>
+
+            <div style={slipStyles.metaLine}>
+              <div><strong>बिल क्रमांक:</strong> No. {selectedInvoice.billNo || selectedInvoice.displayBillNo}</div>
+              <div><strong>तारीख:</strong> {selectedInvoice.date}</div>
+            </div>
+
+            <div style={slipStyles.fieldLine}>
+              <span style={slipStyles.fieldLabel}>शेतकऱ्याचे नाव:</span>
+              <span style={slipStyles.fieldValue}>{selectedInvoice.farmerName}</span>
+            </div>
+
+            <div style={slipStyles.fieldLine}>
+              <span style={slipStyles.fieldLabel}>मोबाईल क्रमांक:</span>
+              <span style={slipStyles.fieldValue}>{selectedInvoice.mobile}</span>
+            </div>
+
+            <div style={slipStyles.fieldLine}>
+              <span style={slipStyles.fieldLabel}>पत्ता:</span>
+              <span style={slipStyles.fieldValue}>निमगाव, ता. मालेगाव, जि. नाशिक.</span>
+            </div>
+
+            <table style={slipStyles.table}>
               <thead>
-                <tr style={{ backgroundColor: '#5DADE2', color: 'white' }}>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>पीक</th>
-                  <th style={{ padding: '12px' }}>प्रमाण</th>
-                  <th style={{ padding: '12px' }}>दर</th>
-                  <th style={{ padding: '12px' }}>एकूण रक्कम</th>
-                  <th style={{ padding: '12px' }}>दिलेली रक्कम</th>
+                <tr>
+                  <th style={slipStyles.th}>पीक</th>
+                  <th style={slipStyles.th}>प्रमाण</th>
+                  <th style={slipStyles.th}>दर</th>
+                  <th style={slipStyles.th}>एकूण रक्कम</th>
+                  <th style={slipStyles.th}>दिलेली रक्कम</th>
                 </tr>
               </thead>
-              <tbody style={{ textAlign: 'center', fontSize: '14px' }}>
-                <tr style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '12px', textAlign: 'left' }}>{selectedInvoice.crop}</td>
-                  <td>{selectedInvoice.quantity} क्विंटल</td>
-                  <td>₹{selectedInvoice.rate}</td>
-                  <td>₹{selectedInvoice.totalAmount}</td>
-                  <td>₹{selectedInvoice.paidAmount}</td>
+              <tbody>
+                <tr>
+                  <td style={slipStyles.td}>{selectedInvoice.crop}</td>
+                  <td style={slipStyles.td}>{selectedInvoice.quantity} क्विंटल</td>
+                  <td style={slipStyles.td}>₹{selectedInvoice.rate}</td>
+                  <td style={slipStyles.td}>₹{selectedInvoice.totalAmount}</td>
+                  <td style={slipStyles.td}>₹{selectedInvoice.paidAmount}</td>
                 </tr>
-                <tr style={{ backgroundColor: '#F1C40F', fontWeight: 'bold' }}>
-                  <td colSpan="3" style={{ padding: '10px', textAlign: 'left' }}>एकूण</td>
-                  <td>₹{selectedInvoice.totalAmount}</td>
-                  <td>₹{selectedInvoice.paidAmount}</td>
+                <tr style={{ fontWeight: "bold", background: "#f9f9f9" }}>
+                  <td colSpan="3" style={{ ...slipStyles.td, textAlign: "left" }}>एकूण</td>
+                  <td style={slipStyles.td}>₹{selectedInvoice.totalAmount}</td>
+                  <td style={slipStyles.td}>₹{selectedInvoice.paidAmount}</td>
                 </tr>
               </tbody>
             </table>
 
-            <div style={{ backgroundColor: '#f2f2f2', padding: '15px', borderRadius: '10px', marginTop: '10px' }}>
-              <p style={{ margin: 0 }}>एकूण रक्कम: ₹{selectedInvoice.totalAmount}</p>
-              <p style={{ margin: 0 }}>दिलेली रक्कम: ₹{selectedInvoice.paidAmount}</p>
-              <p style={{ margin: 0, color: '#e74c3c', fontWeight: 'bold', fontSize: '18px' }}>बाकी रक्कम: ₹{selectedInvoice.totalAmount - selectedInvoice.paidAmount}</p>
+            <div style={slipStyles.summaryArea}>
+              <div style={slipStyles.fieldLine}>
+                <span style={slipStyles.fieldLabel}>बाकी रक्कम:</span>
+                <span style={{ ...slipStyles.fieldValue, ...slipStyles.balanceText }}>
+                  ₹{(selectedInvoice.totalAmount - selectedInvoice.paidAmount).toFixed(2)}
+                </span>
+              </div>
             </div>
 
-            <p style={{ textAlign: 'center', marginTop: '30px', fontStyle: 'italic' }}>धन्यवाद</p>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '40px', alignItems: 'flex-end' }}>
-              <div style={{ fontWeight: 'bold' }}>व्यापारी</div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ marginBottom: '5px' }}>स्वाक्षरी</div>
-                <div style={{ fontWeight: 'bold' }}>त्र्यंबकराज ट्रेडर्स</div>
+            <div style={slipStyles.footerSignatures}>
+              <div>
+                <div style={{ marginBottom: "25px", fontWeight: "bold" }}>शेतकरी स्वाक्षरी</div>
+                <div>...............................</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ marginBottom: "25px", fontWeight: "bold" }}>तर्फे: त्र्यंबकराज ट्रेडर्स</div>
+                <div>...............................</div>
               </div>
             </div>
           </div>
