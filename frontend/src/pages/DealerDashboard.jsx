@@ -53,6 +53,8 @@ const DealerDashboard = () => {
   const [note, setNote] = useState("");
 
   const invoiceRef = useRef();
+  const leftSlipRef = useRef();
+  const rightSlipRef = useRef();
 
   // Load orders
   const fetchOrders = async () => {
@@ -325,6 +327,36 @@ const DealerDashboard = () => {
     
     pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
     pdf.save(`Truck_Loading_Receipt_Bill_${selectedDispatchForPreview.billNo}.pdf`);
+  };
+
+  // PDF Download for Left Slip (Transport Freight Receipt)
+  const downloadLeftSlipPDF = async () => {
+    const element = leftSlipRef.current;
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    const imgData = canvas.toDataURL("image/png");
+    
+    // Create PDF in A5 portrait format
+    const pdf = new jsPDF("p", "mm", "a5");
+    const imgWidth = 148;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    pdf.save(`Transport_Freight_Receipt_Bill_${selectedDispatchForPreview.billNo}.pdf`);
+  };
+
+  // PDF Download for Right Slip (Loading Goods Receipt)
+  const downloadRightSlipPDF = async () => {
+    const element = rightSlipRef.current;
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    const imgData = canvas.toDataURL("image/png");
+    
+    // Create PDF in A5 portrait format
+    const pdf = new jsPDF("p", "mm", "a5");
+    const imgWidth = 148;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    pdf.save(`Loading_Goods_Receipt_Bill_${selectedDispatchForPreview.billNo}.pdf`);
   };
 
   // Total stats for dealer portal
@@ -880,8 +912,10 @@ const DealerDashboard = () => {
           <div className="card modal-content" style={{ ...styles.modalContent, maxWidth: "1100px", padding: "15px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px", alignItems: "center" }}>
               <h3 style={{ margin: 0 }}>पावती बिल प्रिव्ह्यू (Invoice Double Slip Preview)</h3>
-              <div style={{ display: "flex", gap: "8px" }}>
-                <button className="primary-btn btn-success" onClick={downloadReceiptPDF}>पीडीएफ डाउनलोड (Download PDF)</button>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <button className="primary-btn btn-success" onClick={downloadLeftSlipPDF}>वाहतूक पावती 📥 (Transport)</button>
+                <button className="primary-btn btn-success" onClick={downloadRightSlipPDF}>माल पावती 📥 (Loading)</button>
+                <button className="primary-btn btn-success" onClick={downloadReceiptPDF}>एकत्रित पावती 📥 (Combined)</button>
                 <button className="primary-btn btn-ghost" onClick={() => setShowInvoicePreview(false)}>बंद करा (Close)</button>
               </div>
             </div>
@@ -905,7 +939,7 @@ const DealerDashboard = () => {
             >
               
               {/* SLIP LEFT: TRANSPORT FREIGHT RECEIPT */}
-              <div style={styles.billSlipLeft}>
+              <div ref={leftSlipRef} style={styles.billSlipLeft}>
                 
                 {/* Header */}
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", borderBottom: "2px solid #000", paddingBottom: "10px" }}>
@@ -1019,7 +1053,7 @@ const DealerDashboard = () => {
               <div style={{ borderLeft: "2px dashed #999", height: "100%", margin: "0 5px" }}></div>
 
               {/* SLIP RIGHT: LOADING GOODS RECEIPT */}
-              <div style={styles.billSlipRight}>
+              <div ref={rightSlipRef} style={styles.billSlipRight}>
                 
                 {/* Header */}
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", borderBottom: "2px solid #000", paddingBottom: "10px" }}>
@@ -1148,12 +1182,18 @@ const styles = {
   billSlipLeft: {
     flex: 1,
     padding: "10px",
-    boxSizing: "border-box"
+    boxSizing: "border-box",
+    background: "#fcfbf9",
+    fontFamily: "sans-serif",
+    color: "#000"
   },
   billSlipRight: {
     flex: 1,
     padding: "10px",
-    boxSizing: "border-box"
+    boxSizing: "border-box",
+    background: "#fcfbf9",
+    fontFamily: "sans-serif",
+    color: "#000"
   },
   logoCircle: {
     width: "36px",
