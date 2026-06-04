@@ -5,6 +5,7 @@ ALTER TABLE dealer_orders ADD COLUMN IF NOT EXISTS po_no TEXT DEFAULT '';
 ALTER TABLE dealer_orders ADD COLUMN IF NOT EXISTS place TEXT DEFAULT '';
 ALTER TABLE dealer_orders ADD COLUMN IF NOT EXISTS village TEXT DEFAULT '';
 ALTER TABLE dealer_orders ADD COLUMN IF NOT EXISTS total_ordered_weight REAL DEFAULT 0;
+ALTER TABLE dealer_orders ADD COLUMN IF NOT EXISTS payments JSONB DEFAULT '[]';
 
 CREATE TABLE IF NOT EXISTS admins (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -52,6 +53,7 @@ CREATE TABLE IF NOT EXISTS dealer_orders (
   expected_delivery DATE,
   status TEXT DEFAULT 'pending',
   dispatches JSONB DEFAULT '[]',
+  payments JSONB DEFAULT '[]',
   note TEXT DEFAULT '',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

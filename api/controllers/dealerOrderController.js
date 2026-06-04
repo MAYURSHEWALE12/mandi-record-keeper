@@ -18,6 +18,7 @@ const toCamel = (r) => {
     expectedDelivery: r.expected_delivery,
     status: r.status,
     dispatches,
+    payments: r.payments || [],
     note: r.note,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
@@ -76,10 +77,12 @@ exports.storeDispatch = async (req, res) => {
   try {
     const { data: order, error: findError } = await supabase.from('dealer_orders').select('*').eq('id', req.params.id).single();
     if (findError || !order) return res.status(404).json({ error: 'Order not found' });
-    if (!req.body.weight)
-      return res.status(400).json({ error: 'weight is required' });
-
-    const dispatches = [...(order.dispatches || []), req.body];
+    const crypto = require('crypto');
+    const newDispatch = {
+      id: req.body.id || crypto.randomUUID(),
+      ...req.body
+    };
+    const dispatches = [...(order.dispatches || []), newDispatch];
     const totalFulfilled = dispatches.reduce((s, d) => s + Number(d.weight || d.quantity || 0), 0);
     const newStatus = totalFulfilled >= (order.total_ordered_weight || 0) ? 'fulfilled' : 'partially_fulfilled';
 
@@ -137,6 +140,87 @@ exports.destroy = async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting dealer order:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.updateDispatch = async (req, res) => {
+  try {
+    const { orderId, dispatchId } = req.params;
+    const { data: order, error: findError } = await supabase.from('dealer_orders').select('*').eq('id', orderId).single();
+    if (findError || !order) return res.status(404).json({ error: 'Order not found' });
+
+    const dispatches = (order.dispatches || []).map(d => {
+      if (d.id === dispatchId || d._id === dispatchId) {
+        return { ...d, ...req.body };
+      }
+      return d;
+    });
+
+    const { data, error } = await supabase
+      .from('dealer_orders')
+      .update({ dispatches, updated_at: new Date().toISOString() })
+      .eq('id', orderId)
+      .select().single();
+
+    if (error) throw error;
+    res.json(toCamel(data));
+  } catch (error) {
+    console.error('Error updating dispatch:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.storePayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data: order, error: findError } = await supabase.from('dealer_orders').select('*').eq('id', id).single();
+    if (findError || !order) return res.status(404).json({ error: 'Order not found' });
+
+    const crypto = require('crypto');
+    const newPayment = {
+      id: crypto.randomUUID(),
+      date: req.body.date || new Date().toISOString().split('T')[0],
+      amount: Number(req.body.amount) || 0,
+      mode: req.body.mode || 'Bank Transfer',
+      refNo: req.body.refNo || '',
+      note: req.body.note || ''
+    };
+
+    const payments = [...(order.payments || []), newPayment];
+
+    const { data, error } = await supabase
+      .from('dealer_orders')
+      .update({ payments, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select().single();
+
+    if (error) throw error;
+    res.json(toCamel(data));
+  } catch (error) {
+    console.error('Error adding payment:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.destroyPayment = async (req, res) => {
+  try {
+    const { orderId, paymentId } = req.params;
+    const { data: order, error: findError } = await supabase.from('dealer_orders').select('*').eq('id', orderId).single();
+    if (findError || !order) return res.status(404).json({ error: 'Order not found' });
+
+    const payments = (order.payments || []).filter(p => p.id !== paymentId);
+
+    const { data, error } = await supabase
+      .from('dealer_orders')
+      .update({ payments, updated_at: new Date().toISOString() })
+      .eq('id', orderId)
+      .select().single();
+
+    if (error) throw error;
+    res.json(toCamel(data));
+  } catch (error) {
+    console.error('Error deleting payment:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };

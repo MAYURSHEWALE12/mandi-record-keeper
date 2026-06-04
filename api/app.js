@@ -83,6 +83,9 @@ module.exports = function createApp() {
   app.post('/api/dealer-orders', orderCtrl.store);
   app.get('/api/dealer-orders/:id', orderCtrl.show);
   app.post('/api/dealer-orders/:id/dispatch', orderCtrl.storeDispatch);
+  app.put('/api/dealer-orders/:orderId/dispatch/:dispatchId', orderCtrl.updateDispatch);
+  app.post('/api/dealer-orders/:id/payment', orderCtrl.storePayment);
+  app.delete('/api/dealer-orders/:orderId/payment/:paymentId', orderCtrl.destroyPayment);
   app.delete('/api/dealer-dispatches/:id', orderCtrl.destroyDispatch);
   app.delete('/api/dealer-orders/:id', orderCtrl.destroy);
 

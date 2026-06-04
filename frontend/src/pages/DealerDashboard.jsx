@@ -56,6 +56,30 @@ const DealerDashboard = () => {
   const leftSlipRef = useRef();
   const rightSlipRef = useRef();
 
+  // Company Profile Dashboard States
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [profileTab, setProfileTab] = useState("orders"); // orders, trucks, payments
+
+  // Cutting Modal States
+  const [showCuttingModal, setShowCuttingModal] = useState(false);
+  const [selectedDispatchForCutting, setSelectedDispatchForCutting] = useState(null);
+  const [cuttingDispatchOrderId, setCuttingDispatchOrderId] = useState("");
+  const [compWeight, setCompWeight] = useState("");
+  const [compRate, setCompRate] = useState("");
+  const [compDamageCut, setCompDamageCut] = useState("");
+  const [compMoistureCut, setCompMoistureCut] = useState("");
+  const [compOtherCut, setCompOtherCut] = useState("");
+  const [compNote, setCompNote] = useState("");
+
+  // Payment Modal States
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split("T")[0]);
+  const [paymentMode, setPaymentMode] = useState("Bank Transfer");
+  const [paymentRefNo, setPaymentRefNo] = useState("");
+  const [paymentNote, setPaymentNote] = useState("");
+  const [paymentOrderId, setPaymentOrderId] = useState("");
+
   // Load orders
   const fetchOrders = async () => {
     try {
@@ -141,6 +165,14 @@ const DealerDashboard = () => {
     fetchOrders();
     fetchDealers();
   }, []);
+
+  const refreshData = async () => {
+    await fetchOrders();
+    // If order view is active, reload order details
+    if (selectedOrder) {
+      loadOrderDetails(selectedOrder.id);
+    }
+  };
 
   // Fetch full details of selected order (including dispatches)
   const loadOrderDetails = async (id) => {
@@ -365,31 +397,454 @@ const DealerDashboard = () => {
   const totalFulfilledTons = orders.reduce((sum, o) => sum + (o.fulfilledWeight || 0), 0);
   const totalPendingTons = Math.max(0, totalOrderedTons - totalFulfilledTons);
 
+  const openCuttingModal = (dispatch, orderId) => {
+    setSelectedDispatchForCutting(dispatch);
+    setCuttingDispatchOrderId(orderId);
+    setCompWeight(dispatch.compWeight !== undefined ? dispatch.compWeight : dispatch.weight);
+    setCompRate(dispatch.compRate !== undefined ? dispatch.compRate : dispatch.rate);
+    setCompDamageCut(dispatch.compDamageCut || "");
+    setCompMoistureCut(dispatch.compMoistureCut || "");
+    setCompOtherCut(dispatch.compOtherCut || "");
+    setCompNote(dispatch.compNote || "");
+    setShowCuttingModal(true);
+  };
+
+  const handleSaveCutting = async (e) => {
+    e.preventDefault();
+    if (!selectedDispatchForCutting) return;
+
+    const sentAmt = Number(selectedDispatchForCutting.amount || 0);
+    const receivedBaseVal = Number(compWeight || 0) * Number(compRate || 0) * 10;
+    const cuts = Number(compDamageCut || 0) + Number(compMoistureCut || 0) + Number(compOtherCut || 0);
+    const passedAmount = receivedBaseVal - cuts;
+    const lossAmount = sentAmt - passedAmount;
+
+    const payload = {
+      compWeight: Number(compWeight),
+      compRate: Number(compRate),
+      compDamageCut: Number(compDamageCut || 0),
+      compMoistureCut: Number(compMoistureCut || 0),
+      compOtherCut: Number(compOtherCut || 0),
+      passedAmt: passedAmount,
+      lossAmt: lossAmount,
+      compNote: compNote
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/api/dealer-orders/${cuttingDispatchOrderId}/dispatch/${selectedDispatchForCutting.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        alert("कंपनी अंतिम पावती & घट तपशील यशस्वीरित्या जतन केले ✅");
+        setShowCuttingModal(false);
+        refreshData();
+      } else {
+        alert("माहिती जतन करताना चूक झाली.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("सर्व्हरशी संपर्क साधू शकला नाही.");
+    }
+  };
+
+  const handleAddPayment = async (e) => {
+    e.preventDefault();
+    if (!paymentOrderId || !paymentAmount) {
+      alert("कृपया आवश्यक माहिती भरा.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/dealer-orders/${paymentOrderId}/payment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: Number(paymentAmount),
+          date: paymentDate,
+          mode: paymentMode,
+          refNo: paymentRefNo,
+          note: paymentNote
+        })
+      });
+
+      if (res.ok) {
+        alert("कंपनी पेमेंट व्यवहार यशस्वीरित्या जोडला गेला ✅");
+        setPaymentAmount("");
+        setPaymentRefNo("");
+        setPaymentNote("");
+        setShowPaymentModal(false);
+        refreshData();
+      } else {
+        alert("पेमेंट जतन करताना चूक झाली.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("सर्व्हरशी संपर्क साधू शकला नाही.");
+    }
+  };
+
+  const handleDeletePayment = async (orderId, paymentId) => {
+    if (!window.confirm("तुम्हाला खात्री आहे की हा पेमेंट व्यवहार हटवायचा आहे?")) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/dealer-orders/${orderId}/payment/${paymentId}`, {
+        method: "DELETE"
+      });
+
+      if (res.ok) {
+        alert("पेमेंट व्यवहार यशस्वीरित्या हटवला गेला ✅");
+        refreshData();
+      } else {
+        alert("पेमेंट हटवताना चूक झाली.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const renderCompanyProfile = () => {
+    const companyOrders = orders.filter(o => o.dealerName === selectedCompany.name);
+    
+    const companyDispatches = companyOrders.flatMap(o => 
+      (o.dispatches || []).map(d => ({
+        ...d,
+        orderId: o.id,
+        poNo: o.poNo
+      }))
+    );
+
+    const companyPayments = companyOrders.flatMap(o => 
+      (o.payments || []).map(p => ({
+        ...p,
+        orderId: o.id,
+        poNo: o.poNo
+      }))
+    );
+
+    // Financial Tally
+    const totalSent = companyDispatches.reduce((sum, d) => sum + Number(d.amount || 0), 0);
+    const totalCuts = companyDispatches.reduce((sum, d) => sum + Number(d.lossAmt || 0), 0);
+    const totalPassed = totalSent - totalCuts;
+    const totalPaid = companyPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+    const totalBalance = totalPassed - totalPaid;
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+        {/* Back and Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button className="back-btn" onClick={() => setSelectedCompany(null)}>
+              <ArrowLeft size={16} /> कंपन्या यादीकडे जा
+            </button>
+            <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>
+              🏢 {selectedCompany.name} — प्रोफाइल & व्यवहार सारांश
+            </h2>
+          </div>
+          <button 
+            className="primary-btn" 
+            onClick={() => {
+              if (companyOrders.length === 0) {
+                alert("पेमेंट जोडण्यासाठी कंपनीची किमान एक ऑर्डर असणे आवश्यक आहे.");
+                return;
+              }
+              setPaymentOrderId(companyOrders[0].id);
+              setShowPaymentModal(true);
+            }}
+          >
+            💰 नवीन पेमेंट व्यवहार (Add Payment)
+          </button>
+        </div>
+
+        {/* Info Card & Tally Cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px" }}>
+          
+          <div className="card" style={{ borderLeft: "4px solid #4E653C", margin: 0, padding: "15px" }}>
+            <span style={{ fontSize: "12px", color: "#828B7E" }}>ठिकाण & संपर्क</span>
+            <h3 style={{ margin: "5px 0 0 0", fontSize: "16px", fontWeight: "700" }}>{selectedCompany.place || "-"}, {selectedCompany.village || "-"}</h3>
+            <p style={{ margin: "3px 0 0 0", fontSize: "11px", color: "#828B7E" }}>एकूण ऑर्डर्स: {companyOrders.length} | एकूण ट्रक्स: {companyDispatches.length}</p>
+          </div>
+
+          <div className="card" style={{ borderLeft: "4px solid #007bff", margin: 0, padding: "15px" }}>
+            <span style={{ fontSize: "12px", color: "#828B7E" }}>एकूण माल पाठवला (Trade Value)</span>
+            <h3 style={{ margin: "5px 0 0 0", fontSize: "18px", fontWeight: "700", color: "#007bff" }}>₹{totalSent.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</h3>
+          </div>
+
+          <div className="card" style={{ borderLeft: "4px solid #C94A4A", margin: 0, padding: "15px" }}>
+            <span style={{ fontSize: "12px", color: "#828B7E" }}>एकूण कपात / घट (Total Cutting)</span>
+            <h3 style={{ margin: "5px 0 0 0", fontSize: "18px", fontWeight: "700", color: "#C94A4A" }}>₹{totalCuts.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</h3>
+          </div>
+
+          <div className="card" style={{ borderLeft: "4px solid #2e7d32", margin: 0, padding: "15px" }}>
+            <span style={{ fontSize: "12px", color: "#828B7E" }}>कंपनी मंजूर रक्कम (Passed Value)</span>
+            <h3 style={{ margin: "5px 0 0 0", fontSize: "18px", fontWeight: "700", color: "#2e7d32" }}>₹{totalPassed.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</h3>
+          </div>
+
+          <div className="card" style={{ borderLeft: "4px solid #D49A2E", margin: 0, padding: "15px" }}>
+            <span style={{ fontSize: "12px", color: "#828B7E" }}>एकूण जमा पेमेंट (Received)</span>
+            <h3 style={{ margin: "5px 0 0 0", fontSize: "18px", fontWeight: "700", color: "#D49A2E" }}>₹{totalPaid.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</h3>
+          </div>
+
+          <div className="card" style={{ borderLeft: `4px solid ${totalBalance > 0 ? "#ff9800" : "#2e7d32"}`, margin: 0, padding: "15px" }}>
+            <span style={{ fontSize: "12px", color: "#828B7E" }}>येणे बाकी रक्कम (Outstanding)</span>
+            <h3 style={{ margin: "5px 0 0 0", fontSize: "18px", fontWeight: "700", color: totalBalance > 0 ? "#ff9800" : "#2e7d32" }}>
+              ₹{totalBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </h3>
+          </div>
+
+        </div>
+
+        {/* Tab Navigation */}
+        <div style={{ display: "flex", gap: "10px", borderBottom: "2px solid #E6E1D8", paddingBottom: "10px" }}>
+          <button 
+            className={`primary-btn ${profileTab === "orders" ? "" : "btn-ghost"}`}
+            onClick={() => setProfileTab("orders")}
+            style={{ padding: "6px 12px", fontSize: "13px" }}
+          >
+            📄 ऑर्डर्स यादी ({companyOrders.length})
+          </button>
+          <button 
+            className={`primary-btn ${profileTab === "trucks" ? "" : "btn-ghost"}`}
+            onClick={() => setProfileTab("trucks")}
+            style={{ padding: "6px 12px", fontSize: "13px" }}
+          >
+            🚚 ट्रान्सपोर्ट & ट्रक्स ({companyDispatches.length})
+          </button>
+          <button 
+            className={`primary-btn ${profileTab === "payments" ? "" : "btn-ghost"}`}
+            onClick={() => setProfileTab("payments")}
+            style={{ padding: "6px 12px", fontSize: "13px" }}
+          >
+            💰 जमा व्यवहार / लेजर ({companyPayments.length})
+          </button>
+        </div>
+
+        {/* Sub-tab Rendering */}
+        <div className="card" style={{ margin: 0, padding: "20px" }}>
+          
+          {profileTab === "orders" && (
+            <div>
+              <h3 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "15px" }}>कंपनीच्या ऑर्डर्स</h3>
+              {companyOrders.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणतीही ऑर्डर नोंदवलेली नाही.</div>
+              ) : (
+                <div className="table-responsive">
+                  <table className="records-table">
+                    <thead>
+                      <tr>
+                        <th>P.O. नं.</th>
+                        <th>तारीख</th>
+                        <th>एकूण वजन (T)</th>
+                        <th>लोड केलेले (T)</th>
+                        <th>बाकी वजन (T)</th>
+                        <th>स्थिती</th>
+                        <th>कृती</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {companyOrders.map(o => (
+                        <tr key={o.id}>
+                          <td data-label="P.O. नं.">{o.poNo || "N/A"}</td>
+                          <td data-label="तारीख">{o.orderDate}</td>
+                          <td data-label="एकूण वजन">{o.totalOrderedWeight} T</td>
+                          <td data-label="लोड केलेले">{o.fulfilledWeight.toFixed(2)} T</td>
+                          <td data-label="बाकी वजन">{o.remainingWeight.toFixed(2)} T</td>
+                          <td data-label="स्थिती">
+                            <span className={`badge ${o.status === "fulfilled" ? "badge-paid" : o.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
+                              {o.status === "fulfilled" ? "पूर्ण" : o.status === "partially_fulfilled" ? "अंशतः पूर्ण" : "बाकी"}
+                            </span>
+                          </td>
+                          <td data-label="कृती">
+                            <button 
+                              className="primary-btn btn-ghost btn-sm" 
+                              onClick={() => {
+                                setSelectedOrder(o);
+                              }}
+                            >
+                              तपशील पहा 📜
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {profileTab === "trucks" && (
+            <div>
+              <h3 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "15px" }}>वाहतूक व ट्रक नोंदी (Trades)</h3>
+              {companyDispatches.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणतीही वाहतूक नोंद सापडली नाही.</div>
+              ) : (
+                <div className="table-responsive">
+                  <table className="records-table" style={{ fontSize: "13px" }}>
+                    <thead>
+                      <tr>
+                        <th>बिल / तारीख</th>
+                        <th>गाडी नंबर / वाहतूक</th>
+                        <th>माल प्रकार (गोण्या)</th>
+                        <th>पाठवले वजन -> मिळाले</th>
+                        <th>माल किंमत (Sent)</th>
+                        <th>कपात / घट (Cuts)</th>
+                        <th>कंपनी मंजूर (Passed)</th>
+                        <th>कृती</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {companyDispatches.map(d => {
+                        const hasCutting = d.lossAmt !== undefined;
+                        return (
+                          <tr key={d.id}>
+                            <td data-label="बिल / तारीख">
+                              <strong>बिल: {d.billNo}</strong><br />
+                              <span style={{ fontSize: "11px", color: "#828B7E" }}>{d.date}</span>
+                            </td>
+                            <td data-label="गाडी / वाहतूक">
+                              <strong>{d.truckNo}</strong><br />
+                              <span style={{ fontSize: "11px", color: "#828B7E" }}>{d.transportAgent || "-"} (दलाल: {d.brokerName || "-"})</span>
+                            </td>
+                            <td data-label="माल प्रकार">
+                              {d.cropType}<br />
+                              <span style={{ fontSize: "11px", color: "#828B7E" }}>{d.bagsCount || 0} गोण्या (Moist: {d.moisture || "-"}%)</span>
+                            </td>
+                            <td data-label="वजन (Tons)">
+                              {d.weight} T &rarr; <span style={{ fontWeight: "bold" }}>{d.compWeight !== undefined ? `${d.compWeight} T` : "प्रलंबित"}</span>
+                            </td>
+                            <td data-label="किंमत">₹{d.amount.toFixed(2)}</td>
+                            <td data-label="कपात">
+                              {hasCutting ? (
+                                <span style={{ color: "red", fontWeight: "bold" }}>
+                                  ₹{d.lossAmt.toFixed(2)}
+                                </span>
+                              ) : (
+                                <span style={{ color: "#828B7E" }}>-</span>
+                              )}
+                            </td>
+                            <td data-label="मंजूर">
+                              {hasCutting ? (
+                                <strong>₹{d.passedAmt.toFixed(2)}</strong>
+                              ) : (
+                                <span style={{ color: "#ff9800" }}>तपासणी बाकी</span>
+                              )}
+                            </td>
+                            <td data-label="कृती">
+                              <div style={{ display: "flex", gap: "6px" }}>
+                                <button 
+                                  className="primary-btn btn-sm btn-ghost" 
+                                  style={{ padding: "4px 8px" }}
+                                  onClick={() => openCuttingModal(d, d.orderId)}
+                                  title="कंपनी अंतिम घट/नुकसान नोंदवा"
+                                >
+                                  ⚖️ घट नोंद
+                                </button>
+                                <button 
+                                  className="primary-btn btn-sm btn-success" 
+                                  style={{ padding: "4px 8px" }}
+                                  onClick={() => {
+                                    setSelectedDispatchForPreview(d);
+                                    setShowInvoicePreview(true);
+                                  }}
+                                  title="पावती बिल प्रिट"
+                                >
+                                  📄 बिल
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {profileTab === "payments" && (
+            <div>
+              <h3 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "15px" }}>कंपनीकडून जमा पेमेंट व्यवहार (Ledger)</h3>
+              {companyPayments.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणताही पेमेंट व्यवहार नोंदवला नाही.</div>
+              ) : (
+                <div className="table-responsive">
+                  <table className="records-table">
+                    <thead>
+                      <tr>
+                        <th>दिनांक</th>
+                        <th>P.O. नं.</th>
+                        <th>पेमेंट प्रकार</th>
+                        <th>रेफरन्स नं.</th>
+                        <th>तपशील / नोट</th>
+                        <th>रक्कम</th>
+                        <th>कृती</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {companyPayments.map(p => (
+                        <tr key={p.id}>
+                          <td data-label="दिनांक">{p.date}</td>
+                          <td data-label="P.O. नं.">{p.poNo || "N/A"}</td>
+                          <td data-label="पेमेंट प्रकार">{p.mode}</td>
+                          <td data-label="रेफरन्स नं.">{p.refNo || "-"}</td>
+                          <td data-label="तपशील / नोट">{p.note || "-"}</td>
+                          <td data-label="रक्कम" style={{ fontWeight: "bold", color: "#2e7d32" }}>
+                            ₹{p.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                          </td>
+                          <td data-label="कृती">
+                            <button 
+                              className="primary-btn btn-danger btn-sm" 
+                              style={{ padding: "4px 8px", background: "#C94A4A" }}
+                              onClick={() => handleDeletePayment(p.orderId, p.id)}
+                            >
+                              <Trash2 size={14} /> हटवा
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+        </div>
+      </div>
+    );
+  };
+
   return (
     <PageWrapper title="🚚 डीलर ऑर्डर्स व ट्रक लोडिंग व्यवस्थापन">
       
       {/* Analytics Grid */}
-      <div className="stats-grid" style={{ marginBottom: "30px" }}>
-        <div className="stat-card" style={{ borderLeft: "4px solid #4E653C" }}>
-          <h3>एकूण डीलर ऑर्डर्स</h3>
-          <p>{totalOrdersCount}</p>
+      {!selectedOrder && !selectedCompany && (
+        <div className="stats-grid" style={{ marginBottom: "30px" }}>
+          <div className="stat-card" style={{ borderLeft: "4px solid #4E653C" }}>
+            <h3>एकूण डीलर ऑर्डर्स</h3>
+            <p>{totalOrdersCount}</p>
+          </div>
+          <div className="stat-card" style={{ borderLeft: "4px solid #D49A2E" }}>
+            <h3>एकूण ऑर्डर वजन (Tons)</h3>
+            <p>{totalOrderedTons.toFixed(2)} T</p>
+          </div>
+          <div className="stat-card" style={{ borderLeft: "4px solid #2e7d32" }}>
+            <h3>पूर्ण झालेले वजन (Tons)</h3>
+            <p style={{ color: "#2e7d32" }}>{totalFulfilledTons.toFixed(2)} T</p>
+          </div>
+          <div className="stat-card" style={{ borderLeft: "4px solid #C94A4A" }}>
+            <h3>बाकी वजन (Tons)</h3>
+            <p style={{ color: "#C94A4A" }}>{totalPendingTons.toFixed(2)} T</p>
+          </div>
         </div>
-        <div className="stat-card" style={{ borderLeft: "4px solid #D49A2E" }}>
-          <h3>एकूण ऑर्डर वजन (Tons)</h3>
-          <p>{totalOrderedTons.toFixed(2)} T</p>
-        </div>
-        <div className="stat-card" style={{ borderLeft: "4px solid #2e7d32" }}>
-          <h3>पूर्ण झालेले वजन (Tons)</h3>
-          <p style={{ color: "#2e7d32" }}>{totalFulfilledTons.toFixed(2)} T</p>
-        </div>
-        <div className="stat-card" style={{ borderLeft: "4px solid #C94A4A" }}>
-          <h3>बाकी वजन (Tons)</h3>
-          <p style={{ color: "#C94A4A" }}>{totalPendingTons.toFixed(2)} T</p>
-        </div>
-      </div>
+      )}
 
       {/* Tab Navigation */}
-      {!selectedOrder && (
+      {!selectedOrder && !selectedCompany && (
         <div style={{ display: "flex", gap: "10px", marginBottom: "24px", borderBottom: "2px solid #E6E1D8", paddingBottom: "10px" }}>
           <button 
             className={`primary-btn ${activeTab === "orders" ? "" : "btn-ghost"}`}
@@ -408,8 +863,10 @@ const DealerDashboard = () => {
         </div>
       )}
 
-      {/* Conditional Rendering: Main Dashboard or Selected Order Details */}
-      {!selectedOrder ? (
+      {/* Conditional Rendering: Main Dashboard, Company Profile Dashboard or Selected Order Details */}
+      {selectedCompany ? (
+        renderCompanyProfile()
+      ) : !selectedOrder ? (
         activeTab === "orders" ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             
@@ -559,11 +1016,10 @@ const DealerDashboard = () => {
                           <td data-label="कंपनीचे नाव" style={{ textAlign: "left" }}>
                             <button 
                               onClick={() => {
-                                setSelectedCompanyFilter(d.name);
-                                setActiveTab("orders");
+                                setSelectedCompany(d);
                               }}
                               style={{ background: "none", border: "none", color: "#007bff", cursor: "pointer", fontWeight: "bold", fontSize: "14px" }}
-                              title="या कंपनीच्या ऑर्डर्स पहा"
+                              title="या कंपनीचे प्रोफाइल व व्यवहार पहा"
                             >
                               {d.name}
                             </button>
@@ -1151,6 +1607,186 @@ const DealerDashboard = () => {
               </div>
 
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: COMPANY LOSS / CUTTING MODAL */}
+      {showCuttingModal && selectedDispatchForCutting && (
+        <div className="modal-overlay" style={styles.modalOverlay}>
+          <div className="card modal-content" style={styles.modalContent}>
+            <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px", marginBottom: "15px" }}>
+              ⚖️ कंपनी अंतिम पावती & घट (Loss/Cutting) नोंदवा
+            </h2>
+            <form onSubmit={handleSaveCutting} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div style={{ background: "#f9f9f9", padding: "10px", borderRadius: "5px", fontSize: "13px" }}>
+                <strong>मूळ गाडी लोडिंग माहिती:</strong><br />
+                • वजन: {selectedDispatchForCutting.weight} T | भाव: ₹{selectedDispatchForCutting.rate}<br />
+                • पाठवलेली रक्कम (Loaded Value): <strong>₹{selectedDispatchForCutting.amount.toFixed(2)}</strong>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>कंपनी अंतिम वजन (Tons) *</label>
+                  <input 
+                    type="number" 
+                    step="any" 
+                    value={compWeight} 
+                    onChange={(e) => setCompWeight(e.target.value)} 
+                    required 
+                  />
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>कंपनी अंतिम भाव *</label>
+                  <input 
+                    type="number" 
+                    step="any" 
+                    value={compRate} 
+                    onChange={(e) => setCompRate(e.target.value)} 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Fungal / Quality कपात (₹)</label>
+                  <input 
+                    type="number" 
+                    value={compDamageCut} 
+                    onChange={(e) => setCompDamageCut(e.target.value)} 
+                    placeholder="0"
+                  />
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Moisture कपात (₹)</label>
+                  <input 
+                    type="number" 
+                    value={compMoistureCut} 
+                    onChange={(e) => setCompMoistureCut(e.target.value)} 
+                    placeholder="0"
+                  />
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>इतर घट/कपात (₹)</label>
+                  <input 
+                    type="number" 
+                    value={compOtherCut} 
+                    onChange={(e) => setCompOtherCut(e.target.value)} 
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              {/* Calculations Display */}
+              <div style={{ background: "#f2f7f2", padding: "10px", borderRadius: "5px", fontSize: "13px" }}>
+                <strong>अंदाजित ताळमेळ (Preview):</strong><br />
+                • कंपनी पास रक्कम: <strong>₹{((Number(compWeight || 0) * Number(compRate || 0) * 10) - (Number(compDamageCut || 0) + Number(compMoistureCut || 0) + Number(compOtherCut || 0))).toFixed(2)}</strong><br />
+                • कपात/नुकसान (Net Loss): <strong style={{ color: "red" }}>₹{(Number(selectedDispatchForCutting.amount || 0) - ((Number(compWeight || 0) * Number(compRate || 0) * 10) - (Number(compDamageCut || 0) + Number(compMoistureCut || 0) + Number(compOtherCut || 0)))).toFixed(2)}</strong>
+              </div>
+
+              <div className="form-group">
+                <label>तपशील / टिप (Note)</label>
+                <input 
+                  type="text" 
+                  value={compNote} 
+                  onChange={(e) => setCompNote(e.target.value)} 
+                  placeholder="उदा. बुरशी लागल्याने कपात झाली"
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                <button type="submit" className="primary-btn" style={{ flex: 1, justifyContent: "center" }}>जतन करा (Save)</button>
+                <button type="button" className="primary-btn btn-ghost" style={{ flex: 1, justifyContent: "center" }} onClick={() => setShowCuttingModal(false)}>रद्द करा (Cancel)</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 5: COMPANY PAYMENT MODAL */}
+      {showPaymentModal && (
+        <div className="modal-overlay" style={styles.modalOverlay}>
+          <div className="card modal-content" style={styles.modalContent}>
+            <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px", marginBottom: "15px" }}>
+              💰 नवीन कंपनी पेमेंट व्यवहार
+            </h2>
+            <form onSubmit={handleAddPayment} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              
+              <div className="form-group">
+                <label>निवडलेली ऑर्डर (Linked P.O. Number) *</label>
+                <select 
+                  value={paymentOrderId} 
+                  onChange={(e) => setPaymentOrderId(e.target.value)} 
+                  required
+                >
+                  {orders
+                    .filter(o => o.dealerName === selectedCompany?.name)
+                    .map(o => (
+                      <option key={o.id} value={o.id}>P.O. {o.poNo || "N/A"} ({o.orderDate})</option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>तारीख (Date) *</label>
+                  <input 
+                    type="date" 
+                    value={paymentDate} 
+                    onChange={(e) => setPaymentDate(e.target.value)} 
+                    required 
+                  />
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>रक्कम (Amount in ₹) *</label>
+                  <input 
+                    type="number" 
+                    placeholder="उदा. 50000" 
+                    value={paymentAmount} 
+                    onChange={(e) => setPaymentAmount(e.target.value)} 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>पेमेंट प्रकार (Payment Mode) *</label>
+                  <select value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)}>
+                    <option>Bank Transfer</option>
+                    <option>RTGS / NEFT</option>
+                    <option>Cheque</option>
+                    <option>Cash</option>
+                    <option>UPI</option>
+                  </select>
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>रेफरन्स नं. (Cheque/Ref No)</label>
+                  <input 
+                    type="text" 
+                    placeholder="उदा. TXN123456" 
+                    value={paymentRefNo} 
+                    onChange={(e) => setPaymentRefNo(e.target.value)} 
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>तपशील / टिप (Note)</label>
+                <input 
+                  type="text" 
+                  placeholder="उदा. बँक ट्रान्सफर द्वारे जमा" 
+                  value={paymentNote} 
+                  onChange={(e) => setPaymentNote(e.target.value)} 
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                <button type="submit" className="primary-btn" style={{ flex: 1, justifyContent: "center" }}>पेमेंट जोडा (Save)</button>
+                <button type="button" className="primary-btn btn-ghost" style={{ flex: 1, justifyContent: "center" }} onClick={() => setShowPaymentModal(false)}>रद्द करा</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
