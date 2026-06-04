@@ -1,30 +1,62 @@
 const supabase = require('../db');
 
-const toCamel = (r) => r ? {
-  id: r.id,
-  billNo: r.bill_no,
-  farmerName: r.farmer_name,
-  farmerNumber: r.farmer_number,
-  commodity: r.commodity,
-  weight: r.weight,
-  weightDetails: r.weight_details,
-  totalAmount: r.total_amount,
-  paidAmount: r.paid_amount,
-  dueAmount: r.due_amount,
-  paymentStatus: r.payment_status,
-  payments: r.payments,
-  date: r.date,
-  createdAt: r.created_at,
-  updatedAt: r.updated_at,
-} : null;
+const toCamel = (r) => {
+  if (!r) return null;
+
+  let cropVal = "";
+  if (r.commodity) {
+    if (typeof r.commodity === "string") {
+      try {
+        const parsed = JSON.parse(r.commodity);
+        cropVal = Array.isArray(parsed) ? parsed[0] : parsed;
+      } catch (e) {
+        cropVal = r.commodity;
+      }
+    } else if (Array.isArray(r.commodity)) {
+      cropVal = r.commodity[0];
+    } else {
+      cropVal = String(r.commodity);
+    }
+  }
+
+  let rateVal = 0;
+  if (r.weight_details) {
+    const num = Number(r.weight_details);
+    if (!isNaN(num)) {
+      rateVal = num;
+    }
+  }
+
+  return {
+    id: r.id,
+    billNo: r.bill_no,
+    farmerName: r.farmer_name,
+    farmerNumber: r.farmer_number,
+    mobile: r.farmer_number || "",
+    commodity: r.commodity,
+    crop: cropVal || "",
+    weight: r.weight,
+    quantity: r.weight || 0,
+    weightDetails: r.weight_details,
+    rate: rateVal || 0,
+    totalAmount: r.total_amount,
+    paidAmount: r.paid_amount,
+    dueAmount: r.due_amount,
+    paymentStatus: r.payment_status,
+    payments: r.payments,
+    date: r.date,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  };
+};
 
 const toSnake = (d) => ({
   bill_no: d.billNo,
   farmer_name: d.farmerName,
-  farmer_number: d.farmerNumber || '',
-  commodity: d.commodity || [],
-  weight: d.weight || 0,
-  weight_details: d.weightDetails || '',
+  farmer_number: d.farmerNumber || d.mobile || '',
+  commodity: d.commodity || (d.crop ? JSON.stringify([d.crop]) : '[]'),
+  weight: d.weight || d.quantity || 0,
+  weight_details: d.weightDetails || (d.rate !== undefined ? String(d.rate) : ''),
   total_amount: Number(d.totalAmount),
   paid_amount: Number(d.paidAmount) || 0,
   due_amount: Number(d.dueAmount) || 0,
@@ -61,10 +93,10 @@ exports.store = async (req, res) => {
     const recordData = {
       bill_no: billNo,
       farmer_name: req.body.farmerName,
-      farmer_number: req.body.farmerNumber || '',
-      commodity: req.body.commodity || [],
-      weight: req.body.weight || 0,
-      weight_details: req.body.weightDetails || '',
+      farmer_number: req.body.farmerNumber || req.body.mobile || '',
+      commodity: req.body.commodity || (req.body.crop ? JSON.stringify([req.body.crop]) : '[]'),
+      weight: req.body.weight || req.body.quantity || 0,
+      weight_details: req.body.weightDetails || (req.body.rate !== undefined ? String(req.body.rate) : ''),
       total_amount: total,
       paid_amount: paid,
       due_amount: total - paid,
@@ -103,10 +135,10 @@ exports.update = async (req, res) => {
 
     const updateData = {
       farmer_name: req.body.farmerName || existing.farmer_name,
-      farmer_number: req.body.farmerNumber !== undefined ? req.body.farmerNumber : existing.farmer_number,
-      commodity: req.body.commodity || existing.commodity,
-      weight: req.body.weight !== undefined ? req.body.weight : existing.weight,
-      weight_details: req.body.weightDetails !== undefined ? req.body.weightDetails : existing.weight_details,
+      farmer_number: req.body.farmerNumber || req.body.mobile || existing.farmer_number,
+      commodity: req.body.commodity || (req.body.crop ? JSON.stringify([req.body.crop]) : existing.commodity),
+      weight: req.body.weight !== undefined ? req.body.weight : (req.body.quantity !== undefined ? req.body.quantity : existing.weight),
+      weight_details: req.body.weightDetails !== undefined ? req.body.weightDetails : (req.body.rate !== undefined ? String(req.body.rate) : existing.weight_details),
       total_amount: total,
       paid_amount: paid,
       due_amount: total - paid,
