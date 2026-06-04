@@ -29,7 +29,26 @@ exports.index = async (req, res) => {
   try {
     const { data, error } = await supabase.from('dealer_orders').select('*').order('order_date', { ascending: false });
     if (error) throw error;
-    res.json(data.map(toCamel));
+
+    const crypto = require('crypto');
+    const updatedData = [];
+    for (const r of data) {
+      let modified = false;
+      const dispatches = (r.dispatches || []).map(d => {
+        if (!d.id && !d._id) {
+          d.id = crypto.randomUUID();
+          modified = true;
+        }
+        return d;
+      });
+      if (modified) {
+        await supabase.from('dealer_orders').update({ dispatches }).eq('id', r.id);
+        r.dispatches = dispatches;
+      }
+      updatedData.push(toCamel(r));
+    }
+
+    res.json(updatedData);
   } catch (error) {
     console.error('Error fetching dealer orders:', error);
     res.status(500).json({ error: 'Server error' });
@@ -40,7 +59,23 @@ exports.show = async (req, res) => {
   try {
     const { data, error } = await supabase.from('dealer_orders').select('*').eq('id', req.params.id).single();
     if (error || !data) return res.status(404).json({ error: 'Order not found' });
-    res.json(toCamel(data));
+
+    let r = data;
+    let modified = false;
+    const crypto = require('crypto');
+    const dispatches = (r.dispatches || []).map(d => {
+      if (!d.id && !d._id) {
+        d.id = crypto.randomUUID();
+        modified = true;
+      }
+      return d;
+    });
+    if (modified) {
+      await supabase.from('dealer_orders').update({ dispatches }).eq('id', r.id);
+      r.dispatches = dispatches;
+    }
+
+    res.json(toCamel(r));
   } catch (error) {
     console.error('Error fetching dealer order:', error);
     res.status(500).json({ error: 'Server error' });
