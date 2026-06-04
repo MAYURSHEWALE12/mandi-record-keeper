@@ -52,10 +52,39 @@ const DuePaymentsTable = ({ onEditClick }) => {
 
   if (loading) {
     return (
-      <div className="spinner-wrapper">
-        <div className="spinner-ring"></div>
-        <span>डेटा लोड होत आहे...</span>
-      </div>
+      <PageWrapper title="बाकी पेमेंट">
+        <div className="card">
+          <div className="filters" style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+            <div className="skeleton-shimmer" style={{ height: "38px", width: "200px", borderRadius: "8px" }}></div>
+            <div className="skeleton-shimmer" style={{ height: "38px", width: "160px", borderRadius: "8px" }}></div>
+            <div className="skeleton-shimmer" style={{ height: "38px", width: "160px", borderRadius: "8px" }}></div>
+          </div>
+          <div className="table-responsive">
+            <table className="skeleton-table">
+              <thead>
+                <tr>
+                  <th style={{ width: "20%" }}><div className="skeleton-line subtitle skeleton-shimmer" style={{ margin: 0 }}></div></th>
+                  <th style={{ width: "25%" }}><div className="skeleton-line subtitle skeleton-shimmer" style={{ margin: 0 }}></div></th>
+                  <th style={{ width: "15%" }}><div className="skeleton-line subtitle skeleton-shimmer" style={{ margin: 0 }}></div></th>
+                  <th style={{ width: "15%" }}><div className="skeleton-line subtitle skeleton-shimmer" style={{ margin: 0 }}></div></th>
+                  <th style={{ width: "25%" }}><div className="skeleton-line subtitle skeleton-shimmer" style={{ margin: 0 }}></div></th>
+                </tr>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <tr key={i}>
+                    <td><div className="skeleton-line text skeleton-shimmer" style={{ width: "80%" }}></div></td>
+                    <td><div className="skeleton-line text skeleton-shimmer" style={{ width: "90%" }}></div></td>
+                    <td><div className="skeleton-line text skeleton-shimmer" style={{ width: "60%" }}></div></td>
+                    <td><div className="skeleton-line text skeleton-shimmer" style={{ width: "70%" }}></div></td>
+                    <td><div className="skeleton-line text skeleton-shimmer" style={{ width: "85%" }}></div></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </PageWrapper>
     );
   }
 

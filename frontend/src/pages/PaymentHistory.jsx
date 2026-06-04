@@ -258,10 +258,54 @@ const PaymentHistory = () => {
 
   if (loading) {
     return (
-      <div className="spinner-wrapper" style={{ height: "80vh" }}>
-        <div className="spinner-ring"></div>
-        <span>पेमेंट इतिहास लोड होत आहे...</span>
-      </div>
+      <PageWrapper title="पेमेंट हिस्ट्री">
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px" }}>
+            <div className="skeleton-line title skeleton-shimmer" style={{ width: "200px", margin: 0 }}></div>
+            <div className="skeleton-shimmer" style={{ height: "36px", width: "120px", borderRadius: "8px" }}></div>
+          </div>
+          
+          <div className="card" style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px" }}>
+              <div className="skeleton-card" style={{ padding: "15px", border: "1px dashed var(--border)" }}>
+                <div className="skeleton-line subtitle skeleton-shimmer"></div>
+                <div className="skeleton-line title skeleton-shimmer" style={{ width: "80%" }}></div>
+              </div>
+              <div className="skeleton-card" style={{ padding: "15px", border: "1px dashed var(--border)" }}>
+                <div className="skeleton-line subtitle skeleton-shimmer"></div>
+                <div className="skeleton-line title skeleton-shimmer" style={{ width: "80%" }}></div>
+              </div>
+              <div className="skeleton-card" style={{ padding: "15px", border: "1px dashed var(--border)" }}>
+                <div className="skeleton-line subtitle skeleton-shimmer"></div>
+                <div className="skeleton-line title skeleton-shimmer" style={{ width: "80%" }}></div>
+              </div>
+            </div>
+            
+            <div className="table-responsive" style={{ marginTop: "20px" }}>
+              <table className="skeleton-table">
+                <thead>
+                  <tr>
+                    <th><div className="skeleton-line subtitle skeleton-shimmer" style={{ margin: 0, width: "60px" }}></div></th>
+                    <th><div className="skeleton-line subtitle skeleton-shimmer" style={{ margin: 0, width: "120px" }}></div></th>
+                    <th><div className="skeleton-line subtitle skeleton-shimmer" style={{ margin: 0, width: "80px" }}></div></th>
+                    <th><div className="skeleton-line subtitle skeleton-shimmer" style={{ margin: 0, width: "80px" }}></div></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[1, 2, 3].map((i) => (
+                    <tr key={i}>
+                      <td><div className="skeleton-line text skeleton-shimmer" style={{ width: "50px" }}></div></td>
+                      <td><div className="skeleton-line text skeleton-shimmer" style={{ width: "100px" }}></div></td>
+                      <td><div className="skeleton-line text skeleton-shimmer" style={{ width: "70px" }}></div></td>
+                      <td><div className="skeleton-line text skeleton-shimmer" style={{ width: "60px" }}></div></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </PageWrapper>
     );
   }
 

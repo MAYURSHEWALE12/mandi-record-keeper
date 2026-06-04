@@ -1116,3 +1116,58 @@ table.records-table {
   font-size: 14px;
   font-weight: 600;
 }
+
+/* ---- Skeleton Loader ---- */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f3f0e9 25%, #e8e4da 50%, #f3f0e9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite linear;
+}
+
+.skeleton-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: 4px;
+}
+.skeleton-line.title {
+  height: 18px;
+  width: 60%;
+  margin-bottom: 6px;
+}
+.skeleton-line.subtitle {
+  height: 14px;
+  width: 40%;
+  margin-bottom: 4px;
+}
+.skeleton-line.text {
+  height: 12px;
+  width: 90%;
+}
+.skeleton-line.short {
+  height: 12px;
+  width: 50%;
+}
+
+.skeleton-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.skeleton-table th, .skeleton-table td {
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+

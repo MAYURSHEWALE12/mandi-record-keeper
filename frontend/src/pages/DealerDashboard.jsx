@@ -1213,9 +1213,19 @@ const DealerDashboard = () => {
 
             {/* Orders List Layout */}
             {loading ? (
-              <div className="spinner-wrapper">
-                <div className="spinner-ring"></div>
-                <span>ऑर्डर्स लोड होत आहेत...</span>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "20px" }}>
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <div key={n} className="skeleton-card">
+                    <div className="skeleton-line title skeleton-shimmer"></div>
+                    <div className="skeleton-line subtitle skeleton-shimmer"></div>
+                    <div style={{ margin: "8px 0", display: "flex", flexDirection: "column", gap: "8px" }}>
+                      <div className="skeleton-line text skeleton-shimmer" style={{ width: "95%" }}></div>
+                      <div className="skeleton-line text skeleton-shimmer" style={{ width: "85%" }}></div>
+                      <div className="skeleton-line text skeleton-shimmer" style={{ width: "75%" }}></div>
+                    </div>
+                    <div className="skeleton-shimmer" style={{ height: "36px", width: "100%", borderRadius: "8px", marginTop: "4px" }}></div>
+                  </div>
+                ))}
               </div>
             ) : orders.filter(o => !selectedCompanyFilter || o.dealerName === selectedCompanyFilter).length === 0 ? (
               <div className="card" style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
