@@ -1577,16 +1577,47 @@ const DealerDashboard = () => {
                       <td style={{ fontWeight: "bold", background: "#f9f9f9" }}>एकूण (Total)</td>
                       <td style={{ textAlign: "center", fontWeight: "bold", background: "#f9f9f9" }}>₹{selectedDispatchForPreview.amount.toFixed(2)}</td>
                     </tr>
-                    <tr>
-                      <td colSpan="3" style={{ border: "none" }}></td>
-                      <td style={{ fontWeight: "bold" }}>अॅडव्हान्स</td>
-                      <td style={{ textAlign: "center" }}>-</td>
-                    </tr>
-                    <tr>
-                      <td colSpan="3" style={{ border: "none" }}></td>
-                      <td style={{ fontWeight: "bold", borderTop: "2px solid #000" }}>बाकी रु.</td>
-                      <td style={{ textAlign: "center", fontWeight: "bold", borderTop: "2px solid #000" }}>₹{selectedDispatchForPreview.amount.toFixed(2)}</td>
-                    </tr>
+                    {selectedDispatchForPreview.lossAmt !== undefined ? (
+                      <>
+                        <tr>
+                          <td colSpan="3" style={{ fontSize: "9px" }}>
+                            <strong>प्राप्त वजन:</strong> {selectedDispatchForPreview.compWeight} T (दर: ₹{selectedDispatchForPreview.compRate})
+                          </td>
+                          <td style={{ fontWeight: "bold", color: "red" }}>एकूण घट (Loss)</td>
+                          <td style={{ textAlign: "center", fontWeight: "bold", color: "red" }}>-₹{selectedDispatchForPreview.lossAmt.toFixed(2)}</td>
+                        </tr>
+                        {selectedDispatchForPreview.compDamageCut > 0 || selectedDispatchForPreview.compMoistureCut > 0 || selectedDispatchForPreview.compOtherCut > 0 ? (
+                          <tr>
+                            <td colSpan="3" style={{ fontSize: "8.5px", color: "#555" }}>
+                              <strong>कपात तपशील:</strong> {[
+                                selectedDispatchForPreview.compDamageCut > 0 && `गुणवत्ता: ₹${selectedDispatchForPreview.compDamageCut}`,
+                                selectedDispatchForPreview.compMoistureCut > 0 && `ओलावा: ₹${selectedDispatchForPreview.compMoistureCut}`,
+                                selectedDispatchForPreview.compOtherCut > 0 && `इतर: ₹${selectedDispatchForPreview.compOtherCut}`
+                              ].filter(Boolean).join(" | ")}
+                            </td>
+                            <td colSpan="2" style={{ border: "none" }}></td>
+                          </tr>
+                        ) : null}
+                        <tr>
+                          <td colSpan="3" style={{ border: "none" }}></td>
+                          <td style={{ fontWeight: "bold", borderTop: "2px solid #000", background: "#f9f9f9" }}>मंजूर (Passed)</td>
+                          <td style={{ textAlign: "center", fontWeight: "bold", borderTop: "2px solid #000", background: "#f9f9f9", color: "green" }}>₹{selectedDispatchForPreview.passedAmt.toFixed(2)}</td>
+                        </tr>
+                      </>
+                    ) : (
+                      <>
+                        <tr>
+                          <td colSpan="3" style={{ border: "none" }}></td>
+                          <td style={{ fontWeight: "bold" }}>अॅडव्हान्स</td>
+                          <td style={{ textAlign: "center" }}>-</td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3" style={{ border: "none" }}></td>
+                          <td style={{ fontWeight: "bold", borderTop: "2px solid #000" }}>बाकी रु.</td>
+                          <td style={{ textAlign: "center", fontWeight: "bold", borderTop: "2px solid #000" }}>₹{selectedDispatchForPreview.amount.toFixed(2)}</td>
+                        </tr>
+                      </>
+                    )}
                   </tbody>
                 </table>
 
