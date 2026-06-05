@@ -1378,17 +1378,17 @@ const DealerDashboard = () => {
             <h3>एकूण ऑर्डर वजन (Tons)</h3>
             <p>{totalOrderedTons.toFixed(2)} Tons</p>
           </div>
-          <div className="stat-card" style={{ borderLeft: "4px solid #2e7d32" }}>
+          <div className="stat-card" style={{ borderLeft: "4px solid #1C1C1C" }}>
             <h3>पूर्ण झालेले वजन (Tons)</h3>
-            <p style={{ color: "#2e7d32" }}>{totalFulfilledTons.toFixed(2)} Tons</p>
+            <p style={{ color: "#1C1C1C" }}>{totalFulfilledTons.toFixed(2)} Tons</p>
           </div>
           <div className="stat-card" style={{ borderLeft: "4px solid #C94A4A" }}>
             <h3>बाकी वजन (Tons)</h3>
             <p style={{ color: "#C94A4A" }}>{totalPendingTons.toFixed(2)} Tons</p>
           </div>
-          <div className="stat-card" style={{ borderLeft: "4px solid #10b981" }}>
-            <h3>मका शिल्लक साठा</h3>
-            <p style={{ color: "#10b981" }}>
+          <div className="stat-card" style={{ borderLeft: "4px solid #E5A93C" }}>
+            <h3>मка शिल्लक साठा</h3>
+            <p style={{ color: "#E5A93C" }}>
               {availableStockTons.toFixed(2)} Tons 
               <span style={{ fontSize: "13px", color: "var(--text-muted)", marginLeft: "6px", fontWeight: "normal" }}>
                 ({availableStockQuintals.toFixed(0)} क्विंटल)
@@ -1803,7 +1803,7 @@ const DealerDashboard = () => {
               <div className="form-group">
                 <label>
                   एकूण वजन ऑर्डर (Tons मध्ये) *
-                  <span style={{ color: "#10b981", fontWeight: "bold", marginLeft: "8px" }}>
+                  <span style={{ color: "#E5A93C", fontWeight: "bold", marginLeft: "8px" }}>
                     (शिल्लक साठा: {availableStockTons.toFixed(2)} Tons)
                   </span>
                 </label>
@@ -1914,7 +1914,7 @@ const DealerDashboard = () => {
                   <label>
                     निव्वळ वजन (Tons मध्ये) *
                     {selectedOrder && (
-                      <span style={{ color: "#10b981", fontWeight: "bold", marginLeft: "8px" }}>
+                      <span style={{ color: "#E5A93C", fontWeight: "bold", marginLeft: "8px" }}>
                         (कमाल मर्यादा: {Math.min(Number(selectedOrder.remainingWeight || 0), physicalStockTons).toFixed(2)} Tons)
                       </span>
                     )}

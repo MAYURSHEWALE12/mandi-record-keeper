@@ -291,7 +291,7 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
       {selectedInvoice && (
         <div className="invoice-modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 2000, overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
           <div style={{ marginBottom: '10px', display: 'flex', gap: '15px' }}>
-            <button onClick={handleDownloadInvoicePDF} style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>PDF डाउनलोड 📥</button>
+            <button onClick={handleDownloadInvoicePDF} style={{ padding: '10px 20px', backgroundColor: '#1C1C1C', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>PDF डाउनलोड 📥</button>
             <button onClick={() => setSelectedInvoice(null)} style={{ padding: '10px 20px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>बंद करा ✖</button>
           </div>
 
