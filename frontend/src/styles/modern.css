@@ -63,6 +63,44 @@ body.dark-theme {
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* ---- Custom Scrollbar ---- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Firefox scrollbar support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+body.dark-theme * {
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
 body {
   font-family: 'Tiro Devanagari Marathi', 'Poppins', 'Mukta', sans-serif;
   background: var(--bg);

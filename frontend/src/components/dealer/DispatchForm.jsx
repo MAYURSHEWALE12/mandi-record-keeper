@@ -109,7 +109,7 @@ const DispatchForm = ({ show, selectedOrder, physicalStockTons, onClose, onDispa
         <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px", marginBottom: "15px" }}>
           🚚 नवीन गाडी (ट्रक) लोडिंग नोंदणी
         </h2>
-        <form onSubmit={handleAddDispatch} style={{ display: "flex", flexDirection: "column", gap: "14px", maxHeight: "80vh", overflowY: "auto", paddingRight: "10px" }}>
+        <form onSubmit={handleAddDispatch} style={{ display: "flex", flexDirection: "column", gap: "14px", paddingRight: "10px" }}>
           
           <h4 style={{ color: "#4E653C", borderBottom: "1px dashed #E6E1D8", paddingBottom: "4px" }}>१. पावती & वाहतूक तपशील</h4>
           <div className="form-row">
