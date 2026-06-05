@@ -175,6 +175,7 @@ const CompanyProfile = ({ selectedCompany, orders = [], profileTab, onSetProfile
                               onBack();
                               // Parent will set selected order via onSelectOrder callback
                               // This is handled by setting localStorage and dispatching event
+                              localStorage.setItem("dealer_activeTab", "orders");
                               localStorage.setItem("dealer_selectedOrder", JSON.stringify(o));
                               window.dispatchEvent(new Event("dealer-tab-changed"));
                             }}
