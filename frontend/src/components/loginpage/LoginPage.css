@@ -585,3 +585,35 @@
     width: 100%;
   }
 }
+
+/* ---- Dark Mode Specific Overrides for Login Page ---- */
+body.dark-theme .login-left-pane {
+  background: rgba(8, 10, 6, 0.85); /* Darker left column background */
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .login-right-pane {
+  background: rgba(0, 0, 0, 0.55); /* Darken right column background to increase form contrast */
+}
+
+body.dark-theme .glass-login-card {
+  background: rgba(18, 22, 15, 0.45); /* Darker glassmorphic card fill */
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-theme .glass-input-group input {
+  background: rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-theme .glass-input-group input:focus {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: #E5A93C;
+}
+
+body.dark-theme .help-widget {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
