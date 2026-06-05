@@ -368,7 +368,7 @@ const DealerDashboard = () => {
       return;
     }
 
-    const calculatedAmount = Number(weight) * Number(rate);
+    const calculatedAmount = Number(weight) * Number(rate) * 10;
     const calculatedTotalFreight = bagsCount && freightRate ? Number(bagsCount) * Number(freightRate) : 0;
     const calculatedDueFreight = calculatedTotalFreight - Number(paidFreight || 0);
 
