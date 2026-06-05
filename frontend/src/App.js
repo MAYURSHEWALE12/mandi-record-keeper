@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import ErrorBoundary from "./components/common/ErrorBoundary";
 import "./styles/modern.css";
 
 import LoginPage from "./components/loginpage/LoginPage";
@@ -33,6 +34,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ErrorBoundary>
       <Toaster position="top-center" toastOptions={{ duration: 3000, style: { fontFamily: "sans-serif" } }} />
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
@@ -49,6 +51,7 @@ function App() {
         <Route path="/dealer-dashboard" element={<ProtectedRoute><AppLayout><DealerDashboard /></AppLayout></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/select-dashboard" replace />} />
       </Routes>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }
