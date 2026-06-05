@@ -151,7 +151,7 @@ const DayStatsCards = ({ records = [], dealerOrders = [] }) => {
   }, 0);
 
   const totalOutwardTons = dealerOrders.reduce((sum, o) => {
-    return sum + Number(o.totalOrderedWeight || 0);
+    return sum + Math.max(Number(o.totalOrderedWeight || 0), Number(o.fulfilledWeight || 0));
   }, 0);
 
   const availableStockTons = Math.max(0, totalInwardTons - totalOutwardTons);
@@ -164,7 +164,7 @@ const DayStatsCards = ({ records = [], dealerOrders = [] }) => {
     { title: "आजची बाकी रक्कम", value: `₹${totalDue}` },
     { 
       title: "मका शिल्लक साठा", 
-      value: `${availableStockTons.toFixed(2)} T`, 
+      value: `${availableStockTons.toFixed(2)} Tons`, 
       extra: `(${availableStockQuintals.toFixed(0)} क्विंटल)` 
     }
   ];

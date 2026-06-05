@@ -312,7 +312,7 @@ const DealerDashboard = () => {
     }
 
     if (Number(totalOrderedWeight) > availableStockTons) {
-      alert(`चूक: शिल्लक मका साठ्यापेक्षा (${availableStockTons.toFixed(2)} T) जास्त ऑर्डर वजन नोंदवू शकत नाही!`);
+      alert(`चूक: शिल्लक मका साठ्यापेक्षा (${availableStockTons.toFixed(2)} Tons) जास्त ऑर्डर वजन नोंदवू शकत नाही!`);
       return;
     }
 
@@ -352,6 +352,11 @@ const DealerDashboard = () => {
     e.preventDefault();
     if (!truckNo || !weight || !rate) {
       alert("कृपया ट्रक नंबर, वजन आणि भाव भरा.");
+      return;
+    }
+
+    if (Number(weight) > physicalStockTons + 0.0001) {
+      alert(`चूक: आपण शिल्लक भौतिक साठ्यापेक्षा (${physicalStockTons.toFixed(2)} Tons) जास्त वजन लोड करू शकत नाही!`);
       return;
     }
 
@@ -538,9 +543,11 @@ const DealerDashboard = () => {
     }
     return sum;
   }, 0);
-  const totalOutwardTons = totalOrderedTons;
+  const totalOutwardTons = orders.reduce((sum, o) => sum + Math.max(o.totalOrderedWeight || 0, o.fulfilledWeight || 0), 0);
   const availableStockTons = Math.max(0, totalInwardTons - totalOutwardTons);
   const availableStockQuintals = availableStockTons * 10;
+  const totalAlreadyDispatchedTons = orders.reduce((sum, o) => sum + (o.fulfilledWeight || 0), 0);
+  const physicalStockTons = Math.max(0, totalInwardTons - totalAlreadyDispatchedTons);
 
   const currentOrderForPreview = selectedDispatchForPreview 
     ? (orders.find(o => o.id === selectedDispatchForPreview.orderId) || selectedOrder || {}) 
@@ -590,6 +597,10 @@ const DealerDashboard = () => {
         alert("कंपनी अंतिम पावती & घट तपशील यशस्वीरित्या जतन केले ✅");
         setShowCuttingModal(false);
         refreshData();
+        // Immediately open preview modal for user inspection and download
+        const updatedDispatch = { ...selectedDispatchForCutting, ...payload };
+        setSelectedDispatchForPreview(updatedDispatch);
+        setShowInvoicePreview(true);
       } else {
         alert("माहिती जतन करताना चूक झाली.");
       }
@@ -785,9 +796,9 @@ const DealerDashboard = () => {
                       <tr>
                         <th>P.O. नं.</th>
                         <th>तारीख</th>
-                        <th>एकूण वजन (T)</th>
-                        <th>लोड केलेले (T)</th>
-                        <th>बाकी वजन (T)</th>
+                        <th>एकूण वजन (Tons)</th>
+                        <th>लोड केलेले (Tons)</th>
+                        <th>बाकी वजन (Tons)</th>
                         <th>स्थिती</th>
                         <th>कृती</th>
                       </tr>
@@ -797,9 +808,9 @@ const DealerDashboard = () => {
                         <tr key={o.id}>
                           <td data-label="P.O. नं.">{o.poNo || "N/A"}</td>
                           <td data-label="तारीख">{o.orderDate}</td>
-                          <td data-label="एकूण वजन">{o.totalOrderedWeight} T</td>
-                          <td data-label="लोड केलेले">{o.fulfilledWeight.toFixed(2)} T</td>
-                          <td data-label="बाकी वजन">{o.remainingWeight.toFixed(2)} T</td>
+                          <td data-label="एकूण वजन">{o.totalOrderedWeight} Tons</td>
+                          <td data-label="लोड केलेले">{o.fulfilledWeight.toFixed(2)} Tons</td>
+                          <td data-label="बाकी वजन">{o.remainingWeight.toFixed(2)} Tons</td>
                           <td data-label="स्थिती">
                             <span className={`badge ${o.status === "fulfilled" ? "badge-paid" : o.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
                               {o.status === "fulfilled" ? "पूर्ण" : o.status === "partially_fulfilled" ? "अंशतः पूर्ण" : "बाकी"}
@@ -1172,20 +1183,20 @@ const DealerDashboard = () => {
           </div>
           <div className="stat-card" style={{ borderLeft: "4px solid #D49A2E" }}>
             <h3>एकूण ऑर्डर वजन (Tons)</h3>
-            <p>{totalOrderedTons.toFixed(2)} T</p>
+            <p>{totalOrderedTons.toFixed(2)} Tons</p>
           </div>
           <div className="stat-card" style={{ borderLeft: "4px solid #2e7d32" }}>
             <h3>पूर्ण झालेले वजन (Tons)</h3>
-            <p style={{ color: "#2e7d32" }}>{totalFulfilledTons.toFixed(2)} T</p>
+            <p style={{ color: "#2e7d32" }}>{totalFulfilledTons.toFixed(2)} Tons</p>
           </div>
           <div className="stat-card" style={{ borderLeft: "4px solid #C94A4A" }}>
             <h3>बाकी वजन (Tons)</h3>
-            <p style={{ color: "#C94A4A" }}>{totalPendingTons.toFixed(2)} T</p>
+            <p style={{ color: "#C94A4A" }}>{totalPendingTons.toFixed(2)} Tons</p>
           </div>
           <div className="stat-card" style={{ borderLeft: "4px solid #10b981" }}>
             <h3>मका शिल्लक साठा</h3>
             <p style={{ color: "#10b981" }}>
-              {availableStockTons.toFixed(2)} T 
+              {availableStockTons.toFixed(2)} Tons 
               <span style={{ fontSize: "13px", color: "var(--text-muted)", marginLeft: "6px", fontWeight: "normal" }}>
                 ({availableStockQuintals.toFixed(0)} क्विंटल)
               </span>
@@ -1581,10 +1592,10 @@ const DealerDashboard = () => {
                 <label>
                   एकूण वजन ऑर्डर (Tons मध्ये) *
                   <span style={{ color: "#10b981", fontWeight: "bold", marginLeft: "8px" }}>
-                    (शिल्लक साठा: {availableStockTons.toFixed(2)} T)
+                    (शिल्लक साठा: {availableStockTons.toFixed(2)} Tons)
                   </span>
                 </label>
-                <input type="number" step="any" placeholder={`उदा. कमाल ${availableStockTons.toFixed(2)} T`} value={totalOrderedWeight} onChange={(e) => setTotalOrderedWeight(e.target.value)} required />
+                <input type="number" step="any" placeholder={`उदा. कमाल ${availableStockTons.toFixed(2)} Tons`} value={totalOrderedWeight} onChange={(e) => setTotalOrderedWeight(e.target.value)} required />
               </div>
               <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
                 <button type="submit" className="primary-btn" style={{ flex: 1, justifyContent: "center" }}>ऑर्डर जतन करा</button>
@@ -1688,8 +1699,13 @@ const DealerDashboard = () => {
 
               <div className="form-row">
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label>निव्वळ वजन (Tons मध्ये)</label>
-                  <input type="number" step="any" placeholder="उदा. 25.4" value={weight} onChange={(e) => setWeight(e.target.value)} required />
+                  <label>
+                    निव्वळ वजन (Tons मध्ये) *
+                    <span style={{ color: "#10b981", fontWeight: "bold", marginLeft: "8px" }}>
+                      (कमाल उपलब्ध साठा: {physicalStockTons.toFixed(2)} Tons)
+                    </span>
+                  </label>
+                  <input type="number" step="any" placeholder={`उदा. कमाल ${physicalStockTons.toFixed(2)} Tons`} value={weight} onChange={(e) => setWeight(e.target.value)} required />
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>भाव (₹ / क्विंटल किंवा टन)</label>

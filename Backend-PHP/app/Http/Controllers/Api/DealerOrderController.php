@@ -124,6 +124,14 @@ class DealerOrderController extends Controller
         }
 
         $data = $request->getParsedBody();
+        $inputWeight = (float) ($data['weight'] ?? 0);
+        $totalInward = \App\Models\Record::where('crop', 'मका')->sum('quantity') / 10.0;
+        $totalAlreadyDispatched = \App\Models\DealerDispatch::sum('weight');
+        $physicalStock = max(0.0, $totalInward - $totalAlreadyDispatched);
+
+        if ($inputWeight > $physicalStock + 0.0001) {
+            return $this->error($response, "Cannot dispatch more than the available physical stock of " . number_format($physicalStock, 2) . " Tons", 400);
+        }
 
         // Auto-increment bill number if not provided, using Counter
         $billNo = $data['billNo'] ?? null;

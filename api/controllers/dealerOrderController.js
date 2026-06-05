@@ -112,12 +112,37 @@ exports.storeDispatch = async (req, res) => {
   try {
     const { data: order, error: findError } = await supabase.from('dealer_orders').select('*').eq('id', req.params.id).single();
     if (findError || !order) return res.status(404).json({ error: 'Order not found' });
+    
+    const inputWeight = Number(req.body.weight || 0);
+
+    // Fetch all farmer records for inward stock
+    const { data: records, error: recError } = await supabase.from('records').select('*');
+    if (recError) throw recError;
+    const totalInward = records.reduce((sum, r) => {
+      const isMakka = r.crop === "मका" || (r.commodity && r.commodity.includes("मका"));
+      return sum + (isMakka ? Number(r.weight || r.quantity || 0) / 10 : 0);
+    }, 0);
+
+    // Fetch all dealer orders for outward dispatched stock
+    const { data: allOrders, error: ordersError } = await supabase.from('dealer_orders').select('*');
+    if (ordersError) throw ordersError;
+    const totalAlreadyDispatched = allOrders.reduce((sum, o) => {
+      return sum + (o.dispatches || []).reduce((s, d) => s + Number(d.weight || d.quantity || 0), 0);
+    }, 0);
+
+    const physicalStock = Math.max(0, totalInward - totalAlreadyDispatched);
+    if (inputWeight > physicalStock + 0.0001) {
+      return res.status(400).json({ error: `Cannot dispatch more than the available physical stock of ${physicalStock.toFixed(2)} Tons` });
+    }
+
+    const existingDispatches = order.dispatches || [];
+
     const crypto = require('crypto');
     const newDispatch = {
       id: req.body.id || crypto.randomUUID(),
       ...req.body
     };
-    const dispatches = [...(order.dispatches || []), newDispatch];
+    const dispatches = [...existingDispatches, newDispatch];
     const totalFulfilled = dispatches.reduce((s, d) => s + Number(d.weight || d.quantity || 0), 0);
     const newStatus = totalFulfilled >= (order.total_ordered_weight || 0) ? 'fulfilled' : 'partially_fulfilled';
 
