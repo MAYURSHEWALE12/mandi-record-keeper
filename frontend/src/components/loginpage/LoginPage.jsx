@@ -195,9 +195,6 @@ const LoginPage = () => {
                   />
                   <span>Remember Me</span>
                 </label>
-                <span className="forgot-password-link" onClick={() => navigate("/forgot-password")}>
-                  Forgot Password?
-                </span>
               </div>
 
               <button type="submit" className="glass-submit-btn" disabled={loading}>

@@ -112,8 +112,6 @@ module.exports = function createApp() {
 
   // Auth (no middleware)
   app.post('/api/admin/login', authCtrl.login);
-  app.post('/api/admin/forgot-password', authCtrl.forgotPassword);
-  app.post('/api/admin/reset-password/:token', authCtrl.resetPassword);
 
   // Data routes (protected with JWT auth)
   app.get('/api/records', auth, recordCtrl.index);

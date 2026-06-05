@@ -5,8 +5,6 @@ import ErrorBoundary from "./components/common/ErrorBoundary";
 import "./styles/modern.css";
 
 import LoginPage from "./components/loginpage/LoginPage";
-import ForgotPassword from "./components/loginpage/ForgotPassword";
-import ResetPassword from "./components/loginpage/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import AdminPage from "./pages/AdminPage";
 import PaymentHistory from "./pages/PaymentHistory";
@@ -39,8 +37,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/select-dashboard" element={<ProtectedRoute><DashboardSelection /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AppLayout><AdminPage /></AppLayout></ProtectedRoute>} />
