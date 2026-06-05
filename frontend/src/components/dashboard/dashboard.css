@@ -1,7 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Mukta:wght@400;500;600;700&family=Tiro+Devanagari+Marathi:ital@0;1&display=swap');
+
 /* ---------- Global ---------- */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Tiro Devanagari Marathi', 'Poppins', 'Mukta', sans-serif;
   background: #f4f6f8;
 }
 
