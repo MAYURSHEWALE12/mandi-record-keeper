@@ -8,7 +8,7 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
   const [date, setDate] = useState("");
   const [farmerName, setFarmerName] = useState("");
   const [mobile, setMobile] = useState("");
-  const [crop, setCrop] = useState("");
+  const [crop, setCrop] = useState("मका");
   const [quantity, setQuantity] = useState("");
   const [rate, setRate] = useState("");
   const [paidAmount, setPaidAmount] = useState("");
@@ -86,7 +86,7 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
   };
 
   const resetForm = () => {
-    setDate(""); setFarmerName(""); setMobile(""); setCrop(""); 
+    setDate(""); setFarmerName(""); setMobile(""); setCrop("मका"); 
     setQuantity(""); setRate(""); setPaidAmount(""); setRemainingPayment("");
     setEditingRecord(null);
   };
@@ -103,7 +103,7 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
           <CustomDropdown
             value={crop}
             onChange={setCrop}
-            options={["मका", "गहू", "कांदा", "ज्वारी", "बाजरी", "ऊस"]}
+            options={["मका"]}
             placeholder="पिक निवडा"
             required={true}
           />

@@ -218,12 +218,7 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
           onChange={(val) => { setFilterCrop(val); setCurrentPage(1); }}
           options={[
             { value: "", label: "सर्व पिके" },
-            { value: "मका", label: "मका" },
-            { value: "गहू", label: "गहू" },
-            { value: "कांदा", label: "कांदा" },
-            { value: "ज्वारी", label: "ज्वारी" },
-            { value: "बाजरी", label: "बाजरी" },
-            { value: "ऊस", label: "ऊस" }
+            { value: "मका", label: "मका" }
           ]}
           placeholder="सर्व पिके"
           style={{ minWidth: "160px", width: "160px" }}

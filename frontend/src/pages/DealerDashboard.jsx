@@ -21,6 +21,7 @@ const DealerDashboard = () => {
   const [place, setPlace] = useState("");
   const [village, setVillage] = useState("");
   const [totalOrderedWeight, setTotalOrderedWeight] = useState("");
+  const [farmerRecords, setFarmerRecords] = useState([]);
 
   // Registered Companies States
   const [dealers, setDealers] = useState([]);
@@ -185,6 +186,16 @@ const DealerDashboard = () => {
       setLoading(false);
     }
   };
+  
+  const fetchFarmerRecords = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/records`);
+      const data = await res.json();
+      setFarmerRecords(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching farmer records:", err);
+    }
+  };
 
   const fetchDealers = async () => {
     try {
@@ -265,11 +276,13 @@ const DealerDashboard = () => {
   useEffect(() => {
     fetchOrders();
     fetchDealers();
+    fetchFarmerRecords();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const refreshData = async () => {
     await fetchOrders();
+    await fetchFarmerRecords();
     // If order view is active, reload order details
     if (selectedOrder) {
       loadOrderDetails(selectedOrder.id);
@@ -512,6 +525,18 @@ const DealerDashboard = () => {
   const totalOrderedTons = orders.reduce((sum, o) => sum + (o.totalOrderedWeight || 0), 0);
   const totalFulfilledTons = orders.reduce((sum, o) => sum + (o.fulfilledWeight || 0), 0);
   const totalPendingTons = Math.max(0, totalOrderedTons - totalFulfilledTons);
+
+  // Total stock calculations (1 Ton = 10 Quintals)
+  const totalInwardTons = farmerRecords.reduce((sum, r) => {
+    const isMakka = r.crop === "मका" || (r.commodity && r.commodity.includes("मका"));
+    if (isMakka) {
+      return sum + Number(r.weight || r.quantity || 0) / 10;
+    }
+    return sum;
+  }, 0);
+  const totalOutwardTons = totalFulfilledTons;
+  const availableStockTons = Math.max(0, totalInwardTons - totalOutwardTons);
+  const availableStockQuintals = availableStockTons * 10;
 
   const currentOrderForPreview = selectedDispatchForPreview 
     ? (orders.find(o => o.id === selectedDispatchForPreview.orderId) || selectedOrder || {}) 
@@ -1153,6 +1178,15 @@ const DealerDashboard = () => {
             <h3>बाकी वजन (Tons)</h3>
             <p style={{ color: "#C94A4A" }}>{totalPendingTons.toFixed(2)} T</p>
           </div>
+          <div className="stat-card" style={{ borderLeft: "4px solid #10b981" }}>
+            <h3>मका शिल्लक साठा</h3>
+            <p style={{ color: "#10b981" }}>
+              {availableStockTons.toFixed(2)} T 
+              <span style={{ fontSize: "13px", color: "var(--text-muted)", marginLeft: "6px", fontWeight: "normal" }}>
+                ({availableStockQuintals.toFixed(0)} क्विंटल)
+              </span>
+            </p>
+          </div>
         </div>
       )}
 
@@ -1629,7 +1663,7 @@ const DealerDashboard = () => {
                   <CustomDropdown
                     value={cropType}
                     onChange={setCropType}
-                    options={["मका", "गहू", "कांदा", "ज्वारी", "बाजरी"]}
+                    options={["मका"]}
                     placeholder="मालाचा प्रकार निवडा"
                   />
                 </div>

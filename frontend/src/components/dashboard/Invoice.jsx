@@ -120,7 +120,7 @@ const slipStyles = {
 };
 
 // --- DayStatsCards Component ---
-const DayStatsCards = ({ records = [] }) => {
+const DayStatsCards = ({ records = [], dealerOrders = [] }) => {
   const today = new Date().toISOString().slice(0, 10);
 
   const todayRecords = records.filter(
@@ -141,11 +141,33 @@ const DayStatsCards = ({ records = [] }) => {
 
   const totalDue = totalAmount - totalPaid;
 
+  // Calculate available stock (1 Ton = 10 Quintals)
+  const totalInwardTons = records.reduce((sum, r) => {
+    const isMakka = r.crop === "मका" || (r.commodity && r.commodity.includes("मका"));
+    if (isMakka) {
+      return sum + Number(r.weight || r.quantity || 0) / 10;
+    }
+    return sum;
+  }, 0);
+
+  const totalOutwardTons = dealerOrders.reduce((sum, o) => {
+    const dispatches = o.dispatches || [];
+    return sum + dispatches.reduce((dSum, d) => dSum + Number(d.weight || d.quantity || 0), 0);
+  }, 0);
+
+  const availableStockTons = Math.max(0, totalInwardTons - totalOutwardTons);
+  const availableStockQuintals = availableStockTons * 10;
+
   const cards = [
     { title: "आजचे रेकॉर्ड", value: totalRecords },
     { title: "आजची रक्कम", value: `₹${totalAmount}` },
     { title: "आजची दिलेली रक्कम", value: `₹${totalPaid}` },
     { title: "आजची बाकी रक्कम", value: `₹${totalDue}` },
+    { 
+      title: "मका शिल्लक साठा", 
+      value: `${availableStockTons.toFixed(2)} T`, 
+      extra: `(${availableStockQuintals.toFixed(0)} क्विंटल)` 
+    }
   ];
 
   return (
@@ -153,7 +175,14 @@ const DayStatsCards = ({ records = [] }) => {
       {cards.map((card, i) => (
         <div className="stat-card" key={i}>
           <h3>{card.title}</h3>
-          <p>{card.value}</p>
+          <p>
+            {card.value}
+            {card.extra && (
+              <span style={{ fontSize: "13px", color: "var(--text-muted)", marginLeft: "6px", fontWeight: "normal" }}>
+                {card.extra}
+              </span>
+            )}
+          </p>
         </div>
       ))}
     </div>
@@ -166,13 +195,14 @@ const Invoice = () => {
   const [date, setDate] = useState("");
   const [customer, setCustomer] = useState("");
   const [farmerContact, setFarmerContact] = useState("");
-  const [crop, setCrop] = useState("");
+  const [crop, setCrop] = useState("मका");
   const [rate, setRate] = useState("");
   const [quantity, setQuantity] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
   const [paidAmount, setPaidAmount] = useState("");
   const [error, setError] = useState("");
   const [records, setRecords] = useState([]);
+  const [dealerOrders, setDealerOrders] = useState([]);
   const [previewData, setPreviewData] = useState({}); 
 
   const invoiceRef = useRef(); 
@@ -192,8 +222,24 @@ const Invoice = () => {
     }
   };
 
+  const fetchDealerOrders = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/dealer-orders`);
+      const data = await response.json();
+      setDealerOrders(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("डीलर ऑर्डर्स लोड करताना एरर आली:", err);
+    }
+  };
+
+  const loadData = async () => {
+    await fetchRecords();
+    await fetchDealerOrders();
+  };
+
   useEffect(() => {
-    fetchRecords();
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateTotal = (r, q) => {
@@ -293,13 +339,13 @@ const Invoice = () => {
         setDate("");
         setCustomer("");
         setFarmerContact("");
-        setCrop("");
+        setCrop("मका");
         setRate("");
         setQuantity("");
         setTotalAmount("");
         setPaidAmount("");
         setError("");
-        await fetchRecords(); 
+        await loadData(); 
       } else {
         alert("डेटा सेव्ह करताना त्रुटी आली.");
       }
@@ -342,17 +388,7 @@ const Invoice = () => {
                   value={crop}
                   onChange={setCrop}
                   options={[
-                    { value: "", label: "पिक निवडा" },
-                    { value: "मका", label: "मका" },
-                    { value: "गहू", label: "गहू" },
-                    { value: "ज्वारी", label: "ज्वारी" },
-                    { value: "बाजरी", label: "बाजरी" },
-                    { value: "तांदूळ", label: "तांदूळ" },
-                    { value: "तूरडाळ", label: "तूरडाळ" },
-                    { value: "मुगडाळ", label: "मुगडाळ" },
-                    { value: "कांदा", label: "कांदा" },
-                    { value: "बटाटा", label: "बटाटा" },
-                    { value: "ऊस", label: "ऊस" }
+                    { value: "मका", label: "मका" }
                   ]}
                   placeholder="पिक निवडा"
                 />
@@ -488,7 +524,7 @@ const Invoice = () => {
 
       {/* --- नवीन बदल: Stats Cards आणि Records Table --- */}
       <div style={{ marginTop: "40px", width: "100%", maxWidth: "1200px", margin: "40px auto" }}>
-        <DayStatsCards records={records} />
+        <DayStatsCards records={records} dealerOrders={dealerOrders} />
         <div style={{ marginTop: "20px" }}>
           <InvoiceRecordsTable records={records} onRecordsChange={setRecords} onEditClick={handleEditClick} />
         </div>
