@@ -151,8 +151,7 @@ const DayStatsCards = ({ records = [], dealerOrders = [] }) => {
   }, 0);
 
   const totalOutwardTons = dealerOrders.reduce((sum, o) => {
-    const dispatches = o.dispatches || [];
-    return sum + dispatches.reduce((dSum, d) => dSum + Number(d.weight || d.quantity || 0), 0);
+    return sum + Number(o.totalOrderedWeight || 0);
   }, 0);
 
   const availableStockTons = Math.max(0, totalInwardTons - totalOutwardTons);

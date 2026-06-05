@@ -304,11 +304,15 @@ const DealerDashboard = () => {
     loadOrderDetails(orderId);
   };
 
-  // Submit New Order
   const handleAddOrder = async (e) => {
     e.preventDefault();
     if (!dealerName || !totalOrderedWeight) {
       alert("कृपया आवश्यक माहिती भरा.");
+      return;
+    }
+
+    if (Number(totalOrderedWeight) > availableStockTons) {
+      alert(`चूक: शिल्लक मका साठ्यापेक्षा (${availableStockTons.toFixed(2)} T) जास्त ऑर्डर वजन नोंदवू शकत नाही!`);
       return;
     }
 
@@ -534,7 +538,7 @@ const DealerDashboard = () => {
     }
     return sum;
   }, 0);
-  const totalOutwardTons = totalFulfilledTons;
+  const totalOutwardTons = totalOrderedTons;
   const availableStockTons = Math.max(0, totalInwardTons - totalOutwardTons);
   const availableStockQuintals = availableStockTons * 10;
 
@@ -1574,8 +1578,13 @@ const DealerDashboard = () => {
                 </div>
               </div>
               <div className="form-group">
-                <label>एकूण वजन ऑर्डर (Tons मध्ये)</label>
-                <input type="number" step="any" placeholder="उदा. 200" value={totalOrderedWeight} onChange={(e) => setTotalOrderedWeight(e.target.value)} required />
+                <label>
+                  एकूण वजन ऑर्डर (Tons मध्ये) *
+                  <span style={{ color: "#10b981", fontWeight: "bold", marginLeft: "8px" }}>
+                    (शिल्लक साठा: {availableStockTons.toFixed(2)} T)
+                  </span>
+                </label>
+                <input type="number" step="any" placeholder={`उदा. कमाल ${availableStockTons.toFixed(2)} T`} value={totalOrderedWeight} onChange={(e) => setTotalOrderedWeight(e.target.value)} required />
               </div>
               <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
                 <button type="submit" className="primary-btn" style={{ flex: 1, justifyContent: "center" }}>ऑर्डर जतन करा</button>
