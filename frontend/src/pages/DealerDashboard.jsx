@@ -366,7 +366,11 @@ const DealerDashboard = () => {
 
       {/* ── TAB: All Trucks Log ── */}
       {activeTab === "all_trucks" && (
-        <AllTrucksLog />
+        <AllTrucksLog 
+          orders={orders}
+          onShowInvoice={() => {}}
+          onSelectOrder={() => {}}
+        />
       )}
 
       {/* ── TAB: Companies ── */}
