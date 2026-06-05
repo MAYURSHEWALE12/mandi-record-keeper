@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import api from "../api";
 import PageWrapper from "../components/layout/PageWrapper";
 import { Truck, Plus, FileText, Trash2, ArrowLeft, ChevronDown } from "lucide-react";
