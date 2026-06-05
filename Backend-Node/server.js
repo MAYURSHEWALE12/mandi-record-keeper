@@ -12,13 +12,17 @@ const app = createApp();
     const { data: existing } = await supabase
       .from('admins')
       .select('*')
-      .eq('email', process.env.ADMIN_EMAIL || 'admin@example.com')
+      .eq('email', process.env.ADMIN_EMAIL)
       .single();
 
     if (!existing) {
-      const hashed = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin123', 12);
+      if (!process.env.ADMIN_PASSWORD) {
+        console.error('ADMIN_PASSWORD environment variable is required');
+        process.exit(1);
+      }
+      const hashed = await bcrypt.hash(process.env.ADMIN_PASSWORD, 12);
       await supabase.from('admins').insert({
-        email: process.env.ADMIN_EMAIL || 'admin@example.com',
+        email: process.env.ADMIN_EMAIL,
         password: hashed,
         name: 'Admin',
       });

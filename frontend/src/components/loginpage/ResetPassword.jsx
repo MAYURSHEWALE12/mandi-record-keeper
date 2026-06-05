@@ -8,6 +8,7 @@ const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -15,12 +16,15 @@ const ResetPassword = () => {
       setMessage("Passwords do not match!");
       return;
     }
+    setLoading(true);
     try {
       await api.post(`/api/admin/reset-password/${token}`, { password });
       setMessage("Password reset successfully! Redirecting to login...");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       setMessage("Error resetting password. Token may be invalid or expired.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,8 +64,8 @@ const ResetPassword = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
-          <button type="submit" className="login-btn">
-            Reset Password
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? "Resetting..." : "Reset Password"}
           </button>
           {message && <p style={{ color: "green", textAlign: "center" }}>{message}</p>}
         </form>

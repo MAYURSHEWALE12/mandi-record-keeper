@@ -15,15 +15,19 @@ async function seedAdmin() {
     const { data, error } = await supabase
       .from('admins')
       .select('id')
-      .eq('email', process.env.ADMIN_EMAIL || 'admin@example.com')
+      .eq('email', process.env.ADMIN_EMAIL)
       .limit(1);
 
     if (error) { console.error('Seed check error:', error); return; }
 
     if (!data || data.length === 0) {
-      const hashed = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin123', 12);
+      if (!process.env.ADMIN_PASSWORD) {
+        console.error('ADMIN_PASSWORD environment variable is required');
+        return;
+      }
+      const hashed = await bcrypt.hash(process.env.ADMIN_PASSWORD, 12);
       const { error: insertError } = await supabase.from('admins').insert({
-        email: process.env.ADMIN_EMAIL || 'admin@example.com',
+        email: process.env.ADMIN_EMAIL,
         password: hashed,
         name: 'Admin',
       });
@@ -61,7 +65,7 @@ module.exports = function createApp() {
   // Market rates proxy (no auth required - public data)
   app.get('/api/market-rates', async (req, res) => {
     try {
-      const apiKey = process.env.MARKET_API_KEY || '579b464db66ec23bdd000001dc6ef7663e8746615667305510709d20';
+      const apiKey = process.env.MARKET_API_KEY;
       const url = `https://api.data.gov.in/resource/9ef27131-652a-4a3a-a3a3-705074e767c7?api-key=${apiKey}&format=json&limit=20`;
       const response = await fetch(url);
       const data = await response.json();
@@ -75,7 +79,7 @@ module.exports = function createApp() {
   app.post('/api/reset-database-kt-traders', async (req, res) => {
     try {
       const { password } = req.body;
-      if (password !== 'admin123') {
+      if (password !== process.env.ADMIN_PASSWORD) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
       

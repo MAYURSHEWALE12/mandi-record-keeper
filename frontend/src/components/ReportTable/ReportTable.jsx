@@ -9,6 +9,7 @@ const ReportTable = () => {
   const today = new Date().toISOString().split("T")[0];
 
   const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [searchName, setSearchName] = useState("");
   const [filterCrop, setFilterCrop] = useState("");
@@ -24,8 +25,8 @@ const ReportTable = () => {
 
   useEffect(() => {
     api.get("/api/records")
-      .then(res => setRecords(Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : [])))
-      .catch(err => { console.error(err); toast.error("रेकॉर्ड लोड करताना चूक झाली."); });
+      .then(res => { setRecords(Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : [])); setLoading(false); })
+      .catch(err => { console.error(err); toast.error("रेकॉर्ड लोड करताना चूक झाली."); setLoading(false); });
   }, []);
 
   const handleRangeClick = (range) => {
@@ -106,6 +107,16 @@ const ReportTable = () => {
         </div>
 
         {/* 📋 Table */}
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "40px", color: "#666" }}>
+            <div className="spinner" style={{
+              width: "32px", height: "32px", border: "3px solid #e0e0e0",
+              borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 0.8s linear infinite",
+              margin: "0 auto 12px"
+            }} />
+            लोड होत आहे...
+          </div>
+        ) : (
         <div className="table-responsive">
           <table className="records-table">
             <thead>
@@ -140,6 +151,7 @@ const ReportTable = () => {
             </tbody>
           </table>
         </div>
+        )}
 
         {/* ✅ Pagination RIGHT side – Blue Pill */}
         <div style={{

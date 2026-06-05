@@ -6,7 +6,5 @@
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "env": {
-    "REACT_APP_API_URL": ""
-  }
+  "env": {}
 }

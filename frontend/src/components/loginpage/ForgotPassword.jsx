@@ -6,14 +6,18 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await api.post("/api/admin/forgot-password", { email });
       setMessage("Reset link sent to your email!");
     } catch (err) {
       setMessage("Error sending reset link. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,8 +47,8 @@ const ForgotPassword = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <button type="submit" className="login-btn">
-            Send Reset Link
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? "Sending..." : "Send Reset Link"}
           </button>
           {message && <p style={{ color: "green", textAlign: "center" }}>{message}</p>}
           <p style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate("/login")}>
