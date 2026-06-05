@@ -1757,8 +1757,8 @@ const DealerDashboard = () => {
 
       {/* MODAL 1: ADD NEW ORDER FORM */}
       {showOrderForm && (
-        <div className="modal-overlay" style={styles.modalOverlay}>
-          <div className="card modal-content" style={styles.modalContent}>
+        <div className="modal-overlay">
+          <div className="card modal-content">
             <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px" }}>नवीन डीलर ऑर्डर नोंदणी</h2>
             <form onSubmit={handleAddOrder} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div className="form-group">
@@ -1820,8 +1820,8 @@ const DealerDashboard = () => {
 
       {/* MODAL 2: ADD NEW TRUCK DISPATCH (TRUCK LOADING) FORM */}
       {showDispatchForm && (
-        <div className="modal-overlay" style={styles.modalOverlay}>
-          <div className="card modal-content" style={{ ...styles.modalContent, maxWidth: "750px" }}>
+        <div className="modal-overlay">
+          <div className="card modal-content" style={{ maxWidth: "750px" }}>
             <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px", marginBottom: "15px" }}>
               🚚 नवीन गाडी (ट्रक) लोडिंग नोंदणी
             </h2>
@@ -1968,8 +1968,8 @@ const DealerDashboard = () => {
 
       {/* MODAL 3: DOUBLE BILL PREVIEW MODAL */}
       {showInvoicePreview && selectedDispatchForPreview && (
-        <div className="modal-overlay" style={styles.modalOverlay}>
-          <div className="card modal-content" style={{ ...styles.modalContent, maxWidth: "1100px", padding: "15px" }}>
+        <div className="modal-overlay">
+          <div className="card modal-content" style={{ maxWidth: "1100px", padding: "15px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px", alignItems: "center" }}>
               <h3 style={{ margin: 0 }}>पावती बिल प्रिव्ह्यू (Invoice Double Slip Preview)</h3>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
@@ -2248,8 +2248,8 @@ const DealerDashboard = () => {
 
       {/* MODAL 4: COMPANY LOSS / CUTTING MODAL */}
       {showCuttingModal && selectedDispatchForCutting && (
-        <div className="modal-overlay" style={styles.modalOverlay}>
-          <div className="card modal-content" style={styles.modalContent}>
+        <div className="modal-overlay">
+          <div className="card modal-content">
             <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px", marginBottom: "15px" }}>
               ⚖️ कंपनी अंतिम पावती & घट (Loss/Cutting) नोंदवा
             </h2>
@@ -2344,8 +2344,8 @@ const DealerDashboard = () => {
 
       {/* MODAL 5: COMPANY PAYMENT MODAL */}
       {showPaymentModal && (
-        <div className="modal-overlay" style={styles.modalOverlay}>
-          <div className="card modal-content" style={styles.modalContent}>
+        <div className="modal-overlay">
+          <div className="card modal-content">
             <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px", marginBottom: "15px" }}>
               💰 नवीन कंपनी पेमेंट व्यवहार
             </h2>
