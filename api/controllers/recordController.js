@@ -78,9 +78,18 @@ exports.index = async (req, res) => {
 
 exports.store = async (req, res) => {
   try {
-    const { data: c } = await supabase.from('bill_counters').select('seq').single();
-    const billNo = (c?.seq || 1000) + 1;
-    await supabase.from('bill_counters').update({ seq: billNo }).eq('id', 1);
+    let billNo;
+    try {
+      // Try atomic RPC increment first to prevent duplicate bill numbers (race condition fix)
+      const { data, error: rpcError } = await supabase.rpc('increment_bill_sequence');
+      if (rpcError || !data) throw rpcError || new Error('RPC returned null');
+      billNo = data;
+    } catch (rpcErr) {
+      console.warn('Fallback to select/update bill sequence (Please run the schema.sql function in Supabase SQL Editor):', rpcErr);
+      const { data: c } = await supabase.from('bill_counters').select('seq').single();
+      billNo = (c?.seq || 1000) + 1;
+      await supabase.from('bill_counters').update({ seq: billNo }).eq('id', 1);
+    }
 
     if (!req.body.farmerName || !req.body.totalAmount)
       return res.status(400).json({ error: 'farmerName and totalAmount are required' });

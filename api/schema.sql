@@ -67,3 +67,17 @@ CREATE TABLE IF NOT EXISTS dealers (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Database function to atomically increment the bill counter and prevent duplicate bill numbers (race condition)
+CREATE OR REPLACE FUNCTION increment_bill_sequence()
+RETURNS integer AS $$
+DECLARE
+  next_val integer;
+BEGIN
+  UPDATE bill_counters
+  SET seq = seq + 1
+  WHERE id = 1
+  RETURNING seq INTO next_val;
+  RETURN next_val;
+END;
+$$ LANGUAGE plpgsql;
