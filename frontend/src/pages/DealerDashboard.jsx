@@ -5,8 +5,141 @@ import api from "../api";
 import toast from "react-hot-toast";
 import PageWrapper from "../components/layout/PageWrapper";
 import { Truck, Plus, FileText, Trash2, ArrowLeft } from "lucide-react";
+import AllTrucksLog from "../components/dealer/AllTrucksLog";
+
+// ── Inline Companies List Tab ──
+const DealersTab = ({ orders }) => {
+  const [dealers, setDealers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newName, setNewName] = useState("");
+  const [newPlace, setNewPlace] = useState("");
+  const [newVillage, setNewVillage] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const fetchDealers = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/api/dealers");
+      const data = res.data;
+      setDealers(Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : []);
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { fetchDealers(); }, []);
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (!newName.trim()) { toast.error("कंपनीचे नाव भरा."); return; }
+    try {
+      setSaving(true);
+      await api.post("/api/dealers", { name: newName, place: newPlace, village: newVillage });
+      toast.success("कंपनी नोंदवली ✅");
+      setNewName(""); setNewPlace(""); setNewVillage("");
+      fetchDealers();
+    } catch (e) { toast.error("नोंदणी अयशस्वी झाली."); }
+    finally { setSaving(false); }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("ही कंपनी कायमची हटवायची आहे?")) return;
+    try {
+      await api.delete(`/api/dealers/${id}`);
+      toast.success("हटवली ✅");
+      fetchDealers();
+    } catch (e) { toast.error("हटवताना चूक झाली."); }
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      {/* Register Form */}
+      <div className="card">
+        <h3 style={{ marginBottom: "16px" }}>नवीन कंपनी / डीलर नोंदणी (नोंदवा)</h3>
+        <form onSubmit={handleRegister} style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "flex-end" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: "1 1 200px" }}>
+            <label style={{ fontSize: "12px", fontWeight: "600" }}>कंपनीचे नाव (Company Name) *</label>
+            <input className="filter-input" value={newName} onChange={e => setNewName(e.target.value)} placeholder="नाव टाका" required />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: "1 1 180px" }}>
+            <label style={{ fontSize: "12px", fontWeight: "600" }}>शहर / तालुकाचे ठिकाण (Place) *</label>
+            <input className="filter-input" value={newPlace} onChange={e => setNewPlace(e.target.value)} placeholder="ठिकाणा एन्टर करा" />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: "1 1 180px" }}>
+            <label style={{ fontSize: "12px", fontWeight: "600" }}>गाव (Village) *</label>
+            <input className="filter-input" value={newVillage} onChange={e => setNewVillage(e.target.value)} placeholder="गावाचे नाव एन्टर करा" />
+          </div>
+          <button type="submit" className="primary-btn" disabled={saving}>
+            {saving ? "नोंदवत आहे..." : "नोंदवा (Register)"}
+          </button>
+        </form>
+      </div>
+
+      {/* Companies Table */}
+      <div className="card">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+          <h3 style={{ margin: 0 }}>नोंदवलेल्या कंपन्या / डीलर्स ({dealers.length})</h3>
+        </div>
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>🔄 लोड होत आहे...</div>
+        ) : dealers.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणतीही कंपनी नोंदवलेली नाही.</div>
+        ) : (
+          <div className="table-responsive">
+            <table className="records-table">
+              <thead>
+                <tr>
+                  <th>कंपनीचे नाव (Company Name)</th>
+                  <th>ठिकाण (Place)</th>
+                  <th>गाव (Village)</th>
+                  <th>कृती (Actions)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dealers.map(d => (
+                  <tr key={d.id}>
+                    <td data-label="नाव">
+                      <button style={{ background:"none",border:"none",color:"#007bff",fontWeight:"bold",cursor:"pointer",textAlign:"left" }}>
+                        {d.name}
+                      </button>
+                    </td>
+                    <td data-label="ठिकाण">{d.place || "-"}</td>
+                    <td data-label="गाव">{d.village || "-"}</td>
+                    <td data-label="कृती">
+                      <button
+                        className="primary-btn btn-sm"
+                        style={{ background:"#C94A4A",color:"#fff",border:"none",padding:"4px 10px",borderRadius:"4px",cursor:"pointer" }}
+                        onClick={() => handleDelete(d.id)}
+                      >
+                        <Trash2 size={13} /> हटवा
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 
 const DealerDashboard = () => {
+  // Active tab driven by sidebar nav
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem("dealer_activeTab") || "orders";
+  });
+
+  // Listen for sidebar tab changes
+  useEffect(() => {
+    const handleTabChange = () => {
+      setActiveTab(localStorage.getItem("dealer_activeTab") || "orders");
+    };
+    window.addEventListener("dealer-tab-changed", handleTabChange);
+    return () => window.removeEventListener("dealer-tab-changed", handleTabChange);
+  }, []);
+
   // States
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -230,7 +363,28 @@ const DealerDashboard = () => {
 
   return (
     <PageWrapper title="🚚 डीलर ऑर्डर्स व ट्रक लोडिंग व्यवस्थापन">
-      
+
+      {/* ── TAB: All Trucks Log ── */}
+      {activeTab === "all_trucks" && (
+        <AllTrucksLog />
+      )}
+
+      {/* ── TAB: Companies ── */}
+      {activeTab === "companies" && (
+        <DealersTab orders={orders} />
+      )}
+
+      {/* ── TAB: All Payments ── */}
+      {activeTab === "all_payments" && (
+        <div className="card" style={{ padding: "30px", textAlign: "center", color: "#828B7E" }}>
+          <h2 style={{ marginBottom: "12px" }}>💰 सर्व पेमेंट्स (All Payments)</h2>
+          <p>या टॅबमध्ये पेमेंट माहिती लवकरच उपलब्ध होईल.</p>
+        </div>
+      )}
+
+      {/* ── TAB: Orders (default) ── */}
+      {(activeTab === "orders" || !activeTab) && (
+        <>
       {/* Analytics Grid */}
       <div className="stats-grid" style={{ marginBottom: "30px" }}>
         <div className="stat-card" style={{ borderLeft: "4px solid #4E653C" }}>
@@ -846,6 +1000,9 @@ const DealerDashboard = () => {
             </div>
           </div>
         </div>
+      )}
+
+        </> 
       )}
 
     </PageWrapper>
