@@ -44,10 +44,44 @@ const AdminPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleResetDatabase = async () => {
+    const confirmReset = window.confirm("⚠️ तुम्हाला खात्री आहे का की तुम्हाला सर्व शेतकरी रेकॉर्ड्स आणि डीलर ऑर्डर्स डिलीट करायचे आहेत? हा बदल बदलता येणार नाही!");
+    if (!confirmReset) return;
+    
+    const password = window.prompt("कृपया सुरक्षितता पासवर्ड प्रविष्ट करा (Enter admin password):");
+    if (!password) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/reset-database-kt-traders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        alert("डेटाबेस यशस्वीरित्या रिसेट झाला! ✅");
+        fetchRecords();
+      } else {
+        alert(`रिसेट अयशस्वी: ${data.error || "चूक झाली"}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("सर्व्हरशी संपर्क साधू शकला नाही.");
+    }
+  };
+
   return (
     <>
-      <div className="page-header">
+      <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
         <h2>अॅडमिन पॅनल</h2>
+        <button 
+          onClick={handleResetDatabase}
+          className="glass-submit-btn" 
+          style={{ width: "auto", padding: "10px 20px", background: "linear-gradient(135deg, #c62828 0%, #b71c1c 100%)", color: "#fff", boxShadow: "0 4px 15px rgba(198, 40, 40, 0.25)" }}
+        >
+          🗑️ डेटा रिसेट करा (Reset Data)
+        </button>
       </div>
       <div className="page-body">
         <StatsCards records={records} />
