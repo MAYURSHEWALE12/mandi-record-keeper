@@ -1038,7 +1038,7 @@ const DealerDashboard = () => {
       return true; // "all"
     });
 
-    const handleExportTrucksCSV = () => {
+    const handleExportTrucksExcel = () => {
       const formatDate = (dateStr) => {
         if (!dateStr) return "";
         const d = new Date(dateStr);
@@ -1048,43 +1048,99 @@ const DealerDashboard = () => {
         return `${day}-${month}-${year}`;
       };
 
-      const rows = [
-        [
-          "Date", "Bill No", "Company Name", "PO No", "Truck No", "Crop Type", 
-          "Bags Count", "Loaded Weight (Tons)", "Received Weight (Tons)", "Rate", 
-          "Total Freight (Rs)", "Paid Freight (Rs)", "Due Freight (Rs)", "Total Cutting (Rs)", 
-          "Passed Amount (Rs)", "Driver Name", "Driver Mobile", "Note"
-        ],
-        ...filteredDispatches.map((d) => [
-          formatDate(d.date),
-          d.billNo || d.bill_no || "",
-          d.dealerName || "",
-          d.poNo || "",
-          d.truckNo || "",
-          d.cropType || "",
-          d.bagsCount || "",
-          d.weight || "",
-          d.compWeight || "",
-          d.rate || "",
-          d.totalFreight || "",
-          d.paidFreight || "",
-          d.totalFreight && d.paidFreight ? (Number(d.totalFreight) - Number(d.paidFreight)).toFixed(2) : "",
-          d.lossAmt || "",
-          d.passedAmt || d.passedAmount || "",
-          d.driverName || "",
-          `\t${d.driverMobile || ""}`,
-          d.note || ""
-        ])
-      ];
+      let html = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="utf-8">
+          <!--[if gte mso 9]>
+          <xml>
+            <x:ExcelWorkbook>
+              <x:ExcelWorksheets>
+                <x:ExcelWorksheet>
+                  <x:Name>Truck Loading Log</x:Name>
+                  <x:WorksheetOptions>
+                    <x:DisplayGridlines/>
+                  </x:WorksheetOptions>
+                </x:ExcelWorksheet>
+              </x:ExcelWorksheets>
+            </x:ExcelWorkbook>
+          </xml>
+          <![endif]-->
+          <style>
+            table { border-collapse: collapse; font-family: 'Segoe UI', Calibri, sans-serif; width: 100%; }
+            th { background-color: #4E653C; color: #ffffff; font-weight: bold; text-align: center; border: 1px solid #c9c7c1; padding: 10px; font-size: 13px; }
+            td { border: 1px solid #e8e6e0; padding: 8px; text-align: center; font-size: 12px; }
+            tr:nth-child(even) { background-color: #fdfcf9; }
+            .text-left { text-align: left; }
+            .num-right { text-align: right; }
+            .date-col { mso-number-format: "\\@"; text-align: center; } /* Prevents Excel from converting date & mobile or showing hash symbols */
+          </style>
+        </head>
+        <body>
+          <h2 style="color: #4E653C; font-family: sans-serif; margin-bottom: 15px;">🚚 ट्रक्स व वाहतूक लॉग (Truck Loading Statement)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Bill No</th>
+                <th>Company Name</th>
+                <th>PO No</th>
+                <th>Truck No</th>
+                <th>Crop Type</th>
+                <th>Bags Count</th>
+                <th>Loaded Weight (Tons)</th>
+                <th>Received Weight (Tons)</th>
+                <th>Rate</th>
+                <th>Total Freight (₹)</th>
+                <th>Paid Freight (₹)</th>
+                <th>Due Freight (₹)</th>
+                <th>Total Cutting (₹)</th>
+                <th>Passed Amount (₹)</th>
+                <th>Driver Name</th>
+                <th>Driver Mobile</th>
+                <th>Note</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
 
-      const csvContent =
-        "\uFEFF" +
-        rows.map(row => row.map(val => `"${val}"`).join(",")).join("\n");
+      filteredDispatches.forEach((d) => {
+        const dueFreight = d.totalFreight && d.paidFreight ? (Number(d.totalFreight) - Number(d.paidFreight)).toFixed(2) : "";
+        html += `
+          <tr>
+            <td class="date-col">${formatDate(d.date)}</td>
+            <td>${d.billNo || d.bill_no || ""}</td>
+            <td class="text-left" style="font-weight: bold; color: #2B2F2A;">${d.dealerName || ""}</td>
+            <td>${d.poNo || ""}</td>
+            <td style="font-weight: bold;">${d.truckNo || ""}</td>
+            <td>${d.cropType || ""}</td>
+            <td class="num-right">${d.bagsCount || ""}</td>
+            <td class="num-right">${d.weight || ""}</td>
+            <td class="num-right">${d.compWeight || ""}</td>
+            <td class="num-right">₹${d.rate || ""}</td>
+            <td class="num-right">₹${d.totalFreight || ""}</td>
+            <td class="num-right">₹${d.paidFreight || ""}</td>
+            <td class="num-right" style="color: ${Number(dueFreight) > 0 ? '#C94A4A' : '#2e7d32'}; font-weight: bold;">₹${dueFreight || "0.00"}</td>
+            <td class="num-right" style="color: #C94A4A;">${d.lossAmt ? '₹' + d.lossAmt.toFixed(2) : ""}</td>
+            <td class="num-right" style="font-weight: bold; color: #2e7d32;">${d.passedAmt || d.passedAmount ? '₹' + Number(d.passedAmt || d.passedAmount).toLocaleString("en-IN") : ""}</td>
+            <td class="text-left">${d.driverName || ""}</td>
+            <td class="date-col">${d.driverMobile || ""}</td>
+            <td class="text-left">${d.note || ""}</td>
+          </tr>
+        `;
+      });
 
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      html += `
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `trucks_loading_log_${truckFilterInterval}.csv`;
+      link.download = `trucks_loading_log_${truckFilterInterval}.xls`;
       link.click();
     };
 
@@ -1092,8 +1148,8 @@ const DealerDashboard = () => {
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px", borderBottom: "1px solid #E6E1D8", paddingBottom: "14px" }}>
           <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>🚚 सर्व ट्रक्स व वाहतूक लॉग (All Trucks Log)</h2>
-          <button className="primary-btn btn-success btn-sm" onClick={handleExportTrucksCSV} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            📥 डेटा डाउनलोड करा (Download CSV)
+          <button className="primary-btn btn-success btn-sm" onClick={handleExportTrucksExcel} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            📥 एक्सेल डाउनलोड करा (Download Excel)
           </button>
         </div>
 
