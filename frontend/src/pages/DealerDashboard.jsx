@@ -15,6 +15,8 @@ const DealersTab = ({ orders }) => {
   const [newPlace, setNewPlace] = useState("");
   const [newVillage, setNewVillage] = useState("");
   const [saving, setSaving] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null); // ← NEW
+  const [profileTab, setProfileTab] = useState("orders");       // ← NEW
 
   const fetchDealers = async () => {
     try {
@@ -50,6 +52,179 @@ const DealersTab = ({ orders }) => {
     } catch (e) { toast.error("हटवताना चूक झाली."); }
   };
 
+  // ── Company Profile View ──
+  if (selectedCompany) {
+    const companyOrders = orders.filter(o =>
+      (o.dealerName || "").toLowerCase() === selectedCompany.name.toLowerCase()
+    );
+    const companyDispatches = companyOrders.flatMap(o =>
+      (o.dispatches || []).map(d => ({ ...d, orderId: o.id, poNo: o.poNo }))
+    );
+    const companyPayments = companyOrders.flatMap(o =>
+      (o.payments || []).map(p => ({ ...p, orderId: o.id, poNo: o.poNo }))
+    );
+    const totalSent = companyDispatches.reduce((s, d) => s + Number(d.amount || 0), 0);
+    const totalCuts = companyDispatches.reduce((s, d) => s + Number(d.lossAmt || 0), 0);
+    const totalPassed = totalSent - totalCuts;
+    const totalPaid = companyPayments.reduce((s, p) => s + Number(p.amount || 0), 0);
+    const totalBalance = totalPassed - totalPaid;
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        {/* Back Button + Title */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <button className="primary-btn btn-ghost btn-sm" onClick={() => setSelectedCompany(null)}>
+            <ArrowLeft size={15} /> कंपन्या यादीकडे जा
+          </button>
+          <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700", color: "#2B2F2A" }}>
+            🏢 {selectedCompany.name}
+          </h2>
+          <span style={{ fontSize: "12px", color: "#828B7E" }}>
+            {selectedCompany.place}, {selectedCompany.village}
+          </span>
+        </div>
+
+        {/* Summary Cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "14px" }}>
+          {[
+            { label: "एकूण माल (Sent)", value: `₹${totalSent.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: "#007bff" },
+            { label: "एकूण घट (Cuts)", value: `₹${totalCuts.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: "#C94A4A" },
+            { label: "कंपनी मंजूर (Passed)", value: `₹${totalPassed.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: "#2e7d32" },
+            { label: "जमा पेमेंट (Paid)", value: `₹${totalPaid.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: "#D49A2E" },
+            { label: "येणे बाकी (Due)", value: `₹${totalBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: totalBalance > 0 ? "#ff9800" : "#2e7d32" },
+          ].map(card => (
+            <div key={card.label} className="card" style={{ margin: 0, padding: "14px", borderLeft: `4px solid ${card.color}` }}>
+              <span style={{ fontSize: "11px", color: "#828B7E" }}>{card.label}</span>
+              <div style={{ fontWeight: "700", fontSize: "17px", marginTop: "4px", color: card.color }}>{card.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Profile Sub-tabs */}
+        <div style={{ display: "flex", gap: "8px", borderBottom: "2px solid #E6E1D8", paddingBottom: "8px" }}>
+          {[
+            { key: "orders", label: `📄 ऑर्डर्स (${companyOrders.length})` },
+            { key: "trucks", label: `🚚 ट्रक्स (${companyDispatches.length})` },
+            { key: "payments", label: `💰 पेमेंट्स (${companyPayments.length})` },
+          ].map(tab => (
+            <button
+              key={tab.key}
+              className={`primary-btn ${profileTab === tab.key ? "" : "btn-ghost"}`}
+              style={{ padding: "6px 12px", fontSize: "13px" }}
+              onClick={() => setProfileTab(tab.key)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Orders Sub-tab */}
+        {profileTab === "orders" && (
+          <div className="card" style={{ margin: 0, padding: "20px" }}>
+            {companyOrders.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणतीही ऑर्डर नाही.</div>
+            ) : (
+              <div className="table-responsive">
+                <table className="records-table">
+                  <thead>
+                    <tr>
+                      <th>P.O. नं.</th><th>तारीख</th><th>एकूण वजन</th><th>लोड केलेले</th><th>बाकी वजन</th><th>स्थिती</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {companyOrders.map(o => (
+                      <tr key={o.id}>
+                        <td data-label="P.O.">{o.poNo || "N/A"}</td>
+                        <td data-label="तारीख">{o.orderDate}</td>
+                        <td data-label="एकूण वजन">{o.totalOrderedWeight} Tons</td>
+                        <td data-label="लोड केलेले">{(o.fulfilledWeight || 0).toFixed(2)} Tons</td>
+                        <td data-label="बाकी वजन">{(o.remainingWeight || 0).toFixed(2)} Tons</td>
+                        <td data-label="स्थिती">
+                          <span className={`badge ${o.status === "fulfilled" ? "badge-paid" : o.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
+                            {o.status === "fulfilled" ? "पूर्ण" : o.status === "partially_fulfilled" ? "अंशतः पूर्ण" : "बाकी"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Trucks Sub-tab */}
+        {profileTab === "trucks" && (
+          <div className="card" style={{ margin: 0, padding: "20px" }}>
+            {companyDispatches.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणतीही ट्रक नोंद नाही.</div>
+            ) : (
+              <div className="table-responsive">
+                <table className="records-table" style={{ fontSize: "13px" }}>
+                  <thead>
+                    <tr>
+                      <th>बिल / तारीख</th><th>गाडी नं.</th><th>माल / गोण्या</th>
+                      <th>वजन (Tons)</th><th>किंमत (₹)</th><th>घट (₹)</th><th>मंजूर (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {companyDispatches.map(d => (
+                      <tr key={d.id}>
+                        <td data-label="बिल">
+                          <strong>#{d.billNo}</strong>
+                          <div style={{ fontSize: "11px", color: "#828B7E" }}>{d.date}</div>
+                        </td>
+                        <td data-label="गाडी"><strong>{d.truckNo}</strong></td>
+                        <td data-label="माल">{d.cropType} / {d.bagsCount || 0} गोण्या</td>
+                        <td data-label="वजन">{d.weight} → {d.compWeight !== undefined ? `${d.compWeight} T` : <span style={{ color: "#828B7E" }}>प्रलंबित</span>}</td>
+                        <td data-label="किंमत">₹{Number(d.amount || 0).toLocaleString("en-IN")}</td>
+                        <td data-label="घट" style={{ color: "red" }}>{d.lossAmt ? `₹${Number(d.lossAmt).toLocaleString("en-IN")}` : "-"}</td>
+                        <td data-label="मंजूर" style={{ color: "#2e7d32", fontWeight: "bold" }}>
+                          {d.passedAmt ? `₹${Number(d.passedAmt).toLocaleString("en-IN")}` : <span style={{ color: "#ff9800" }}>तपासणी बाकी</span>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Payments Sub-tab */}
+        {profileTab === "payments" && (
+          <div className="card" style={{ margin: 0, padding: "20px" }}>
+            {companyPayments.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणताही पेमेंट व्यवहार नाही.</div>
+            ) : (
+              <div className="table-responsive">
+                <table className="records-table">
+                  <thead>
+                    <tr><th>दिनांक</th><th>P.O. नं.</th><th>प्रकार</th><th>रेफरन्स</th><th>रक्कम</th></tr>
+                  </thead>
+                  <tbody>
+                    {companyPayments.map(p => (
+                      <tr key={p.id}>
+                        <td data-label="दिनांक">{p.date}</td>
+                        <td data-label="P.O.">{p.poNo || "N/A"}</td>
+                        <td data-label="प्रकार">{p.mode}</td>
+                        <td data-label="रेफरन्स">{p.refNo || "-"}</td>
+                        <td data-label="रक्कम" style={{ fontWeight: "bold", color: "#2e7d32" }}>
+                          ₹{Number(p.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Companies List View (default) ──
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       {/* Register Form */}
@@ -61,11 +236,11 @@ const DealersTab = ({ orders }) => {
             <input className="filter-input" value={newName} onChange={e => setNewName(e.target.value)} placeholder="नाव टाका" required />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: "1 1 180px" }}>
-            <label style={{ fontSize: "12px", fontWeight: "600" }}>शहर / तालुकाचे ठिकाण (Place) *</label>
+            <label style={{ fontSize: "12px", fontWeight: "600" }}>शहर / तालुकाचे ठिकाण (Place)</label>
             <input className="filter-input" value={newPlace} onChange={e => setNewPlace(e.target.value)} placeholder="ठिकाणा एन्टर करा" />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: "1 1 180px" }}>
-            <label style={{ fontSize: "12px", fontWeight: "600" }}>गाव (Village) *</label>
+            <label style={{ fontSize: "12px", fontWeight: "600" }}>गाव (Village)</label>
             <input className="filter-input" value={newVillage} onChange={e => setNewVillage(e.target.value)} placeholder="गावाचे नाव एन्टर करा" />
           </div>
           <button type="submit" className="primary-btn" disabled={saving}>
@@ -76,9 +251,7 @@ const DealersTab = ({ orders }) => {
 
       {/* Companies Table */}
       <div className="card">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-          <h3 style={{ margin: 0 }}>नोंदवलेल्या कंपन्या / डीलर्स ({dealers.length})</h3>
-        </div>
+        <h3 style={{ margin: "0 0 16px 0" }}>नोंदवलेल्या कंपन्या / डीलर्स ({dealers.length})</h3>
         {loading ? (
           <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>🔄 लोड होत आहे...</div>
         ) : dealers.length === 0 ? (
@@ -98,8 +271,11 @@ const DealersTab = ({ orders }) => {
                 {dealers.map(d => (
                   <tr key={d.id}>
                     <td data-label="नाव">
-                      <button style={{ background:"none",border:"none",color:"#007bff",fontWeight:"bold",cursor:"pointer",textAlign:"left" }}>
-                        {d.name}
+                      <button
+                        style={{ background: "none", border: "none", color: "#007bff", fontWeight: "bold", cursor: "pointer", textAlign: "left", fontSize: "14px" }}
+                        onClick={() => { setSelectedCompany(d); setProfileTab("orders"); }}
+                      >
+                        {d.name} →
                       </button>
                     </td>
                     <td data-label="ठिकाण">{d.place || "-"}</td>
@@ -107,7 +283,7 @@ const DealersTab = ({ orders }) => {
                     <td data-label="कृती">
                       <button
                         className="primary-btn btn-sm"
-                        style={{ background:"#C94A4A",color:"#fff",border:"none",padding:"4px 10px",borderRadius:"4px",cursor:"pointer" }}
+                        style={{ background: "#C94A4A", color: "#fff", border: "none", padding: "4px 10px", borderRadius: "4px", cursor: "pointer" }}
                         onClick={() => handleDelete(d.id)}
                       >
                         <Trash2 size={13} /> हटवा
