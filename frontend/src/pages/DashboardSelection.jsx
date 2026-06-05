@@ -173,7 +173,6 @@ const DashboardSelection = () => {
             <button 
               onClick={handleLogout} 
               className="glass-submit-btn logout-btn-selection"
-              style={{ background: "transparent", border: "1px solid var(--red)", color: "var(--red)", boxShadow: "none" }}
             >
               <LogOut size={16} />
               <span>लॉगआउट (Logout)</span>

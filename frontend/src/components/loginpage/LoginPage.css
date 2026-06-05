@@ -751,9 +751,35 @@ body.dark-theme .btn-arrow {
   color: rgba(255, 255, 255, 0.4);
 }
 
-/* Logout button hover state */
+/* Logout button styling for high visibility and contrast */
+.logout-btn-selection {
+  background: rgba(198, 40, 40, 0.08) !important;
+  border: 1.5px solid rgba(198, 40, 40, 0.5) !important;
+  color: #B71C1C !important;
+  box-shadow: none !important;
+  transition: all 0.25s ease !important;
+}
+
 .logout-btn-selection:hover {
-  background: rgba(201, 74, 74, 0.1) !important;
+  background: rgba(198, 40, 40, 0.16) !important;
+  border-color: #B71C1C !important;
+  color: #B71C1C !important;
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px rgba(198, 40, 40, 0.15) !important;
+}
+
+/* Dark mode overrides for logout button */
+body.dark-theme .logout-btn-selection {
+  background: rgba(239, 83, 80, 0.1) !important;
+  border: 1.5px solid rgba(239, 83, 80, 0.4) !important;
+  color: #EF5350 !important;
+}
+
+body.dark-theme .logout-btn-selection:hover {
+  background: rgba(239, 83, 80, 0.2) !important;
+  border-color: #EF5350 !important;
+  color: #EF5350 !important;
+  box-shadow: 0 4px 12px rgba(239, 83, 80, 0.25) !important;
 }
 
 
