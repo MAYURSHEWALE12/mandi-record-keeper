@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import api from "../api";
 import PageWrapper from "../components/layout/PageWrapper";
 import { Truck, Plus, FileText, Trash2, ArrowLeft, ChevronDown } from "lucide-react";
-import CustomDropdown from "../components/common/CustomDropdown";
 import DealerOrderForm from "../components/dealer/DealerOrderForm";
 import DispatchForm from "../components/dealer/DispatchForm";
 import CompanyProfile from "../components/dealer/CompanyProfile";
@@ -175,7 +174,7 @@ const DealerDashboard = () => {
   const handleAddCompany = async (e) => {
     e.preventDefault();
     if (!newCompanyName) {
-      alert("कृपया कंपनीचे नाव भरा.");
+      alert("à¤•à¥ƒà¤ªà¤¯à¤¾ à¤•à¤‚à¤ªà¤¨à¥€à¤šà¥‡ à¤¨à¤¾à¤µ à¤­à¤°à¤¾.");
       return;
     }
 
@@ -191,32 +190,32 @@ const DealerDashboard = () => {
       setCompanyLoading(false);
 
       if (res.status === 201) {
-        alert("नवीन कंपनी यशस्वीरित्या नोंदवली ✅");
+        alert("à¤¨à¤µà¥€à¤¨ à¤•à¤‚à¤ªà¤¨à¥€ à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¨à¥‹à¤‚à¤¦à¤µà¤²à¥€ âœ…");
         setNewCompanyName("");
         setNewCompanyPlace("");
         setNewCompanyVillage("");
         fetchDealers();
       } else {
-        alert(data.error || "कंपनी सेव्ह करताना चूक झाली.");
+        alert(data.error || "à¤•à¤‚à¤ªà¤¨à¥€ à¤¸à¥‡à¤µà¥à¤¹ à¤•à¤°à¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
       }
     } catch (err) {
       console.error(err);
       setCompanyLoading(false);
-      alert("सर्व्हरशी संपर्क होऊ शकला नाही.");
+      alert("à¤¸à¤°à¥à¤µà¥à¤¹à¤°à¤¶à¥€ à¤¸à¤‚à¤ªà¤°à¥à¤• à¤¹à¥‹à¤Š à¤¶à¤•à¤²à¤¾ à¤¨à¤¾à¤¹à¥€.");
     }
   };
 
   const handleDeleteCompany = async (id) => {
-    if (!window.confirm("तुम्हाला खात्री आहे की ही कंपनी यादीतून हटवायची आहे?")) return;
+    if (!window.confirm("à¤¤à¥à¤®à¥à¤¹à¤¾à¤²à¤¾ à¤–à¤¾à¤¤à¥à¤°à¥€ à¤†à¤¹à¥‡ à¤•à¥€ à¤¹à¥€ à¤•à¤‚à¤ªà¤¨à¥€ à¤¯à¤¾à¤¦à¥€à¤¤à¥‚à¤¨ à¤¹à¤Ÿà¤µà¤¾à¤¯à¤šà¥€ à¤†à¤¹à¥‡?")) return;
 
     try {
       const res = await api.delete(`/api/dealers/${id}`);
 
       if (res.status === 200) {
-        alert("कंपनी यशस्वीरित्या हटवली ✅");
+        alert("à¤•à¤‚à¤ªà¤¨à¥€ à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¹à¤Ÿà¤µà¤²à¥€ âœ…");
         fetchDealers();
       } else {
-        alert("कंपनी हटवताना चूक झाली.");
+        alert("à¤•à¤‚à¤ªà¤¨à¥€ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
       }
     } catch (err) {
       console.error(err);
@@ -257,17 +256,17 @@ const DealerDashboard = () => {
 
   // Delete Dispatch
   const handleDeleteDispatch = async (dispatchId) => {
-    if (!window.confirm("तुम्हाला खात्री आहे की ही नोंद हटवायची आहे?")) return;
+    if (!window.confirm("à¤¤à¥à¤®à¥à¤¹à¤¾à¤²à¤¾ à¤–à¤¾à¤¤à¥à¤°à¥€ à¤†à¤¹à¥‡ à¤•à¥€ à¤¹à¥€ à¤¨à¥‹à¤‚à¤¦ à¤¹à¤Ÿà¤µà¤¾à¤¯à¤šà¥€ à¤†à¤¹à¥‡?")) return;
 
     try {
       const res = await api.delete(`/api/dealer-dispatches/${dispatchId}`);
 
       if (res.status === 200) {
-        alert("नोंद यशस्वीरित्या हटवली ✅");
+        alert("à¤¨à¥‹à¤‚à¤¦ à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¹à¤Ÿà¤µà¤²à¥€ âœ…");
         loadOrderDetails(selectedOrder.id);
         fetchOrders();
       } else {
-        alert("नोंद हटवताना चूक झाली.");
+        alert("à¤¨à¥‹à¤‚à¤¦ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
       }
     } catch (err) {
       console.error(err);
@@ -276,17 +275,17 @@ const DealerDashboard = () => {
 
   // Delete Order
   const handleDeleteOrder = async (orderId) => {
-    if (!window.confirm("तुम्हाला खात्री आहे की ही संपूर्ण ऑर्डर आणि त्यावरील सर्व ट्रक नोंदी हटवायच्या आहेत?")) return;
+    if (!window.confirm("à¤¤à¥à¤®à¥à¤¹à¤¾à¤²à¤¾ à¤–à¤¾à¤¤à¥à¤°à¥€ à¤†à¤¹à¥‡ à¤•à¥€ à¤¹à¥€ à¤¸à¤‚à¤ªà¥‚à¤°à¥à¤£ à¤‘à¤°à¥à¤¡à¤° à¤†à¤£à¤¿ à¤¤à¥à¤¯à¤¾à¤µà¤°à¥€à¤² à¤¸à¤°à¥à¤µ à¤Ÿà¥à¤°à¤• à¤¨à¥‹à¤‚à¤¦à¥€ à¤¹à¤Ÿà¤µà¤¾à¤¯à¤šà¥à¤¯à¤¾ à¤†à¤¹à¥‡à¤¤?")) return;
 
     try {
       const res = await api.delete(`/api/dealer-orders/${orderId}`);
 
       if (res.status === 200) {
-        alert("ऑर्डर यशस्वीरित्या हटवली ✅");
+        alert("à¤‘à¤°à¥à¤¡à¤° à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¹à¤Ÿà¤µà¤²à¥€ âœ…");
         setSelectedOrder(null);
         fetchOrders();
       } else {
-        alert("ऑर्डर हटवताना चूक झाली.");
+        alert("à¤‘à¤°à¥à¤¡à¤° à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
       }
     } catch (err) {
       console.error(err);
@@ -303,7 +302,7 @@ const DealerDashboard = () => {
 
   // Total stock calculations (1 Ton = 10 Quintals)
   const totalInwardTons = farmerRecords.reduce((sum, r) => {
-    const isMakka = r.crop === "मका" || (r.commodity && r.commodity.includes("मका"));
+    const isMakka = r.crop === "à¤®à¤•à¤¾" || (r.commodity && r.commodity.includes("à¤®à¤•à¤¾"));
     if (isMakka) {
       return sum + Number(r.weight || r.quantity || 0) / 10;
     }
@@ -326,16 +325,16 @@ const DealerDashboard = () => {
   };
 
   const handleDeletePayment = async (orderId, paymentId) => {
-    if (!window.confirm("तुम्हाला खात्री आहे की हा पेमेंट व्यवहार हटवायचा आहे?")) return;
+    if (!window.confirm("à¤¤à¥à¤®à¥à¤¹à¤¾à¤²à¤¾ à¤–à¤¾à¤¤à¥à¤°à¥€ à¤†à¤¹à¥‡ à¤•à¥€ à¤¹à¤¾ à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤µà¥à¤¯à¤µà¤¹à¤¾à¤° à¤¹à¤Ÿà¤µà¤¾à¤¯à¤šà¤¾ à¤†à¤¹à¥‡?")) return;
 
     try {
       const res = await api.delete(`/api/dealer-orders/${orderId}/payment/${paymentId}`);
 
       if (res.status === 200) {
-        alert("पेमेंट व्यवहार यशस्वीरित्या हटवला गेला ✅");
+        alert("à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤µà¥à¤¯à¤µà¤¹à¤¾à¤° à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¹à¤Ÿà¤µà¤²à¤¾ à¤—à¥‡à¤²à¤¾ âœ…");
         refreshData();
       } else {
-        alert("पेमेंट हटवताना चूक झाली.");
+        alert("à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
       }
     } catch (err) {
       console.error(err);
@@ -356,60 +355,60 @@ const DealerDashboard = () => {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
-          <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>💸 सर्व जमा पेमेंट व्यवहार यादी (All Payments Ledger)</h2>
+          <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>ðŸ’¸ à¤¸à¤°à¥à¤µ à¤œà¤®à¤¾ à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤µà¥à¤¯à¤µà¤¹à¤¾à¤° à¤¯à¤¾à¤¦à¥€ (All Payments Ledger)</h2>
         </div>
 
         <div className="card" style={{ padding: "20px", margin: 0 }}>
           {allPayments.length === 0 ? (
             <div style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
-              कोणताही पेमेंट व्यवहार नोंदवलेला नाही.
+              à¤•à¥‹à¤£à¤¤à¤¾à¤¹à¥€ à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤µà¥à¤¯à¤µà¤¹à¤¾à¤° à¤¨à¥‹à¤‚à¤¦à¤µà¤²à¥‡à¤²à¤¾ à¤¨à¤¾à¤¹à¥€.
             </div>
           ) : (
             <div className="table-responsive">
               <table className="records-table">
                 <thead>
                   <tr>
-                    <th>तारीख</th>
-                    <th>कंपनी नाव</th>
-                    <th>ऑर्डर PO क्रमांक</th>
-                    <th>पेमेंट प्रकार</th>
-                    <th>रेफरन्स नंबर</th>
-                    <th>माहिती / नोंद</th>
-                    <th>रक्कम</th>
-                    <th>कृती</th>
+                    <th>à¤¤à¤¾à¤°à¥€à¤–</th>
+                    <th>à¤•à¤‚à¤ªà¤¨à¥€ à¤¨à¤¾à¤µ</th>
+                    <th>à¤‘à¤°à¥à¤¡à¤° PO à¤•à¥à¤°à¤®à¤¾à¤‚à¤•</th>
+                    <th>à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤ªà¥à¤°à¤•à¤¾à¤°</th>
+                    <th>à¤°à¥‡à¤«à¤°à¤¨à¥à¤¸ à¤¨à¤‚à¤¬à¤°</th>
+                    <th>à¤®à¤¾à¤¹à¤¿à¤¤à¥€ / à¤¨à¥‹à¤‚à¤¦</th>
+                    <th>à¤°à¤•à¥à¤•à¤®</th>
+                    <th>à¤•à¥ƒà¤¤à¥€</th>
                   </tr>
                 </thead>
                 <tbody>
                   {allPayments.map((p) => (
                     <tr key={p.id}>
-                      <td data-label="तारीख">{p.date}</td>
-                      <td data-label="कंपनी नाव"><strong>{p.dealerName}</strong></td>
-                      <td data-label="ऑर्डर PO क्रमांक">{p.poNo || "N/A"}</td>
-                      <td data-label="पेमेंट प्रकार">{p.mode}</td>
-                      <td data-label="रेफरन्स नंबर">{p.refNo || "-"}</td>
-                      <td data-label="माहिती / नोंद">{p.note || "-"}</td>
-                      <td data-label="रक्कम" style={{ color: "#2e7d32", fontWeight: "700" }}>
-                        ₹{Number(p.amount || 0).toLocaleString("en-IN")}
+                      <td data-label="à¤¤à¤¾à¤°à¥€à¤–">{p.date}</td>
+                      <td data-label="à¤•à¤‚à¤ªà¤¨à¥€ à¤¨à¤¾à¤µ"><strong>{p.dealerName}</strong></td>
+                      <td data-label="à¤‘à¤°à¥à¤¡à¤° PO à¤•à¥à¤°à¤®à¤¾à¤‚à¤•">{p.poNo || "N/A"}</td>
+                      <td data-label="à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤ªà¥à¤°à¤•à¤¾à¤°">{p.mode}</td>
+                      <td data-label="à¤°à¥‡à¤«à¤°à¤¨à¥à¤¸ à¤¨à¤‚à¤¬à¤°">{p.refNo || "-"}</td>
+                      <td data-label="à¤®à¤¾à¤¹à¤¿à¤¤à¥€ / à¤¨à¥‹à¤‚à¤¦">{p.note || "-"}</td>
+                      <td data-label="à¤°à¤•à¥à¤•à¤®" style={{ color: "#2e7d32", fontWeight: "700" }}>
+                        â‚¹{Number(p.amount || 0).toLocaleString("en-IN")}
                       </td>
-                      <td data-label="कृती">
+                      <td data-label="à¤•à¥ƒà¤¤à¥€">
                         <button 
                           className="primary-btn btn-danger btn-sm" 
                           style={{ padding: "4px 8px", background: "#C94A4A" }}
                           onClick={async () => {
-                            if (!window.confirm("हे पेमेंट नक्की हटवायचे आहे का?")) return;
+                            if (!window.confirm("à¤¹à¥‡ à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤¨à¤•à¥à¤•à¥€ à¤¹à¤Ÿà¤µà¤¾à¤¯à¤šà¥‡ à¤†à¤¹à¥‡ à¤•à¤¾?")) return;
                             try {
                               const res = await api.delete(`/api/dealer-orders/${p.orderId}/payment/${p.id}`);
                               if (res.status === 200) {
                                 refreshData();
                               } else {
-                                alert("पेमेंट हटवताना चूक झाली.");
+                                alert("à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
                               }
                             } catch (err) {
                               console.error(err);
                             }
                           }}
                         >
-                          <Trash2 size={14} /> हटवा
+                          <Trash2 size={14} /> à¤¹à¤Ÿà¤µà¤¾
                         </button>
                       </td>
                     </tr>
@@ -424,7 +423,7 @@ const DealerDashboard = () => {
   };
 
   return (
-    <PageWrapper title="🚚 डीलर ऑर्डर्स व ट्रक लोडिंग व्यवस्थापन">
+    <PageWrapper title="ðŸšš à¤¡à¥€à¤²à¤° à¤‘à¤°à¥à¤¡à¤°à¥à¤¸ à¤µ à¤Ÿà¥à¤°à¤• à¤²à¥‹à¤¡à¤¿à¤‚à¤— à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¾à¤ªà¤¨">
       
       {/* Analytics Grid */}
       {!selectedOrder && !selectedCompany && (
@@ -465,7 +464,7 @@ const DealerDashboard = () => {
             {/* Header Action & Filter */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>
-                <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>डीलर ऑर्डर्स यादी (Dealers)</h2>
+                <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>à¤¡à¥€à¤²à¤° à¤‘à¤°à¥à¤¡à¤°à¥à¤¸ à¤¯à¤¾à¤¦à¥€ (Dealers)</h2>
                 
                 {/* Custom Premium Dropdown */}
                 <div className="custom-dropdown-container" ref={companyDropdownRef}>
@@ -473,7 +472,7 @@ const DealerDashboard = () => {
                     className="custom-dropdown-trigger" 
                     onClick={() => setIsCompanyDropdownOpen(!isCompanyDropdownOpen)}
                   >
-                    <span>{selectedCompanyFilter || "सर्व कंपन्या (All Companies)"}</span>
+                    <span>{selectedCompanyFilter || "à¤¸à¤°à¥à¤µ à¤•à¤‚à¤ªà¤¨à¥à¤¯à¤¾ (All Companies)"}</span>
                     <ChevronDown size={16} style={{ transition: "transform 150ms ease", transform: isCompanyDropdownOpen ? "rotate(180deg)" : "rotate(0)" }} />
                   </div>
                   {isCompanyDropdownOpen && (
@@ -485,7 +484,7 @@ const DealerDashboard = () => {
                           setIsCompanyDropdownOpen(false);
                         }}
                       >
-                        सर्व कंपन्या (All Companies)
+                        à¤¸à¤°à¥à¤µ à¤•à¤‚à¤ªà¤¨à¥à¤¯à¤¾ (All Companies)
                       </div>
                       {dealers.map(d => (
                         <div 
@@ -505,7 +504,7 @@ const DealerDashboard = () => {
               </div>
 
               <button className="primary-btn" onClick={() => setShowOrderForm(true)}>
-                <Plus size={16} /> नवीन ऑर्डर नोंदवा (Add Order)
+                <Plus size={16} /> à¤¨à¤µà¥€à¤¨ à¤‘à¤°à¥à¤¡à¤° à¤¨à¥‹à¤‚à¤¦à¤µà¤¾ (Add Order)
               </button>
             </div>
 
@@ -527,7 +526,7 @@ const DealerDashboard = () => {
               </div>
             ) : orders.filter(o => !selectedCompanyFilter || o.dealerName === selectedCompanyFilter).length === 0 ? (
               <div className="card" style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
-                नोंदवलेली कोणतीही डीलर ऑर्डर सापडली नाही.
+                à¤¨à¥‹à¤‚à¤¦à¤µà¤²à¥‡à¤²à¥€ à¤•à¥‹à¤£à¤¤à¥€à¤¹à¥€ à¤¡à¥€à¤²à¤° à¤‘à¤°à¥à¤¡à¤° à¤¸à¤¾à¤ªà¤¡à¤²à¥€ à¤¨à¤¾à¤¹à¥€.
               </div>
             ) : (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "20px" }}>
@@ -541,22 +540,22 @@ const DealerDashboard = () => {
                       <div key={o.id} className="card" style={{ margin: 0, padding: "20px", display: "flex", flexDirection: "column", gap: "12px", border: "1px solid #E6E1D8", position: "relative" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                           <div>
-                            <span style={{ fontSize: "12px", color: "#828B7E", fontWeight: "600", textTransform: "uppercase" }}>P.O. नं: {o.poNo || "N/A"}</span>
+                            <span style={{ fontSize: "12px", color: "#828B7E", fontWeight: "600", textTransform: "uppercase" }}>P.O. à¤¨à¤‚: {o.poNo || "N/A"}</span>
                             <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#2B2F2A", margin: "2px 0 0 0" }}>{o.dealerName}</h3>
                           </div>
                           <span className={`badge ${o.status === "fulfilled" ? "badge-paid" : o.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
-                            {o.status === "fulfilled" ? "पूर्ण" : o.status === "partially_fulfilled" ? "अंशतः पूर्ण" : "बाकी"}
+                            {o.status === "fulfilled" ? "à¤ªà¥‚à¤°à¥à¤£" : o.status === "partially_fulfilled" ? "à¤…à¤‚à¤¶à¤¤à¤ƒ à¤ªà¥‚à¤°à¥à¤£" : "à¤¬à¤¾à¤•à¥€"}
                           </span>
                         </div>
 
                         <div style={{ fontSize: "14px", color: "#4A5148" }}>
-                          📍 <strong>ठिकाण:</strong> {o.place || "-"}, {o.village || "-"}
+                          ðŸ“ <strong>à¤ à¤¿à¤•à¤¾à¤£:</strong> {o.place || "-"}, {o.village || "-"}
                         </div>
 
                         {/* Progress Bar */}
                         <div style={{ marginTop: "5px" }}>
                           <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#828B7E", marginBottom: "4px" }}>
-                            <span>प्रगती (Progress)</span>
+                            <span>à¤ªà¥à¤°à¤—à¤¤à¥€ (Progress)</span>
                             <span>{fulfilledWt.toFixed(1)} / {orderedWt.toFixed(1)} Tons ({pct.toFixed(0)}%)</span>
                           </div>
                           <div style={{ width: "100%", height: "8px", background: "#F0EDE6", borderRadius: "4px", overflow: "hidden" }}>
@@ -566,7 +565,7 @@ const DealerDashboard = () => {
 
                         <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
                           <button className="primary-btn btn-ghost btn-sm" style={{ flex: 1, justifyContent: "center" }} onClick={() => handleOrderSelect(o.id)}>
-                            तपशील & ट्रक नोंदी 📜
+                            à¤¤à¤ªà¤¶à¥€à¤² & à¤Ÿà¥à¤°à¤• à¤¨à¥‹à¤‚à¤¦à¥€ ðŸ“œ
                           </button>
                         </div>
                       </div>
@@ -581,39 +580,39 @@ const DealerDashboard = () => {
             {/* Left Column: Register New Company */}
             <div className="card" style={{ flex: "1 1 320px", margin: 0, padding: "20px" }}>
               <h3 style={{ fontSize: "16px", fontWeight: "700", borderBottom: "1px solid #E6E1D8", paddingBottom: "8px", marginBottom: "15px" }}>
-                🏢 नवीन कंपनी नोंदणी
+                ðŸ¢ à¤¨à¤µà¥€à¤¨ à¤•à¤‚à¤ªà¤¨à¥€ à¤¨à¥‹à¤‚à¤¦à¤£à¥€
               </h3>
               <form onSubmit={handleAddCompany} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 <div className="form-group">
-                  <label>कंपनी / डीलर नाव (Company Name) *</label>
+                  <label>à¤•à¤‚à¤ªà¤¨à¥€ / à¤¡à¥€à¤²à¤° à¤¨à¤¾à¤µ (Company Name) *</label>
                   <input 
                     type="text" 
-                    placeholder="उदा. मे. के.टी. सिमेंट्स" 
+                    placeholder="à¤‰à¤¦à¤¾. à¤®à¥‡. à¤•à¥‡.à¤Ÿà¥€. à¤¸à¤¿à¤®à¥‡à¤‚à¤Ÿà¥à¤¸" 
                     value={newCompanyName} 
                     onChange={(e) => setNewCompanyName(e.target.value)} 
                     required 
                   />
                 </div>
                 <div className="form-group">
-                  <label>शहर / तालुका (Place)</label>
+                  <label>à¤¶à¤¹à¤° / à¤¤à¤¾à¤²à¥à¤•à¤¾ (Place)</label>
                   <input 
                     type="text" 
-                    placeholder="उदा. मालेगाव" 
+                    placeholder="à¤‰à¤¦à¤¾. à¤®à¤¾à¤²à¥‡à¤—à¤¾à¤µ" 
                     value={newCompanyPlace} 
                     onChange={(e) => setNewCompanyPlace(e.target.value)} 
                   />
                 </div>
                 <div className="form-group">
-                  <label>गांव (Village)</label>
+                  <label>à¤—à¤¾à¤‚à¤µ (Village)</label>
                   <input 
                     type="text" 
-                    placeholder="उदा. निमगाव" 
+                    placeholder="à¤‰à¤¦à¤¾. à¤¨à¤¿à¤®à¤—à¤¾à¤µ" 
                     value={newCompanyVillage} 
                     onChange={(e) => setNewCompanyVillage(e.target.value)} 
                   />
                 </div>
                 <button type="submit" className="primary-btn" style={{ justifyContent: "center", marginTop: "10px" }} disabled={companyLoading}>
-                  {companyLoading ? "नोंदणी होत आहे..." : "कंपनी जतन करा (Register)"}
+                  {companyLoading ? "à¤¨à¥‹à¤‚à¤¦à¤£à¥€ à¤¹à¥‹à¤¤ à¤†à¤¹à¥‡..." : "à¤•à¤‚à¤ªà¤¨à¥€ à¤œà¤¤à¤¨ à¤•à¤°à¤¾ (Register)"}
                 </button>
               </form>
             </div>
@@ -621,46 +620,46 @@ const DealerDashboard = () => {
             {/* Right Column: Registered Companies List */}
             <div className="card" style={{ flex: "2 1 500px", margin: 0, padding: "20px" }}>
               <h3 style={{ fontSize: "16px", fontWeight: "700", borderBottom: "1px solid #E6E1D8", paddingBottom: "8px", marginBottom: "15px" }}>
-                नोंदणीकृत कंपन्यांची यादी ({dealers.length})
+                à¤¨à¥‹à¤‚à¤¦à¤£à¥€à¤•à¥ƒà¤¤ à¤•à¤‚à¤ªà¤¨à¥à¤¯à¤¾à¤‚à¤šà¥€ à¤¯à¤¾à¤¦à¥€ ({dealers.length})
               </h3>
               {dealers.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
-                  अजून कोणतीही कंपनी नोंदणीकृत केलेली नाही.
+                  à¤…à¤œà¥‚à¤¨ à¤•à¥‹à¤£à¤¤à¥€à¤¹à¥€ à¤•à¤‚à¤ªà¤¨à¥€ à¤¨à¥‹à¤‚à¤¦à¤£à¥€à¤•à¥ƒà¤¤ à¤•à¥‡à¤²à¥‡à¤²à¥€ à¤¨à¤¾à¤¹à¥€.
                 </div>
               ) : (
                 <div className="table-responsive">
                   <table className="records-table">
                     <thead>
                       <tr>
-                        <th style={{ textAlign: "left" }}>कंपनीचे नाव</th>
-                        <th>शहर/तालुका</th>
-                        <th>गांव</th>
-                        <th style={{ width: "20%" }}>कृती (Actions)</th>
+                        <th style={{ textAlign: "left" }}>à¤•à¤‚à¤ªà¤¨à¥€à¤šà¥‡ à¤¨à¤¾à¤µ</th>
+                        <th>à¤¶à¤¹à¤°/à¤¤à¤¾à¤²à¥à¤•à¤¾</th>
+                        <th>à¤—à¤¾à¤‚à¤µ</th>
+                        <th style={{ width: "20%" }}>à¤•à¥ƒà¤¤à¥€ (Actions)</th>
                       </tr>
                     </thead>
                     <tbody>
                       {dealers.map((d) => (
                         <tr key={d.id}>
-                          <td data-label="कंपनीचे नाव" style={{ textAlign: "left" }}>
+                          <td data-label="à¤•à¤‚à¤ªà¤¨à¥€à¤šà¥‡ à¤¨à¤¾à¤µ" style={{ textAlign: "left" }}>
                             <button 
                               onClick={() => {
                                 setSelectedCompany(d);
                               }}
                               style={{ background: "none", border: "none", color: "#007bff", cursor: "pointer", fontWeight: "bold", fontSize: "14px" }}
-                              title="या कंपनीचे प्रोफाइल व व्यवहार पहा"
+                              title="à¤¯à¤¾ à¤•à¤‚à¤ªà¤¨à¥€à¤šà¥‡ à¤ªà¥à¤°à¥‹à¤«à¤¾à¤‡à¤² à¤µ à¤µà¥à¤¯à¤µà¤¹à¤¾à¤° à¤ªà¤¹à¤¾"
                             >
                               {d.name}
                             </button>
                           </td>
-                          <td data-label="शहर/तालुका">{d.place || "-"}</td>
-                          <td data-label="गांव">{d.village || "-"}</td>
-                          <td data-label="कृती">
+                          <td data-label="à¤¶à¤¹à¤°/à¤¤à¤¾à¤²à¥à¤•à¤¾">{d.place || "-"}</td>
+                          <td data-label="à¤—à¤¾à¤‚à¤µ">{d.village || "-"}</td>
+                          <td data-label="à¤•à¥ƒà¤¤à¥€">
                             <button 
                               className="primary-btn btn-danger btn-sm" 
                               style={{ padding: "4px 8px", background: "#C94A4A", margin: "0 auto" }}
                               onClick={() => handleDeleteCompany(d.id)}
                             >
-                              <Trash2 size={14} /> हटवा
+                              <Trash2 size={14} /> à¤¹à¤Ÿà¤µà¤¾
                             </button>
                           </td>
                         </tr>
@@ -690,10 +689,10 @@ const DealerDashboard = () => {
           {/* Back button and title */}
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <button className="back-btn" onClick={() => setSelectedOrder(null)}>
-              <ArrowLeft size={16} /> ऑर्डर्स यादीकडे जा
+              <ArrowLeft size={16} /> à¤‘à¤°à¥à¤¡à¤°à¥à¤¸ à¤¯à¤¾à¤¦à¥€à¤•à¤¡à¥‡ à¤œà¤¾
             </button>
             <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>
-              {selectedOrder.dealerName} — ऑर्डर्स व ट्रक लोडिंग रेकॉर्ड्स
+              {selectedOrder.dealerName} â€” à¤‘à¤°à¥à¤¡à¤°à¥à¤¸ à¤µ à¤Ÿà¥à¤°à¤• à¤²à¥‹à¤¡à¤¿à¤‚à¤— à¤°à¥‡à¤•à¥‰à¤°à¥à¤¡à¥à¤¸
             </h2>
           </div>
 
@@ -701,17 +700,17 @@ const DealerDashboard = () => {
             
             {/* Left Column: Order stats & details */}
             <div className="card" style={{ flex: "1 1 300px", margin: 0, padding: "20px", display: "flex", flexDirection: "column", gap: "14px" }}>
-              <h3 style={{ fontSize: "16px", fontWeight: "700", borderBottom: "1px solid #E6E1D8", paddingBottom: "8px" }}>ऑर्डर सारांश</h3>
-              <p style={{ margin: 0 }}><strong>P.O. क्रमांक:</strong> {selectedOrder.poNo || "N/A"}</p>
-              <p style={{ margin: 0 }}><strong>डीलर नाव:</strong> {selectedOrder.dealerName}</p>
-              <p style={{ margin: 0 }}><strong>पत्ता:</strong> {selectedOrder.place} / {selectedOrder.village}</p>
-              <p style={{ margin: 0 }}><strong>एकूण ऑर्डर वजन:</strong> {selectedOrder.totalOrderedWeight || 0} Tons</p>
-              <p style={{ margin: 0 }}><strong>पाठवलेले एकूण वजन:</strong> {selectedOrder.fulfilledWeight || 0} Tons</p>
-              <p style={{ margin: 0 }}><strong>बाकी वजन:</strong> {selectedOrder.remainingWeight || 0} Tons</p>
+              <h3 style={{ fontSize: "16px", fontWeight: "700", borderBottom: "1px solid #E6E1D8", paddingBottom: "8px" }}>à¤‘à¤°à¥à¤¡à¤° à¤¸à¤¾à¤°à¤¾à¤‚à¤¶</h3>
+              <p style={{ margin: 0 }}><strong>P.O. à¤•à¥à¤°à¤®à¤¾à¤‚à¤•:</strong> {selectedOrder.poNo || "N/A"}</p>
+              <p style={{ margin: 0 }}><strong>à¤¡à¥€à¤²à¤° à¤¨à¤¾à¤µ:</strong> {selectedOrder.dealerName}</p>
+              <p style={{ margin: 0 }}><strong>à¤ªà¤¤à¥à¤¤à¤¾:</strong> {selectedOrder.place} / {selectedOrder.village}</p>
+              <p style={{ margin: 0 }}><strong>à¤à¤•à¥‚à¤£ à¤‘à¤°à¥à¤¡à¤° à¤µà¤œà¤¨:</strong> {selectedOrder.totalOrderedWeight || 0} Tons</p>
+              <p style={{ margin: 0 }}><strong>à¤ªà¤¾à¤ à¤µà¤²à¥‡à¤²à¥‡ à¤à¤•à¥‚à¤£ à¤µà¤œà¤¨:</strong> {selectedOrder.fulfilledWeight || 0} Tons</p>
+              <p style={{ margin: 0 }}><strong>à¤¬à¤¾à¤•à¥€ à¤µà¤œà¤¨:</strong> {selectedOrder.remainingWeight || 0} Tons</p>
               <p style={{ margin: 0 }}>
-                <strong>स्थिती:</strong> 
+                <strong>à¤¸à¥à¤¥à¤¿à¤¤à¥€:</strong> 
                 <span style={{ marginLeft: "6px" }} className={`badge ${selectedOrder.status === "fulfilled" ? "badge-paid" : selectedOrder.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
-                  {selectedOrder.status === "fulfilled" ? "पूर्ण" : selectedOrder.status === "partially_fulfilled" ? "अंशतः पूर्ण" : "प्रलंबित"}
+                  {selectedOrder.status === "fulfilled" ? "à¤ªà¥‚à¤°à¥à¤£" : selectedOrder.status === "partially_fulfilled" ? "à¤…à¤‚à¤¶à¤¤à¤ƒ à¤ªà¥‚à¤°à¥à¤£" : "à¤ªà¥à¤°à¤²à¤‚à¤¬à¤¿à¤¤"}
                 </span>
               </p>
 
@@ -720,13 +719,13 @@ const DealerDashboard = () => {
                   className="primary-btn btn-ghost" 
                   style={{ marginTop: "10px", width: "100%", justifyContent: "center", cursor: "not-allowed", opacity: 0.6 }} 
                   disabled
-                  title="ऑर्डर पूर्ण झाली आहे, त्यामुळे नवीन ट्रक लोड करता येणार नाही."
+                  title="à¤‘à¤°à¥à¤¡à¤° à¤ªà¥‚à¤°à¥à¤£ à¤à¤¾à¤²à¥€ à¤†à¤¹à¥‡, à¤¤à¥à¤¯à¤¾à¤®à¥à¤³à¥‡ à¤¨à¤µà¥€à¤¨ à¤Ÿà¥à¤°à¤• à¤²à¥‹à¤¡ à¤•à¤°à¤¤à¤¾ à¤¯à¥‡à¤£à¤¾à¤° à¤¨à¤¾à¤¹à¥€."
                 >
-                  <Truck size={16} /> ऑर्डर पूर्ण झाली (Order Fulfilled)
+                  <Truck size={16} /> à¤‘à¤°à¥à¤¡à¤° à¤ªà¥‚à¤°à¥à¤£ à¤à¤¾à¤²à¥€ (Order Fulfilled)
                 </button>
               ) : (
                 <button className="primary-btn" style={{ marginTop: "10px", width: "100%", justifyContent: "center" }} onClick={() => setShowDispatchForm(true)}>
-                  <Truck size={16} /> नवीन ट्रक लोड करा (Dispatch Truck)
+                  <Truck size={16} /> à¤¨à¤µà¥€à¤¨ à¤Ÿà¥à¤°à¤• à¤²à¥‹à¤¡ à¤•à¤°à¤¾ (Dispatch Truck)
                 </button>
               )}
 
@@ -735,57 +734,57 @@ const DealerDashboard = () => {
                 style={{ marginTop: "10px", width: "100%", justifyContent: "center", background: "#C94A4A" }} 
                 onClick={() => handleDeleteOrder(selectedOrder.id)}
               >
-                <Trash2 size={16} /> ऑर्डर हटवा (Delete Order)
+                <Trash2 size={16} /> à¤‘à¤°à¥à¤¡à¤° à¤¹à¤Ÿà¤µà¤¾ (Delete Order)
               </button>
             </div>
 
             {/* Right Column: Dispatch History list */}
             <div className="card" style={{ flex: "2 1 500px", margin: 0, padding: "20px" }}>
               <h3 style={{ fontSize: "16px", fontWeight: "700", borderBottom: "1px solid #E6E1D8", paddingBottom: "8px", marginBottom: "15px" }}>
-                पाठवलेल्या ट्रक्स नोंदी (Dispatch Log)
+                à¤ªà¤¾à¤ à¤µà¤²à¥‡à¤²à¥à¤¯à¤¾ à¤Ÿà¥à¤°à¤•à¥à¤¸ à¤¨à¥‹à¤‚à¤¦à¥€ (Dispatch Log)
               </h3>
 
               {!selectedOrder.dispatches || selectedOrder.dispatches.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
-                  या ऑर्डरवर अजून कोणताही ट्रक लोड केला नाही.
+                  à¤¯à¤¾ à¤‘à¤°à¥à¤¡à¤°à¤µà¤° à¤…à¤œà¥‚à¤¨ à¤•à¥‹à¤£à¤¤à¤¾à¤¹à¥€ à¤Ÿà¥à¤°à¤• à¤²à¥‹à¤¡ à¤•à¥‡à¤²à¤¾ à¤¨à¤¾à¤¹à¥€.
                 </div>
               ) : (
                 <div className="table-responsive">
                   <table className="records-table">
                     <thead>
                       <tr>
-                        <th>बिल नं.</th>
-                        <th>तारीख</th>
-                        <th>गाडी नंबर</th>
-                        <th>माल प्रकार</th>
-                        <th>वजन (Tons)</th>
-                        <th>भाडे</th>
-                        <th>कृती (Actions)</th>
+                        <th>à¤¬à¤¿à¤² à¤¨à¤‚.</th>
+                        <th>à¤¤à¤¾à¤°à¥€à¤–</th>
+                        <th>à¤—à¤¾à¤¡à¥€ à¤¨à¤‚à¤¬à¤°</th>
+                        <th>à¤®à¤¾à¤² à¤ªà¥à¤°à¤•à¤¾à¤°</th>
+                        <th>à¤µà¤œà¤¨ (Tons)</th>
+                        <th>à¤­à¤¾à¤¡à¥‡</th>
+                        <th>à¤•à¥ƒà¤¤à¥€ (Actions)</th>
                       </tr>
                     </thead>
                     <tbody>
                       {selectedOrder.dispatches.map((d) => (
                         <tr key={d.id}>
-                          <td data-label="बिल नं.">{d.billNo}</td>
-                          <td data-label="तारीख">{d.date}</td>
-                          <td data-label="गाडी नंबर"><strong>{d.truckNo}</strong></td>
-                          <td data-label="माल प्रकार">{d.cropType}</td>
-                          <td data-label="वजन">{d.weight} Tons</td>
-                          <td data-label="भाडे">
+                          <td data-label="à¤¬à¤¿à¤² à¤¨à¤‚.">{d.billNo}</td>
+                          <td data-label="à¤¤à¤¾à¤°à¥€à¤–">{d.date}</td>
+                          <td data-label="à¤—à¤¾à¤¡à¥€ à¤¨à¤‚à¤¬à¤°"><strong>{d.truckNo}</strong></td>
+                          <td data-label="à¤®à¤¾à¤² à¤ªà¥à¤°à¤•à¤¾à¤°">{d.cropType}</td>
+                          <td data-label="à¤µà¤œà¤¨">{d.weight} Tons</td>
+                          <td data-label="à¤­à¤¾à¤¡à¥‡">
                             <span style={{ fontSize: "11px", color: "#828B7E" }}>
-                              एकूण: ₹{d.totalFreight || 0}<br />
-                              बाकी: <span style={{ color: d.due_freight > 0 ? "red" : "green" }}>₹{d.due_freight || 0}</span>
+                              à¤à¤•à¥‚à¤£: â‚¹{d.totalFreight || 0}<br />
+                              à¤¬à¤¾à¤•à¥€: <span style={{ color: d.due_freight > 0 ? "red" : "green" }}>â‚¹{d.due_freight || 0}</span>
                             </span>
                           </td>
-                          <td data-label="कृती">
+                          <td data-label="à¤•à¥ƒà¤¤à¥€">
                             <div style={{ display: "flex", gap: "6px" }}>
                               <button 
                                 className="primary-btn btn-ghost btn-sm" 
                                 style={{ padding: "4px 8px" }}
                                 onClick={() => openCuttingModal(d, selectedOrder.id)}
-                                title="कंपनी अंतिम घट/नुकसान नोंदवा"
+                                title="à¤•à¤‚à¤ªà¤¨à¥€ à¤…à¤‚à¤¤à¤¿à¤® à¤˜à¤Ÿ/à¤¨à¥à¤•à¤¸à¤¾à¤¨ à¤¨à¥‹à¤‚à¤¦à¤µà¤¾"
                               >
-                                ⚖️ घट नोंद
+                                âš–ï¸ à¤˜à¤Ÿ à¤¨à¥‹à¤‚à¤¦
                               </button>
                               <button 
                                 className="primary-btn btn-ghost btn-sm" 
@@ -795,14 +794,14 @@ const DealerDashboard = () => {
                                   setShowInvoicePreview(true);
                                 }}
                               >
-                                <FileText size={14} /> बिल
+                                <FileText size={14} /> à¤¬à¤¿à¤²
                               </button>
                               <button 
                                 className="primary-btn btn-danger btn-sm" 
                                 style={{ padding: "4px 8px", background: "#C94A4A" }}
                                 onClick={() => handleDeleteDispatch(d.id)}
                               >
-                                <Trash2 size={14} /> हटवा
+                                <Trash2 size={14} /> à¤¹à¤Ÿà¤µà¤¾
                               </button>
                             </div>
                           </td>
@@ -867,470 +866,9 @@ const DealerDashboard = () => {
         onClose={() => setShowPaymentModal(false)}
         onPaymentAdded={refreshData}
       />
-                  </tbody>
-                </table>
-
-                {/* Bank Details */}
-                <div style={{ marginTop: "12px", border: "1px solid #ccc", padding: "6px", borderRadius: "4px", fontSize: "8.5px", background: "#fcfcfc" }}>
-                  <strong>K T TRADERS</strong> | Bank of Maharashtra, Nimgaon Br.<br />
-                  <strong>A/c No:</strong> 60484823811 | <strong>IFS Code:</strong> MAHB0000832
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "15px", fontSize: "10px" }}>
-                  <div style={{ fontStyle: "italic", fontSize: "8.5px", alignSelf: "flex-end" }}>* संगणकीय प्रत</div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: "9px" }}>तर्फे: के.टी. ट्रेडर्स</div>
-                    <div style={{ borderTop: "1px solid #555", width: "80px", marginTop: "20px", display: "inline-block" }}></div>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 4: COMPANY LOSS / CUTTING MODAL */}
-      {showCuttingModal && selectedDispatchForCutting && (
-        <div className="modal-overlay">
-          <div className="card modal-content">
-            <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px", marginBottom: "15px" }}>
-              ⚖️ कंपनी अंतिम पावती & घट (Loss/Cutting) नोंदवा
-            </h2>
-            <form onSubmit={handleSaveCutting} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <div style={{ background: "#f9f9f9", padding: "10px", borderRadius: "5px", fontSize: "13px" }}>
-                <strong>मूळ गाडी लोडिंग माहिती:</strong><br />
-                • वजन: {selectedDispatchForCutting.weight} T | भाव: ₹{selectedDispatchForCutting.rate}<br />
-                • पाठवलेली रक्कम (Loaded Value): <strong>₹{selectedDispatchForCutting.amount.toFixed(2)}</strong>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>कंपनी अंतिम वजन (Tons) *</label>
-                  <input 
-                    type="number" 
-                    step="any" 
-                    value={compWeight} 
-                    onChange={(e) => setCompWeight(e.target.value)} 
-                    required 
-                  />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>कंपनी अंतिम भाव *</label>
-                  <input 
-                    type="number" 
-                    step="any" 
-                    value={compRate} 
-                    onChange={(e) => setCompRate(e.target.value)} 
-                    required 
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>Fungal / Quality कपात (₹)</label>
-                  <input 
-                    type="number" 
-                    value={compDamageCut} 
-                    onChange={(e) => setCompDamageCut(e.target.value)} 
-                    placeholder="0"
-                  />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>Moisture कपात (₹)</label>
-                  <input 
-                    type="number" 
-                    value={compMoistureCut} 
-                    onChange={(e) => setCompMoistureCut(e.target.value)} 
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>इतर घट/कपात (₹)</label>
-                  <input 
-                    type="number" 
-                    value={compOtherCut} 
-                    onChange={(e) => setCompOtherCut(e.target.value)} 
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-
-              {/* Calculations Display */}
-              <div style={{ background: "#f2f7f2", padding: "10px", borderRadius: "5px", fontSize: "13px" }}>
-                <strong>अंदाजित ताळमेळ (Preview):</strong><br />
-                • कंपनी पास रक्कम: <strong>₹{((Number(compWeight || 0) * Number(compRate || 0) * 10) - (Number(compDamageCut || 0) + Number(compMoistureCut || 0) + Number(compOtherCut || 0))).toFixed(2)}</strong><br />
-                • कपात/नुकसान (Net Loss): <strong style={{ color: "red" }}>₹{(Number(selectedDispatchForCutting.amount || 0) - ((Number(compWeight || 0) * Number(compRate || 0) * 10) - (Number(compDamageCut || 0) + Number(compMoistureCut || 0) + Number(compOtherCut || 0)))).toFixed(2)}</strong>
-              </div>
-
-              <div className="form-group">
-                <label>तपशील / टिप (Note)</label>
-                <input 
-                  type="text" 
-                  value={compNote} 
-                  onChange={(e) => setCompNote(e.target.value)} 
-                  placeholder="उदा. बुरशी लागल्याने कपात झाली"
-                />
-              </div>
-
-              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-                <button type="submit" className="primary-btn" style={{ flex: 1, justifyContent: "center" }}>जतन करा (Save)</button>
-                <button type="button" className="primary-btn btn-ghost" style={{ flex: 1, justifyContent: "center" }} onClick={() => setShowCuttingModal(false)}>रद्द करा (Cancel)</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 5: COMPANY PAYMENT MODAL */}
-      {showPaymentModal && (
-        <div className="modal-overlay">
-          <div className="card modal-content">
-            <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px", marginBottom: "15px" }}>
-              💰 नवीन कंपनी पेमेंट व्यवहार
-            </h2>
-            <form onSubmit={handleAddPayment} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              
-              <div className="form-group">
-                <label>निवडलेली ऑर्डर (Linked P.O. Number) *</label>
-                <CustomDropdown
-                  value={paymentOrderId}
-                  onChange={setPaymentOrderId}
-                  options={orders
-                    .filter(o => o.dealerName === selectedCompany?.name)
-                    .map(o => ({
-                      value: o.id,
-                      label: `P.O. ${o.poNo || "N/A"} (${o.orderDate})`
-                    }))}
-                  placeholder="ऑर्डर निवडा (Select Order)"
-                />
-              </div>
-
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>तारीख (Date) *</label>
-                  <input 
-                    type="date" 
-                    value={paymentDate} 
-                    onChange={(e) => setPaymentDate(e.target.value)} 
-                    required 
-                  />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>रक्कम (Amount in ₹) *</label>
-                  <input 
-                    type="number" 
-                    placeholder="उदा. 50000" 
-                    value={paymentAmount} 
-                    onChange={(e) => setPaymentAmount(e.target.value)} 
-                    required 
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>पेमेंट प्रकार (Payment Mode) *</label>
-                  <CustomDropdown
-                    value={paymentMode}
-                    onChange={setPaymentMode}
-                    options={["Bank Transfer", "RTGS / NEFT", "Cheque", "Cash", "UPI"]}
-                    placeholder="पेमेंट प्रकार निवडा"
-                  />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>रेफरन्स नं. (Cheque/Ref No)</label>
-                  <input 
-                    type="text" 
-                    placeholder="उदा. TXN123456" 
-                    value={paymentRefNo} 
-                    onChange={(e) => setPaymentRefNo(e.target.value)} 
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>तपशील / टिप (Note)</label>
-                <input 
-                  type="text" 
-                  placeholder="उदा. बँक ट्रान्सफर द्वारे जमा" 
-                  value={paymentNote} 
-                  onChange={(e) => setPaymentNote(e.target.value)} 
-                />
-              </div>
-
-              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-                <button type="submit" className="primary-btn" style={{ flex: 1, justifyContent: "center" }}>पेमेंट जोडा (Save)</button>
-                <button type="button" className="primary-btn btn-ghost" style={{ flex: 1, justifyContent: "center" }} onClick={() => setShowPaymentModal(false)}>रद्द करा</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* HIDDEN PRINTABLE LEDGER CONTAINER */}
-      {selectedCompany && (
-        <div 
-          ref={ledgerRef} 
-          style={{
-            position: "absolute",
-            left: "-9999px",
-            top: "-9999px",
-            width: "790px",
-            padding: "35px",
-            background: "#ffffff",
-            color: "#000000",
-            fontFamily: "sans-serif",
-            boxSizing: "border-box"
-          }}
-        >
-          {/* Statement Header */}
-          <div style={{ textAlign: "center", borderBottom: "2px solid #000", paddingBottom: "15px", marginBottom: "20px" }}>
-            <h1 style={{ margin: 0, fontSize: "24px", color: "#8B0000" }}>मे. के.टी. ट्रेडर्स</h1>
-            <h3 style={{ margin: "2px 0 0 0", fontSize: "16px" }}>K. T. TRADERS</h3>
-            <p style={{ margin: "4px 0 0 0", fontSize: "11px" }}>मार्केट यार्ड, मालेगाव कॅम्प जि. नाशिक | मो. 9850291298, 9767128838</p>
-            <h2 style={{ marginTop: "15px", marginBottom: 0, fontSize: "18px", borderTop: "1px solid #ddd", paddingTop: "10px", fontWeight: "bold" }}>
-              लेजर खाते उतारा (Account Statement)
-            </h2>
-          </div>
-
-          {/* Company Info Block */}
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px", fontSize: "12px", background: "#f9f9f9", padding: "12px", borderRadius: "5px", border: "1px solid #eee" }}>
-            <div>
-              <strong>कंपनीचे नाव:</strong> {selectedCompany.name}<br />
-              <strong>पत्ता:</strong> {selectedCompany.place} / {selectedCompany.village}
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <strong>तारीख:</strong> {new Date().toLocaleDateString("en-IN")}<br />
-              <strong>प्रत:</strong> खातेदार प्रत
-            </div>
-          </div>
-
-          {/* Account Summary Stats */}
-          {(() => {
-            const companyOrders = orders.filter(o => o.dealerName === selectedCompany.name);
-            const companyDispatches = companyOrders.flatMap(o => (o.dispatches || []).map(d => ({ ...d, poNo: o.poNo })));
-            const companyPayments = companyOrders.flatMap(o => (o.payments || []).map(p => ({ ...p, poNo: o.poNo })));
-
-            const totalSent = companyDispatches.reduce((sum, d) => sum + Number(d.amount || 0), 0);
-            const totalCuts = companyDispatches.reduce((sum, d) => sum + Number(d.lossAmt || 0), 0);
-            const totalPassed = totalSent - totalCuts;
-            const totalPaid = companyPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
-            const totalBalance = totalPassed - totalPaid;
-
-            // Compile transactions
-            const txs = [
-              ...companyDispatches.map(d => ({
-                date: d.date,
-                timestamp: new Date(d.date).getTime(),
-                details: `गाडी नं: ${d.truckNo} (${d.cropType})`,
-                weight: d.weight,
-                sentAmt: d.amount,
-                cuts: d.lossAmt || 0,
-                passedAmt: d.passedAmt || d.amount,
-                paidAmt: 0
-              })),
-              ...companyPayments.map(p => ({
-                date: p.date,
-                timestamp: new Date(p.date).getTime(),
-                details: `पेमेंट जमा (${p.mode}) ${p.refNo ? "Ref: "+p.refNo : ""}`,
-                weight: 0,
-                sentAmt: 0,
-                cuts: 0,
-                passedAmt: 0,
-                paidAmt: p.amount
-              }))
-            ];
-            txs.sort((a, b) => a.timestamp - b.timestamp);
-
-            let runningBal = 0;
-
-            return (
-              <>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "10px", marginBottom: "25px", textAlign: "center" }}>
-                  <div style={{ border: "1px solid #ddd", padding: "8px", borderRadius: "4px" }}>
-                    <span style={{ fontSize: "9px", color: "#666" }}>एकूण माल (Sent)</span>
-                    <div style={{ fontWeight: "bold", fontSize: "11px", marginTop: "3px" }}>₹{totalSent.toFixed(2)}</div>
-                  </div>
-                  <div style={{ border: "1px solid #ddd", padding: "8px", borderRadius: "4px" }}>
-                    <span style={{ fontSize: "9px", color: "#666" }}>एकूण घट (Cuts)</span>
-                    <div style={{ fontWeight: "bold", fontSize: "11px", marginTop: "3px", color: "red" }}>₹{totalCuts.toFixed(2)}</div>
-                  </div>
-                  <div style={{ border: "1px solid #ddd", padding: "8px", borderRadius: "4px" }}>
-                    <span style={{ fontSize: "9px", color: "#666" }}>कंपनी मंजूर</span>
-                    <div style={{ fontWeight: "bold", fontSize: "11px", marginTop: "3px", color: "green" }}>₹{totalPassed.toFixed(2)}</div>
-                  </div>
-                  <div style={{ border: "1px solid #ddd", padding: "8px", borderRadius: "4px" }}>
-                    <span style={{ fontSize: "9px", color: "#666" }}>एकूण जमा (Paid)</span>
-                    <div style={{ fontWeight: "bold", fontSize: "11px", marginTop: "3px", color: "blue" }}>₹{totalPaid.toFixed(2)}</div>
-                  </div>
-                  <div style={{ border: "1px solid #ddd", padding: "8px", borderRadius: "4px", background: "#f2f7f2" }}>
-                    <span style={{ fontSize: "9px", color: "#666" }}>बाकी (Outstanding)</span>
-                    <div style={{ fontWeight: "bold", fontSize: "11px", marginTop: "3px", color: totalBalance > 0 ? "orange" : "green" }}>₹{totalBalance.toFixed(2)}</div>
-                  </div>
-                </div>
-
-                <h3 style={{ fontSize: "13px", fontWeight: "bold", borderBottom: "1px solid #000", paddingBottom: "5px", marginBottom: "10px" }}>व्यवहार तपशील (Transaction Ledger)</h3>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10.5px" }}>
-                  <thead>
-                    <tr style={{ background: "#eaeaea", borderBottom: "2px solid #000" }}>
-                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "left" }}>दिनांक</th>
-                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "left" }}>तपशील / गाडी नंबर</th>
-                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "center" }}>वजन (T)</th>
-                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>मूळ माल (₹)</th>
-                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>घट (₹)</th>
-                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>मंजूर (₹)</th>
-                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>जमा (₹)</th>
-                      <th style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>बाकी (₹)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {txs.map((tx, idx) => {
-                      runningBal = runningBal + tx.passedAmt - tx.paidAmt;
-                      return (
-                        <tr key={idx} style={{ borderBottom: "1px solid #eee" }}>
-                          <td style={{ border: "1px solid #ddd", padding: "6px" }}>{tx.date}</td>
-                          <td style={{ border: "1px solid #ddd", padding: "6px" }}>{tx.details}</td>
-                          <td style={{ border: "1px solid #ddd", padding: "6px", textAlign: "center" }}>
-                            {tx.weight > 0 ? `${tx.weight} T` : "-"}
-                          </td>
-                          <td style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>
-                            {tx.sentAmt > 0 ? `₹${tx.sentAmt.toFixed(2)}` : "-"}
-                          </td>
-                          <td style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right", color: tx.cuts > 0 ? "red" : "black" }}>
-                            {tx.cuts > 0 ? `₹${tx.cuts.toFixed(2)}` : "-"}
-                          </td>
-                          <td style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right" }}>
-                            {tx.passedAmt > 0 ? `₹${tx.passedAmt.toFixed(2)}` : "-"}
-                          </td>
-                          <td style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right", color: "green", fontWeight: tx.paidAmt > 0 ? "bold" : "normal" }}>
-                            {tx.paidAmt > 0 ? `₹${tx.paidAmt.toFixed(2)}` : "-"}
-                          </td>
-                          <td style={{ border: "1px solid #ddd", padding: "6px", textAlign: "right", fontWeight: "bold" }}>
-                            ₹{runningBal.toFixed(2)}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </>
-            );
-          })()}
-
-          {/* Signature Area */}
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "50px", fontSize: "11px" }}>
-            <div>* खातेदाराची स्वाक्षरी</div>
-            <div style={{ textAlign: "right" }}>
-              <strong>तर्फे : के.टी. ट्रेडर्स</strong><br /><br /><br />
-              <span>अधिकृत सही</span>
-            </div>
-          </div>
-        </div>
-      )}
 
     </PageWrapper>
   );
 };
-
-const styles = {
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(44, 53, 36, 0.4)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 999,
-    padding: "20px",
-  },
-  modalContent: {
-    width: "100%",
-    maxWidth: "500px",
-    background: "#ffffff",
-    maxHeight: "95vh",
-    overflowY: "auto",
-    boxShadow: "0 12px 30px rgba(0, 0, 0, 0.15)",
-    margin: 0,
-  },
-  billSlipLeft: {
-    flex: 1,
-    padding: "10px",
-    boxSizing: "border-box",
-    background: "#fcfbf9",
-    fontFamily: "sans-serif",
-    color: "#000"
-  },
-  billSlipRight: {
-    flex: 1,
-    padding: "10px",
-    boxSizing: "border-box",
-    background: "#fcfbf9",
-    fontFamily: "sans-serif",
-    color: "#000"
-  },
-  logoCircle: {
-    width: "36px",
-    height: "36px",
-    borderRadius: "50%",
-    background: "#8B0000",
-    color: "#fff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "14px",
-    fontWeight: "bold"
-  },
-  slipFieldLine: {
-    borderBottom: "1px dotted #555",
-    paddingBottom: "3px",
-    marginBottom: "8px",
-    fontSize: "11px",
-    display: "flex",
-    alignItems: "center"
-  },
-  fieldValue: {
-    marginLeft: "6px",
-    fontWeight: "600",
-    color: "#222"
-  },
-  receiptTable: {
-    width: "100%",
-    borderCollapse: "collapse",
-    marginTop: "12px",
-    fontSize: "10px",
-  },
-  receiptTableTh: {
-    border: "1px solid #000",
-    padding: "6px",
-    background: "#e8e8e8",
-    fontWeight: "bold"
-  },
-  receiptTableTd: {
-    border: "1px solid #000",
-    padding: "6px"
-  }
-};
-
-// Add standard inline CSS styles to inject direct table styling on receiptTable
-const injectStyles = () => {
-  const style = document.createElement("style");
-  style.innerHTML = `
-    .receipt-table-style table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    table {
-      border-collapse: collapse;
-    }
-  `;
-  document.head.appendChild(style);
-};
-injectStyles();
 
 export default DealerDashboard;
