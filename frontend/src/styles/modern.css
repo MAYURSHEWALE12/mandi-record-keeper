@@ -975,7 +975,7 @@ body.dark-theme .modal-content {
   .invoice-left, .invoice-right { padding: 16px; }
 
   /* Modal overlay */
-  .modal-overlay { padding: 10px !important; align-items: flex-start !important; padding-top: 20px !important; }
+  .modal-overlay { padding: 10px !important; align-items: center !important; }
   .modal-content { max-width: 100% !important; margin: 0 !important; max-height: 90vh !important; }
 }
 

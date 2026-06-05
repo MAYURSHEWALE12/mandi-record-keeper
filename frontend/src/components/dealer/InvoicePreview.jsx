@@ -4,20 +4,22 @@ import jsPDF from "jspdf";
 
 const styles = {
   billSlipLeft: {
-    flex: 1,
+    flex: "1 1 300px",
     padding: "10px",
     boxSizing: "border-box",
     background: "#fcfbf9",
     fontFamily: "sans-serif",
-    color: "#000"
+    color: "#000",
+    minWidth: 0
   },
   billSlipRight: {
-    flex: 1,
+    flex: "1 1 300px",
     padding: "10px",
     boxSizing: "border-box",
     background: "#fcfbf9",
     fontFamily: "sans-serif",
-    color: "#000"
+    color: "#000",
+    minWidth: 0
   },
   logoCircle: {
     width: "36px",
@@ -103,8 +105,8 @@ const InvoicePreview = ({ show, selectedDispatchForPreview, currentOrderForPrevi
   if (!show || !selectedDispatchForPreview) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="card modal-content" style={{ maxWidth: "1100px", padding: "15px" }}>
+    <div className="modal-overlay" style={{ alignItems: "center" }}>
+      <div className="card modal-content" style={{ maxWidth: "1100px", padding: "15px", margin: "20px auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px", alignItems: "center" }}>
           <h3 style={{ margin: 0 }}>पावती बिल प्रिव्ह्यू (Invoice Double Slip Preview)</h3>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
@@ -120,12 +122,14 @@ const InvoicePreview = ({ show, selectedDispatchForPreview, currentOrderForPrevi
           className="invoice-preview-slips"
           style={{
             display: "flex",
+            flexWrap: "wrap",
             background: "#fcfbf9",
             border: "1px solid #ddd",
             padding: "20px",
             fontFamily: "sans-serif",
             color: "#000",
             gap: "20px",
+            maxWidth: "100%",
             width: "1050px",
             margin: "0 auto",
             boxSizing: "border-box"
