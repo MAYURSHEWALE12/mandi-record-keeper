@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import api from "../../api";
 import PageWrapper from "../layout/PageWrapper";
 import CustomDropdown from "../common/CustomDropdown";
@@ -23,6 +24,7 @@ const PaidPaymentsTable = () => {
       } catch (err) {
         console.error("डेटा लोड झाला नाही:", err);
         setLoading(false);
+        toast.error("डेटा लोड करताना चूक झाली.");
       }
     };
     fetchRecords();

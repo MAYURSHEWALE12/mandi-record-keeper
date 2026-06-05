@@ -10,6 +10,7 @@ import api from "../api";
 const AdminPage = () => {
   const location = useLocation();
   const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [editingRecord, setEditingRecord] = useState(null);
 
   useEffect(() => {
@@ -23,10 +24,14 @@ const AdminPage = () => {
 
   const fetchRecords = async () => {
     try {
+      setLoading(true);
       const res = await api.get("/api/records");
       setRecords(Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []));
     } catch (err) {
       console.error("Error fetching records:", err);
+      toast.error("रेकॉर्ड लोड करताना चूक झाली.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,15 +87,24 @@ const AdminPage = () => {
       <div className="page-body">
         <StatsCards records={records} />
         <DayStatsCards records={records} />
-        <AddRecordForm
-          onRecordAdded={handleRecordAdded}
-          editingRecord={editingRecord}
-          setEditingRecord={setEditingRecord}
-        />
-        <RecordsTable
-          records={records}
-          onEditClick={handleEditClick}
-        />
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "60px 20px", color: "#828B7E" }}>
+            <div className="spinner" style={{ width: 40, height: 40, border: "4px solid #e0e0e0", borderTop: "4px solid #4E653C", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 16px" }}></div>
+            डेटा लोड होत आहे...
+          </div>
+        ) : (
+          <>
+            <AddRecordForm
+              onRecordAdded={handleRecordAdded}
+              editingRecord={editingRecord}
+              setEditingRecord={setEditingRecord}
+            />
+            <RecordsTable
+              records={records}
+              onEditClick={handleEditClick}
+            />
+          </>
+        )}
       </div>
     </>
   );

@@ -136,12 +136,14 @@ const DealerDashboard = () => {
           setSelectedOrder(detailRes.data);
         } catch (e) {
           console.error("Error reloading order detail on refresh:", e);
+          toast.error("ऑर्डर तपशील लोड करताना चूक झाली.");
         }
       }
       setLoading(false);
     } catch (err) {
       console.error("Error fetching dealer orders:", err);
       setLoading(false);
+      toast.error("डीलर ऑर्डर्स लोड करताना चूक झाली.");
     }
   };
   
@@ -151,6 +153,7 @@ const DealerDashboard = () => {
       setFarmerRecords(Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []));
     } catch (err) {
       console.error("Error fetching farmer records:", err);
+      toast.error("शेतकरी रेकॉर्ड लोड करताना चूक झाली.");
     }
   };
 
@@ -169,6 +172,7 @@ const DealerDashboard = () => {
       }
     } catch (err) {
       console.error("Error fetching dealers:", err);
+      toast.error("कंपन्या लोड करताना चूक झाली.");
     }
   };
 
@@ -220,6 +224,7 @@ const DealerDashboard = () => {
       }
     } catch (err) {
       console.error(err);
+      toast.error("कंपनी हटवताना चूक झाली.");
     }
   };
 
@@ -246,6 +251,7 @@ const DealerDashboard = () => {
       setSelectedOrder(res.data);
     } catch (err) {
       console.error("Error fetching order details:", err);
+      toast.error("ऑर्डर तपशील लोड करताना चूक झाली.");
     }
   };
 
@@ -271,6 +277,7 @@ const DealerDashboard = () => {
       }
     } catch (err) {
       console.error(err);
+      toast.error("नोंद हटवताना चूक झाली.");
     }
   };
 
@@ -290,6 +297,7 @@ const DealerDashboard = () => {
       }
     } catch (err) {
       console.error(err);
+      toast.error("ऑर्डर हटवताना चूक झाली.");
     }
   };
 
@@ -339,6 +347,7 @@ const DealerDashboard = () => {
       }
     } catch (err) {
       console.error(err);
+      toast.error("पेमेंट हटवताना चूक झाली.");
     }
   };
 
@@ -406,6 +415,7 @@ const DealerDashboard = () => {
                               }
                             } catch (err) {
                               console.error(err);
+                              toast.error("à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
                             }
                           }}
                         >

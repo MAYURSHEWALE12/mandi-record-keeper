@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PageWrapper from "../components/layout/PageWrapper";
+import toast from "react-hot-toast";
 import api from "../api";
 import { ArrowLeft, Printer, Phone, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
 
@@ -249,6 +250,7 @@ const PaymentHistory = () => {
       } catch (error) {
         console.error("Error fetching history:", error);
         setLoading(false);
+        toast.error("इतिहास लोड करताना चूक झाली.");
       }
     };
     fetchHistory();

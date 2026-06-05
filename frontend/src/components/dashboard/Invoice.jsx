@@ -97,6 +97,7 @@ const Invoice = () => {
   const [dealerOrders, setDealerOrders] = useState([]);
   const [previewData, setPreviewData] = useState({}); 
   const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [loading, setLoading] = useState(true);
 
   const invoiceRef = useRef(); 
   const today = new Date().toISOString().split("T")[0];
@@ -111,6 +112,7 @@ const Invoice = () => {
       setRecords(Array.isArray(response.data) ? response.data : (Array.isArray(response.data?.data) ? response.data.data : []));
     } catch (err) {
       console.error("डेटा लोड करताना एरर आली:", err);
+      toast.error("रेकॉर्ड लोड करताना चूक झाली.");
     }
   };
 
@@ -120,12 +122,15 @@ const Invoice = () => {
       setDealerOrders(Array.isArray(response.data?.data) ? response.data.data : (Array.isArray(response.data) ? response.data : []));
     } catch (err) {
       console.error("डीलर ऑर्डर्स लोड करताना एरर आली:", err);
+      toast.error("डीलर ऑर्डर्स लोड करताना चूक झाली.");
     }
   };
 
   const loadData = async () => {
+    setLoading(true);
     await fetchRecords();
     await fetchDealerOrders();
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -249,6 +254,12 @@ const Invoice = () => {
 
   return (
     <div className="main-wrapper" style={{ padding: "20px" }}>
+      {loading ? (
+        <div style={{ textAlign: "center", padding: "80px 20px", color: "#828B7E" }}>
+          <div className="spinner" style={{ width: 40, height: 40, border: "4px solid #e0e0e0", borderTop: "4px solid #4E653C", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 16px" }}></div>
+          डेटा लोड होत आहे...
+        </div>
+      ) : (<>
       <div className="invoice-container">
         <div className="invoice-left">
           <form className="bill-form">
@@ -430,6 +441,8 @@ const Invoice = () => {
           <InvoiceRecordsTable records={records} onRecordsChange={setRecords} onEditClick={handleEditClick} />
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 };

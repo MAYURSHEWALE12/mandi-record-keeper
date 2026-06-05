@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import api from "../../api";
 import PageWrapper from "../layout/PageWrapper";
 import CustomDropdown from "../common/CustomDropdown";
@@ -27,6 +28,7 @@ const DuePaymentsTable = ({ onEditClick }) => {
       } catch (error) {
         console.error("डेटा एरर:", error);
         setLoading(false);
+        toast.error("डेटा लोड करताना चूक झाली.");
       }
     };
     fetchData();

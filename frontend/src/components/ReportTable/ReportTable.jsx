@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PageWrapper from "../layout/PageWrapper";
+import toast from "react-hot-toast";
 import api from "../../api";
 import CustomDropdown from "../common/CustomDropdown";
 import "./ReportTable.css";
@@ -24,7 +25,7 @@ const ReportTable = () => {
   useEffect(() => {
     api.get("/api/records")
       .then(res => setRecords(Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : [])))
-      .catch(err => console.error(err));
+      .catch(err => { console.error(err); toast.error("रेकॉर्ड लोड करताना चूक झाली."); });
   }, []);
 
   const handleRangeClick = (range) => {
