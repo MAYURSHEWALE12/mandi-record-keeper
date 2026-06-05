@@ -13,6 +13,7 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
   const [rate, setRate] = useState("");
   const [paidAmount, setPaidAmount] = useState("");
   const [remainingPayment, setRemainingPayment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (editingRecord) {
@@ -38,6 +39,7 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
 
   const handleAddRecord = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
     
     if (Number(quantity) < 0 || Number(rate) < 0 || Number(paidAmount) < 0) {
       alert("कृपया वजा (-) रक्कम टाकू नका.");
@@ -51,6 +53,7 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
       return;
     }
     
+    setIsSubmitting(true);
     const recordData = { 
       date, 
       farmerName, 
@@ -82,6 +85,8 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
     } catch (err) { 
       console.error("Fetch Error:", err); 
       alert("सर्व्हरशी संपर्क होऊ शकला नाही.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -139,8 +144,13 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
         )}
 
         <div className="button-container" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-start', gap: '15px' }}>
-          <button type="submit" className="primary-btn" style={{ padding: '10px 25px' }}>
-            {editingRecord ? "रेकॉर्ड अपडेट करा" : "रेकॉर्ड जोडा"}
+          <button 
+            type="submit" 
+            className="primary-btn" 
+            style={{ padding: '10px 25px', opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (editingRecord ? "अपडेट होत आहे..." : "जोडला जात आहे...") : (editingRecord ? "रेकॉर्ड अपडेट करा" : "रेकॉर्ड जोडा")}
           </button>
           
           {editingRecord && (

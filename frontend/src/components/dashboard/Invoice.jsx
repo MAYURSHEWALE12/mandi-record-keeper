@@ -204,6 +204,7 @@ const Invoice = () => {
   const [records, setRecords] = useState([]);
   const [dealerOrders, setDealerOrders] = useState([]);
   const [previewData, setPreviewData] = useState({}); 
+  const [isSubmitting, setIsSubmitting] = useState(false); 
 
   const invoiceRef = useRef(); 
   const today = new Date().toISOString().split("T")[0];
@@ -303,6 +304,8 @@ const Invoice = () => {
 
   const handleBillCreate = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     if (farmerContact.length !== 10) {
       setError("⚠️ कृपया वैध १० अंकी मोबाईल नंबर टाका");
       return;
@@ -312,6 +315,7 @@ const Invoice = () => {
       return;
     }
 
+    setIsSubmitting(true);
     const recordData = {
       date,
       farmerName: customer,
@@ -352,6 +356,8 @@ const Invoice = () => {
     } catch (err) {
       console.error("Fetch Error:", err);
       alert("सर्व्हरशी संपर्क होऊ शकला नाही.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -422,8 +428,17 @@ const Invoice = () => {
               </div>
             </div>
 
-            <button type="button" onClick={handleBillCreate} className="submit-btn">
-              बिल तयार करा
+            <button 
+              type="button" 
+              onClick={handleBillCreate} 
+              className="submit-btn"
+              disabled={isSubmitting}
+              style={{
+                opacity: isSubmitting ? 0.7 : 1,
+                cursor: isSubmitting ? "not-allowed" : "pointer"
+              }}
+            >
+              {isSubmitting ? "बिल तयार होत आहे..." : "बिल तयार करा"}
             </button>
 
             <button 
