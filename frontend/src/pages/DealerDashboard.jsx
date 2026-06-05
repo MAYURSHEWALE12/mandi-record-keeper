@@ -101,6 +101,11 @@ const DealerDashboard = () => {
   const [paymentNote, setPaymentNote] = useState("");
   const [paymentOrderId, setPaymentOrderId] = useState("");
 
+  // Truck Log Filter States
+  const [truckFilterInterval, setTruckFilterInterval] = useState("all");
+  const [truckFilterStartDate, setTruckFilterStartDate] = useState("");
+  const [truckFilterEndDate, setTruckFilterEndDate] = useState("");
+
   const [selectedOrder, setSelectedOrder] = useState(() => {
     const saved = localStorage.getItem("dealer_selectedOrder");
     return saved ? JSON.parse(saved) : null;
@@ -997,16 +1002,145 @@ const DealerDashboard = () => {
     );
     allDispatches.sort((a, b) => new Date(b.date) - new Date(a.date));
 
+    // Filter dispatches based on interval selection
+    const filteredDispatches = allDispatches.filter(d => {
+      if (!d.date) return true;
+      const dDate = new Date(d.date);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      
+      if (truckFilterInterval === "7days") {
+        const pastDate = new Date();
+        pastDate.setDate(pastDate.getDate() - 7);
+        pastDate.setHours(0, 0, 0, 0);
+        return dDate >= pastDate && dDate <= today;
+      }
+      if (truckFilterInterval === "30days") {
+        const pastDate = new Date();
+        pastDate.setDate(pastDate.getDate() - 30);
+        pastDate.setHours(0, 0, 0, 0);
+        return dDate >= pastDate && dDate <= today;
+      }
+      if (truckFilterInterval === "custom") {
+        const start = truckFilterStartDate ? new Date(truckFilterStartDate) : null;
+        const end = truckFilterEndDate ? new Date(truckFilterEndDate) : null;
+        if (start) start.setHours(0, 0, 0, 0);
+        if (end) end.setHours(23, 59, 59, 999);
+        
+        if (start && end) {
+          return dDate >= start && dDate <= end;
+        } else if (start) {
+          return dDate >= start;
+        } else if (end) {
+          return dDate <= end;
+        }
+      }
+      return true; // "all"
+    });
+
+    const handleExportTrucksCSV = () => {
+      const formatDate = (dateStr) => {
+        if (!dateStr) return "";
+        const d = new Date(dateStr);
+        const day = String(d.getDate()).padStart(2, "0");
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const year = d.getFullYear();
+        return `${day}-${month}-${year}`;
+      };
+
+      const rows = [
+        [
+          "Date", "Bill No", "Company Name", "PO No", "Truck No", "Crop Type", 
+          "Bags Count", "Loaded Weight (Tons)", "Received Weight (Tons)", "Rate", 
+          "Total Freight (Rs)", "Paid Freight (Rs)", "Due Freight (Rs)", "Total Cutting (Rs)", 
+          "Passed Amount (Rs)", "Driver Name", "Driver Mobile", "Note"
+        ],
+        ...filteredDispatches.map((d) => [
+          formatDate(d.date),
+          d.billNo || d.bill_no || "",
+          d.dealerName || "",
+          d.poNo || "",
+          d.truckNo || "",
+          d.cropType || "",
+          d.bagsCount || "",
+          d.weight || "",
+          d.compWeight || "",
+          d.rate || "",
+          d.totalFreight || "",
+          d.paidFreight || "",
+          d.totalFreight && d.paidFreight ? (Number(d.totalFreight) - Number(d.paidFreight)).toFixed(2) : "",
+          d.lossAmt || "",
+          d.passedAmt || d.passedAmount || "",
+          d.driverName || "",
+          `\t${d.driverMobile || ""}`,
+          d.note || ""
+        ])
+      ];
+
+      const csvContent =
+        "\uFEFF" +
+        rows.map(row => row.map(val => `"${val}"`).join(",")).join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `trucks_loading_log_${truckFilterInterval}.csv`;
+      link.click();
+    };
+
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px", borderBottom: "1px solid #E6E1D8", paddingBottom: "14px" }}>
           <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>🚚 सर्व ट्रक्स व वाहतूक लॉग (All Trucks Log)</h2>
+          <button className="primary-btn btn-success btn-sm" onClick={handleExportTrucksCSV} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            📥 डेटा डाउनलोड करा (Download CSV)
+          </button>
+        </div>
+
+        {/* Interval Filters */}
+        <div className="card" style={{ padding: "14px 20px", display: "flex", gap: "15px", flexWrap: "wrap", alignItems: "center", background: "#fcfbfa", border: "1px solid #e8e6e0", margin: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <label style={{ fontSize: "14px", fontWeight: "600", color: "#4E653C" }}>कालावधी (Interval):</label>
+            <CustomDropdown
+              value={truckFilterInterval}
+              onChange={(val) => {
+                setTruckFilterInterval(val);
+              }}
+              options={[
+                { value: "all", label: "सर्व लॉग (All)" },
+                { value: "7days", label: "मागील ७ दिवस (Last 7 Days)" },
+                { value: "30days", label: "मागील महिना (Last Month)" },
+                { value: "custom", label: "सानुकूल तारीख (Custom)" }
+              ]}
+              style={{ minWidth: "210px", width: "210px" }}
+            />
+          </div>
+
+          {truckFilterInterval === "custom" && (
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <input 
+                type="date" 
+                className="filter-input" 
+                value={truckFilterStartDate} 
+                onChange={(e) => setTruckFilterStartDate(e.target.value)} 
+                style={{ padding: "6px 10px", borderRadius: "6px", border: "1px solid #c9c7c1", fontSize: "13px" }}
+              />
+              <span style={{ fontSize: "13px", color: "#828B7E" }}>ते</span>
+              <input 
+                type="date" 
+                className="filter-input" 
+                value={truckFilterEndDate} 
+                onChange={(e) => setTruckFilterEndDate(e.target.value)} 
+                style={{ padding: "6px 10px", borderRadius: "6px", border: "1px solid #c9c7c1", fontSize: "13px" }}
+              />
+            </div>
+          )}
         </div>
 
         <div className="card" style={{ padding: "20px", margin: 0 }}>
-          {allDispatches.length === 0 ? (
+          {filteredDispatches.length === 0 ? (
             <div style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
-              कोणताही ट्रक लोड केलेला नाही.
+              कोणताही ट्रक लोड केलेला नाही किंवा फिल्टर जुळला नाही.
             </div>
           ) : (
             <div className="table-responsive">
@@ -1025,7 +1159,7 @@ const DealerDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {allDispatches.map((d) => {
+                  {filteredDispatches.map((d) => {
                     const loadedWeight = Number(d.weight || 0);
                     const receivedWeight = d.compWeight ? Number(d.compWeight) : null;
                     const totalCuts = Number(d.compDamageCut || 0) + Number(d.compMoistureCut || 0) + Number(d.compOtherCut || 0);
