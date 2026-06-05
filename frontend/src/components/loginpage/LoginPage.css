@@ -600,17 +600,69 @@ body.dark-theme .login-right-pane {
 body.dark-theme .glass-login-card {
   background: rgba(18, 22, 15, 0.45); /* Darker glassmorphic card fill */
   border-color: rgba(255, 255, 255, 0.08);
+  color: #fff !important; /* Force white text */
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-theme .welcome-heading {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+body.dark-theme .portal-subheading {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+body.dark-theme .subheading-line {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+body.dark-theme .secure-access-text {
+  color: rgba(255, 255, 255, 0.5) !important;
 }
 
 body.dark-theme .glass-input-group input {
   background: rgba(0, 0, 0, 0.25);
   border-color: rgba(255, 255, 255, 0.08);
+  color: #fff !important;
 }
 
 body.dark-theme .glass-input-group input:focus {
   background: rgba(0, 0, 0, 0.35);
   border-color: #E5A93C;
+}
+
+body.dark-theme .glass-input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+body.dark-theme .input-icon {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+body.dark-theme .password-toggle-btn {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+body.dark-theme .password-toggle-btn:hover {
+  color: #fff !important;
+}
+
+body.dark-theme .remember-me-checkbox {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+body.dark-theme .divider-line {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-theme .divider-text {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+body.dark-theme .shield-badge {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.4) !important;
 }
 
 body.dark-theme .help-widget {
