@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import ReactDOM from "react-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import CustomDropdown from "../common/CustomDropdown";
@@ -106,6 +107,114 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
     });
   };
 
+  // ✅ Portal-based modal — renders directly on document.body to escape any parent stacking context
+  const invoiceModal = selectedInvoice && ReactDOM.createPortal(
+    <div
+      className="invoice-modal-overlay"
+      onClick={(e) => { if (e.target === e.currentTarget) setSelectedInvoice(null); }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: 'rgba(0,0,0,0.75)',
+        zIndex: 99999,
+        overflowY: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '20px',
+      }}
+    >
+      <div style={{ marginBottom: '10px', display: 'flex', gap: '15px' }}>
+        <button onClick={handleDownloadInvoicePDF} style={{ padding: '10px 20px', backgroundColor: '#1C1C1C', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>PDF डाउनलोड 📥</button>
+        <button onClick={() => setSelectedInvoice(null)} style={{ padding: '10px 20px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>बंद करा ✖</button>
+      </div>
+      <div ref={invoiceRef} style={slipStyles.container}>
+        {/* Header */}
+        <div style={slipStyles.header}>
+          <div style={slipStyles.logoCircle}>KT</div>
+         <div style={slipStyles.titleArea}>
+         <h2 style={slipStyles.mainTitle}>{BUSINESS_INFO.name}</h2>
+            <h3 style={slipStyles.subTitle}>{BUSINESS_INFO.nameEn}</h3>
+         </div>
+       </div>
+
+        <div style={slipStyles.addressLine}>
+          {BUSINESS_INFO.address} मो. {BUSINESS_INFO.phone1}, {BUSINESS_INFO.phone2}
+        </div>
+
+        <div style={slipStyles.metaLine}>
+          <div><strong>बिल क्रमांक:</strong> No. {selectedInvoice.billNo || selectedInvoice.displayBillNo}</div>
+          <div><strong>तारीख:</strong> {selectedInvoice.date}</div>
+        </div>
+
+        <div style={slipStyles.fieldLine}>
+          <span style={slipStyles.fieldLabel}>शेतकऱ्याचे नाव:</span>
+          <span style={slipStyles.fieldValue}>{selectedInvoice.farmerName}</span>
+        </div>
+
+        <div style={slipStyles.fieldLine}>
+          <span style={slipStyles.fieldLabel}>मोबाईल क्रमांक:</span>
+          <span style={slipStyles.fieldValue}>{selectedInvoice.mobile}</span>
+        </div>
+
+        <div style={slipStyles.fieldLine}>
+          <span style={slipStyles.fieldLabel}>पत्ता:</span>
+          <span style={slipStyles.fieldValue}>निमगाव, ता. मालेगाव, जि. नाशिक.</span>
+        </div>
+
+        <table style={slipStyles.table}>
+          <thead>
+            <tr>
+              <th style={slipStyles.th}>पीक</th>
+              <th style={slipStyles.th}>प्रमाण</th>
+              <th style={slipStyles.th}>दर</th>
+              <th style={slipStyles.th}>एकूण रक्कम</th>
+              <th style={slipStyles.th}>दिलेली रक्कम</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={slipStyles.td}>{selectedInvoice.crop}</td>
+              <td style={slipStyles.td}>{selectedInvoice.quantity} क्विंटल</td>
+              <td style={slipStyles.td}>₹{selectedInvoice.rate}</td>
+              <td style={slipStyles.td}>₹{selectedInvoice.totalAmount}</td>
+              <td style={slipStyles.td}>₹{selectedInvoice.paidAmount}</td>
+            </tr>
+            <tr style={{ fontWeight: "bold", background: "#f9f9f9" }}>
+              <td colSpan="3" style={{ ...slipStyles.td, textAlign: "left" }}>एकूण</td>
+              <td style={slipStyles.td}>₹{selectedInvoice.totalAmount}</td>
+              <td style={slipStyles.td}>₹{selectedInvoice.paidAmount}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style={slipStyles.summaryArea}>
+          <div style={slipStyles.fieldLine}>
+            <span style={slipStyles.fieldLabel}>बाकी रक्कम:</span>
+            <span style={{ ...slipStyles.fieldValue, ...slipStyles.balanceText }}>
+              ₹{(selectedInvoice.totalAmount - selectedInvoice.paidAmount).toFixed(2)}
+            </span>
+          </div>
+        </div>
+
+        <div style={slipStyles.footerSignatures}>
+          <div>
+            <div style={{ marginBottom: "25px", fontWeight: "bold" }}>शेतकरी स्वाक्षरी</div>
+            <div>...............................</div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ marginBottom: "25px", fontWeight: "bold" }}>तर्फे: के.टी. ट्रेडर्स</div>
+            <div>...............................</div>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+
   return (
     <div className="card">
       <h2>रेकॉर्ड्स ({filterDate === today ? "आजचे रेकॉर्ड्स" : filterDate})</h2>
@@ -163,94 +272,8 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
         </table>
       </div>
 
-      {selectedInvoice && (
-        <div className="invoice-modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 2000, overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
-          <div style={{ marginBottom: '10px', display: 'flex', gap: '15px' }}>
-            <button onClick={handleDownloadInvoicePDF} style={{ padding: '10px 20px', backgroundColor: '#1C1C1C', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>PDF डाउनलोड 📥</button>
-            <button onClick={() => setSelectedInvoice(null)} style={{ padding: '10px 20px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>बंद करा ✖</button>
-          </div>
-          <div ref={invoiceRef} style={slipStyles.container}>
-            {/* Header */}
-            <div style={slipStyles.header}>
-              <div style={slipStyles.logoCircle}>KT</div>
-             <div style={slipStyles.titleArea}>
-             <h2 style={slipStyles.mainTitle}>{BUSINESS_INFO.name}</h2>
-                <h3 style={slipStyles.subTitle}>{BUSINESS_INFO.nameEn}</h3>
-             </div>
-           </div>
-
-            <div style={slipStyles.addressLine}>
-              {BUSINESS_INFO.address} मो. {BUSINESS_INFO.phone1}, {BUSINESS_INFO.phone2}
-            </div>
-
-            <div style={slipStyles.metaLine}>
-              <div><strong>बिल क्रमांक:</strong> No. {selectedInvoice.billNo || selectedInvoice.displayBillNo}</div>
-              <div><strong>तारीख:</strong> {selectedInvoice.date}</div>
-            </div>
-
-            <div style={slipStyles.fieldLine}>
-              <span style={slipStyles.fieldLabel}>शेतकऱ्याचे नाव:</span>
-              <span style={slipStyles.fieldValue}>{selectedInvoice.farmerName}</span>
-            </div>
-
-            <div style={slipStyles.fieldLine}>
-              <span style={slipStyles.fieldLabel}>मोबाईल क्रमांक:</span>
-              <span style={slipStyles.fieldValue}>{selectedInvoice.mobile}</span>
-            </div>
-
-            <div style={slipStyles.fieldLine}>
-              <span style={slipStyles.fieldLabel}>पत्ता:</span>
-              <span style={slipStyles.fieldValue}>निमगाव, ता. मालेगाव, जि. नाशिक.</span>
-            </div>
-
-            <table style={slipStyles.table}>
-              <thead>
-                <tr>
-                  <th style={slipStyles.th}>पीक</th>
-                  <th style={slipStyles.th}>प्रमाण</th>
-                  <th style={slipStyles.th}>दर</th>
-                  <th style={slipStyles.th}>एकूण रक्कम</th>
-                  <th style={slipStyles.th}>दिलेली रक्कम</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={slipStyles.td}>{selectedInvoice.crop}</td>
-                  <td style={slipStyles.td}>{selectedInvoice.quantity} क्विंटल</td>
-                  <td style={slipStyles.td}>₹{selectedInvoice.rate}</td>
-                  <td style={slipStyles.td}>₹{selectedInvoice.totalAmount}</td>
-                  <td style={slipStyles.td}>₹{selectedInvoice.paidAmount}</td>
-                </tr>
-                <tr style={{ fontWeight: "bold", background: "#f9f9f9" }}>
-                  <td colSpan="3" style={{ ...slipStyles.td, textAlign: "left" }}>एकूण</td>
-                  <td style={slipStyles.td}>₹{selectedInvoice.totalAmount}</td>
-                  <td style={slipStyles.td}>₹{selectedInvoice.paidAmount}</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div style={slipStyles.summaryArea}>
-              <div style={slipStyles.fieldLine}>
-                <span style={slipStyles.fieldLabel}>बाकी रक्कम:</span>
-                <span style={{ ...slipStyles.fieldValue, ...slipStyles.balanceText }}>
-                  ₹{(selectedInvoice.totalAmount - selectedInvoice.paidAmount).toFixed(2)}
-                </span>
-              </div>
-            </div>
-
-            <div style={slipStyles.footerSignatures}>
-              <div>
-                <div style={{ marginBottom: "25px", fontWeight: "bold" }}>शेतकरी स्वाक्षरी</div>
-                <div>...............................</div>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ marginBottom: "25px", fontWeight: "bold" }}>तर्फे: के.टी. ट्रेडर्स</div>
-                <div>...............................</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ✅ Portal modal rendered here — outside card DOM */}
+      {invoiceModal}
 
       <div className="csv-actions" style={{ marginTop: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", gap: "10px" }}>
@@ -268,4 +291,4 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
   );
 };
 
-export default RecordsTable;//old
+export default RecordsTable;
