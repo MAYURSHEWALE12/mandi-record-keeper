@@ -2,7 +2,16 @@ const supabase = require('../db');
 
 const toCamel = (r) => {
   if (!r) return null;
-  const dispatches = r.dispatches || [];
+  const dispatches = (r.dispatches || []).map(d => {
+    const wt = Number(d.weight || d.quantity || 0);
+    const rt = Number(d.rate || 0);
+    const expectedWith10 = wt * rt * 10;
+    const expectedWithout10 = wt * rt;
+    if (d.amount && Math.abs(Number(d.amount) - expectedWithout10) < 0.1 && Math.abs(Number(d.amount) - expectedWith10) > 1 && expectedWith10 > 0) {
+      d.amount = expectedWith10;
+    }
+    return d;
+  });
   const fulfilledWeight = dispatches.reduce((sum, d) => sum + Number(d.weight || d.quantity || 0), 0);
   return {
     id: r.id,
@@ -64,6 +73,14 @@ exports.index = async (req, res) => {
           d.bill_no = maxBill;
           changed = true;
         }
+        const wt = Number(d.weight || d.quantity || 0);
+        const rt = Number(d.rate || 0);
+        const expectedWith10 = wt * rt * 10;
+        const expectedWithout10 = wt * rt;
+        if (d.amount && Math.abs(Number(d.amount) - expectedWithout10) < 0.1 && Math.abs(Number(d.amount) - expectedWith10) > 1 && expectedWith10 > 0) {
+          d.amount = expectedWith10;
+          changed = true;
+        }
         if (changed) modified = true;
         return d;
       });
@@ -118,6 +135,14 @@ exports.show = async (req, res) => {
         maxBill = maxBill + 1;
         d.billNo = maxBill;
         d.bill_no = maxBill;
+        changed = true;
+      }
+      const wt = Number(d.weight || d.quantity || 0);
+      const rt = Number(d.rate || 0);
+      const expectedWith10 = wt * rt * 10;
+      const expectedWithout10 = wt * rt;
+      if (d.amount && Math.abs(Number(d.amount) - expectedWithout10) < 0.1 && Math.abs(Number(d.amount) - expectedWith10) > 1 && expectedWith10 > 0) {
+        d.amount = expectedWith10;
         changed = true;
       }
       if (changed) modified = true;
