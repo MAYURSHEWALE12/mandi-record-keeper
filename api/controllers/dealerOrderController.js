@@ -140,10 +140,28 @@ exports.storeDispatch = async (req, res) => {
       return res.status(400).json({ error: `Cannot dispatch more than the allowed limit (remaining order weight or available stock) of ${maxAllowed.toFixed(2)} Tons` });
     }
 
+    let finalBillNo = req.body.billNo;
+    if (!finalBillNo) {
+      let maxBill = 1000;
+      const { data: allOrders } = await supabase.from('dealer_orders').select('dispatches');
+      if (allOrders) {
+        for (const o of allOrders) {
+          const dispatches = o.dispatches || [];
+          for (const d of dispatches) {
+            const num = Number(d.billNo || d.bill_no || 0);
+            if (num > maxBill) maxBill = num;
+          }
+        }
+      }
+      finalBillNo = maxBill + 1;
+    }
+
     const crypto = require('crypto');
     const newDispatch = {
       id: req.body.id || crypto.randomUUID(),
-      ...req.body
+      ...req.body,
+      billNo: finalBillNo,
+      bill_no: finalBillNo
     };
     const dispatches = [...existingDispatches, newDispatch];
     const totalFulfilled = dispatches.reduce((s, d) => s + Number(d.weight || d.quantity || 0), 0);
