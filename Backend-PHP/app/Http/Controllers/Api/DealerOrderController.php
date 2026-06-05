@@ -128,9 +128,11 @@ class DealerOrderController extends Controller
         $totalInward = \App\Models\Record::where('crop', 'मका')->sum('quantity') / 10.0;
         $totalAlreadyDispatched = \App\Models\DealerDispatch::sum('weight');
         $physicalStock = max(0.0, $totalInward - $totalAlreadyDispatched);
+        $remaining = $order->remaining_weight;
+        $maxAllowed = min($remaining, $physicalStock);
 
-        if ($inputWeight > $physicalStock + 0.0001) {
-            return $this->error($response, "Cannot dispatch more than the available physical stock of " . number_format($physicalStock, 2) . " Tons", 400);
+        if ($inputWeight > $maxAllowed + 0.0001) {
+            return $this->error($response, "Cannot dispatch more than the allowed limit (remaining order weight or available stock) of " . number_format($maxAllowed, 2) . " Tons", 400);
         }
 
         // Auto-increment bill number if not provided, using Counter

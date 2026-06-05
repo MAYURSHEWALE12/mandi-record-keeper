@@ -131,11 +131,14 @@ exports.storeDispatch = async (req, res) => {
     }, 0);
 
     const physicalStock = Math.max(0, totalInward - totalAlreadyDispatched);
-    if (inputWeight > physicalStock + 0.0001) {
-      return res.status(400).json({ error: `Cannot dispatch more than the available physical stock of ${physicalStock.toFixed(2)} Tons` });
-    }
-
     const existingDispatches = order.dispatches || [];
+    const fulfilledWeight = existingDispatches.reduce((sum, d) => sum + Number(d.weight || d.quantity || 0), 0);
+    const remaining = Math.max(0, (order.total_ordered_weight || 0) - fulfilledWeight);
+    const maxAllowed = Math.min(remaining, physicalStock);
+
+    if (inputWeight > maxAllowed + 0.0001) {
+      return res.status(400).json({ error: `Cannot dispatch more than the allowed limit (remaining order weight or available stock) of ${maxAllowed.toFixed(2)} Tons` });
+    }
 
     const crypto = require('crypto');
     const newDispatch = {

@@ -355,8 +355,11 @@ const DealerDashboard = () => {
       return;
     }
 
-    if (Number(weight) > physicalStockTons + 0.0001) {
-      alert(`चूक: आपण शिल्लक भौतिक साठ्यापेक्षा (${physicalStockTons.toFixed(2)} Tons) जास्त वजन लोड करू शकत नाही!`);
+    const remaining = Number(selectedOrder?.remainingWeight || 0);
+    const maxAllowed = Math.min(remaining, physicalStockTons);
+
+    if (Number(weight) > maxAllowed + 0.0001) {
+      alert(`चूक: आपण या ऑर्डरच्या उर्वरित वजनापेक्षा किंवा उपलब्ध भौतिक साठ्यापेक्षा (${maxAllowed.toFixed(2)} Tons) जास्त वजन लोड करू शकत नाही!`);
       return;
     }
 
@@ -1701,11 +1704,13 @@ const DealerDashboard = () => {
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>
                     निव्वळ वजन (Tons मध्ये) *
-                    <span style={{ color: "#10b981", fontWeight: "bold", marginLeft: "8px" }}>
-                      (कमाल उपलब्ध साठा: {physicalStockTons.toFixed(2)} Tons)
-                    </span>
+                    {selectedOrder && (
+                      <span style={{ color: "#10b981", fontWeight: "bold", marginLeft: "8px" }}>
+                        (कमाल मर्यादा: {Math.min(Number(selectedOrder.remainingWeight || 0), physicalStockTons).toFixed(2)} Tons)
+                      </span>
+                    )}
                   </label>
-                  <input type="number" step="any" placeholder={`उदा. कमाल ${physicalStockTons.toFixed(2)} Tons`} value={weight} onChange={(e) => setWeight(e.target.value)} required />
+                  <input type="number" step="any" placeholder={`उदा. कमाल ${Math.min(Number(selectedOrder?.remainingWeight || 0), physicalStockTons).toFixed(2)} Tons`} value={weight} onChange={(e) => setWeight(e.target.value)} required />
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>भाव (₹ / क्विंटल किंवा टन)</label>
