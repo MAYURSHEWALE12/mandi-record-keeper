@@ -29,6 +29,7 @@ const AdminHeader = () => {
       </div>
 
       <nav
+        aria-label="मुख्य नेव्हिगेशन"
         style={{
           display: "flex",
           justifyContent: "center",

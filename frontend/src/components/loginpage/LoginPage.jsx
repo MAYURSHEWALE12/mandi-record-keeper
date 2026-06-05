@@ -16,6 +16,7 @@ const LoginPage = () => {
   });
 
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isDark) {
@@ -37,12 +38,15 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await api.post("/api/admin/login", { email, password });
       localStorage.setItem("token", res.data.token);
       navigate("/select-dashboard");
     } catch (err) {
       toast.error("❌ Invalid Email or Password");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -196,9 +200,12 @@ const LoginPage = () => {
                 </span>
               </div>
 
-              <button type="submit" className="glass-submit-btn">
-                <span>Sign In</span>
-                <ArrowRight size={18} />
+              <button type="submit" className="glass-submit-btn" disabled={loading}>
+                {loading ? (
+                  <span>Signing In...</span>
+                ) : (
+                  <><span>Sign In</span><ArrowRight size={18} /></>
+                )}
               </button>
             </form>
 

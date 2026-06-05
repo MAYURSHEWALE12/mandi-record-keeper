@@ -64,7 +64,7 @@ const AppLayout = ({ children }) => {
     <div className="app-layout">
       {/* Mobile Top Header */}
       <header className="mobile-header">
-        <button onClick={toggleSidebar} className="hamburger-btn">
+        <button onClick={toggleSidebar} className="hamburger-btn" aria-label="उघडा/बंद करा मेनू">
           <Menu size={24} />
         </button>
         <span className="mobile-brand-title">के.टी. ट्रेडर्स</span>

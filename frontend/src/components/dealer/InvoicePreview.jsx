@@ -105,7 +105,7 @@ const InvoicePreview = ({ show, selectedDispatchForPreview, currentOrderForPrevi
   if (!show || !selectedDispatchForPreview) return null;
 
   return (
-    <div className="modal-overlay" style={{ alignItems: "center" }}>
+    <div className="modal-overlay" role="dialog" aria-modal="true" style={{ alignItems: "center" }}>
       <div className="card modal-content" style={{ maxWidth: "1100px", padding: "15px", margin: "20px auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px", alignItems: "center" }}>
           <h3 style={{ margin: 0 }}>पावती बिल प्रिव्ह्यू (Invoice Double Slip Preview)</h3>

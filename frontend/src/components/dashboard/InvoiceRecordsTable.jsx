@@ -182,7 +182,7 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
       </div>
 
       {selectedInvoice && (
-        <div className="invoice-modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 2000, overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
+        <div className="invoice-modal-overlay" role="dialog" aria-modal="true" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 2000, overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
           <div style={{ marginBottom: '10px', display: 'flex', gap: '15px' }}>
             <button onClick={handleDownloadInvoicePDF} style={{ padding: '10px 20px', backgroundColor: '#1C1C1C', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>PDF डाउनलोड 📥</button>
             <button onClick={() => setSelectedInvoice(null)} style={{ padding: '10px 20px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>बंद करा ✖</button>
@@ -279,9 +279,9 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#e3f2fd', padding: '5px 15px', borderRadius: '25px' }}>
-          <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#2196F3', fontSize: '18px' }}>◀</button>
+          <button aria-label="मागील पान" disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#2196F3', fontSize: '18px' }}>◀</button>
           <span style={{ fontWeight: 'bold', color: '#2196F3' }}>पाने {currentPage} / {totalPages || 1}</span>
-          <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage(prev => prev + 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#2196F3', fontSize: '18px' }}>▶</button>
+          <button aria-label="पुढील पान" disabled={currentPage >= totalPages} onClick={() => setCurrentPage(prev => prev + 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#2196F3', fontSize: '18px' }}>▶</button>
         </div>
       </div>
     </div>

@@ -149,6 +149,7 @@ const DuePaymentsTable = ({ onEditClick }) => {
       {/* 🟢 पेज नेव्हिगेशन (◀ पाने 1 / 2 ▶)Prathmesh Malusare  */}
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px', gap: '20px', fontSize: '18px' }}>
         <button 
+          aria-label="मागील पान"
           disabled={currentPage === 1} 
           onClick={() => setCurrentPage(prev => prev - 1)}
           style={{ background: 'none', border: 'none', cursor: currentPage === 1 ? 'default' : 'pointer', fontSize: '20px', color: currentPage === 1 ? '#ccc' : '#2196F3' }}
@@ -159,6 +160,7 @@ const DuePaymentsTable = ({ onEditClick }) => {
           पाने {currentPage} / {totalPages || 1}
         </span>
         <button 
+          aria-label="पुढील पान"
           disabled={currentPage >= totalPages} 
           onClick={() => setCurrentPage(prev => prev + 1)}
           style={{ background: 'none', border: 'none', cursor: currentPage >= totalPages ? 'default' : 'pointer', fontSize: '20px', color: currentPage >= totalPages ? '#ccc' : '#2196F3' }}

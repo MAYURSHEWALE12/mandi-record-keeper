@@ -112,6 +112,8 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
   const invoiceModal = selectedInvoice && ReactDOM.createPortal(
     <div
       className="invoice-modal-overlay"
+      role="dialog"
+      aria-modal="true"
       onClick={(e) => { if (e.target === e.currentTarget) setSelectedInvoice(null); }}
       style={{
         position: 'fixed',
@@ -283,9 +285,9 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
           <button className="primary-btn" onClick={() => fileInputRef.current.click()} style={{ backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '5px', cursor: 'pointer' }}>CSV इंपोर्ट 📥</button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#e3f2fd', padding: '5px 15px', borderRadius: '25px' }}>
-          <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#2196F3', fontSize: '18px' }}>◀</button>
+          <button aria-label="मागील पान" disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#2196F3', fontSize: '18px' }}>◀</button>
           <span style={{ fontWeight: 'bold', color: '#2196F3' }}>पाने {currentPage} / {totalPages || 1}</span>
-          <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage(prev => prev + 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#2196F3', fontSize: '18px' }}>▶</button>
+          <button aria-label="पुढील पान" disabled={currentPage >= totalPages} onClick={() => setCurrentPage(prev => prev + 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#2196F3', fontSize: '18px' }}>▶</button>
         </div>
       </div>
     </div>

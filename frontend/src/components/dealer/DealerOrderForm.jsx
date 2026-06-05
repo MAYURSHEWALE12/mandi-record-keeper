@@ -52,7 +52,7 @@ const DealerOrderForm = ({ show, dealers, availableStockTons, onClose, onOrderAd
   if (!show) return null;
 
   return (
-    <div className="modal-overlay">
+    <div className="modal-overlay" role="dialog" aria-modal="true">
       <div className="card modal-content">
         <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px" }}>नवीन डीलर ऑर्डर नोंदणी</h2>
         <form onSubmit={handleAddOrder} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>

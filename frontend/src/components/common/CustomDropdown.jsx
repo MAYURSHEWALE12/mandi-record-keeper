@@ -12,6 +12,7 @@ const CustomDropdown = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const menuId = React.useId?.() || `dropdown-menu-${Math.random().toString(36).slice(2, 9)}`;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -45,6 +46,13 @@ const CustomDropdown = ({
     >
       <div 
         className="custom-dropdown-trigger" 
+        role="combobox"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={menuId}
+        aria-label={placeholder}
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setIsOpen(!isOpen); } }}
         onClick={() => setIsOpen(!isOpen)}
         style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
       >
@@ -59,7 +67,7 @@ const CustomDropdown = ({
       </div>
       
       {isOpen && (
-        <div className="custom-dropdown-menu" style={{ width: "100%", minWidth: "100%" }}>
+        <div id={menuId} className="custom-dropdown-menu" role="listbox" style={{ width: "100%", minWidth: "100%" }}>
           {options.map((opt, index) => {
             const optVal = typeof opt === "object" ? opt.value : opt;
             const optLabel = typeof opt === "object" ? opt.label : opt;
@@ -68,6 +76,8 @@ const CustomDropdown = ({
             return (
               <div 
                 key={index} 
+                role="option"
+                aria-selected={isSelected}
                 className={`custom-dropdown-item ${isSelected ? "selected" : ""}`}
                 onClick={() => handleSelect(optVal)}
               >

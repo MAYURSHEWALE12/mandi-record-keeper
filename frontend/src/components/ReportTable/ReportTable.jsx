@@ -170,9 +170,9 @@ const ReportTable = () => {
             fontWeight: "bold",
             flexWrap: "nowrap"
           }}>
-            <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>◀</button>
+            <button aria-label="मागील पान" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>◀</button>
             <span>पान {currentPage} / {totalPages || 1}</span>
-            <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage(p => p + 1)}>▶</button>
+            <button aria-label="पुढील पान" disabled={currentPage >= totalPages} onClick={() => setCurrentPage(p => p + 1)}>▶</button>
           </div>
         </div>
       </div>
