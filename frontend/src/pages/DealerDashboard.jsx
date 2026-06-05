@@ -1708,6 +1708,14 @@ const DealerDashboard = () => {
                               <button 
                                 className="primary-btn btn-ghost btn-sm" 
                                 style={{ padding: "4px 8px" }}
+                                onClick={() => openCuttingModal(d, selectedOrder.id)}
+                                title="कंपनी अंतिम घट/नुकसान नोंदवा"
+                              >
+                                ⚖️ घट नोंद
+                              </button>
+                              <button 
+                                className="primary-btn btn-ghost btn-sm" 
+                                style={{ padding: "4px 8px" }}
                                 onClick={() => {
                                   setSelectedDispatchForPreview(d);
                                   setShowInvoicePreview(true);
