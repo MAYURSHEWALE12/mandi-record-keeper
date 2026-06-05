@@ -8,27 +8,27 @@
 :root {
   --bg: #FAF7F2;
   --bg-card: #ffffff;
-  --sidebar-bg: #12160F; /* Match login page's dark forest tint */
-  --sidebar-text: #A3B19B;
-  --sidebar-active: #E5A93C; /* Match login page's gold accent */
-  --text-primary: #2B2F2A;
-  --text-secondary: #4A5148;
-  --text-muted: #828B7E;
-  --border: #E6E1D8;
-  --border-light: #F0EDE6;
-  --accent: #4E653C; /* Match login page's forest green */
-  --accent-hover: #3E5130;
-  --accent-bg: #F0F4EC;
-  --blue: #4E653C;
-  --blue-hover: #3E5130;
-  --blue-bg: #F0F4EC;
+  --sidebar-bg: #111111; /* Pure dark black/charcoal */
+  --sidebar-text: #A0A0A0;
+  --sidebar-active: #E5A93C; /* Gold */
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-muted: #808080;
+  --border: #E5E5E5;
+  --border-light: #F2F2F2;
+  --accent: #E5A93C; /* Gold */
+  --accent-hover: #CC9634;
+  --accent-bg: rgba(229, 169, 60, 0.08); /* Light gold tint */
+  --blue: #1C1C1C; /* Dark charcoal */
+  --blue-hover: #2E2E2E;
+  --blue-bg: rgba(0, 0, 0, 0.04);
   --red: #C94A4A;
   --red-bg: #FDF2F2;
-  --amber: #E5A93C; /* Match login page's gold accent */
+  --amber: #E5A93C;
   --amber-bg: #FEF9EB;
-  --shadow-sm: 0 1px 2px rgba(18,22,15,0.02);
-  --shadow-md: 0 4px 10px rgba(18,22,15,0.04);
-  --shadow-lg: 0 8px 20px rgba(18,22,15,0.06);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.02);
+  --shadow-md: 0 4px 10px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 20px rgba(0,0,0,0.06);
   --radius-sm: 4px;
   --radius: 8px;
   --radius-lg: 12px;
@@ -36,22 +36,22 @@
 }
 
 body.dark-theme {
-  --bg: #11140E;
-  --bg-card: #1B1E17;
-  --sidebar-bg: #151910;
-  --sidebar-text: #828B7E;
-  --sidebar-active: #E5A93C;
-  --text-primary: #EDEBE6;
-  --text-secondary: #BFC5BA;
-  --text-muted: #727A6D;
-  --border: #2B3125;
-  --border-light: #20251C;
-  --accent: #6E8C58;
-  --accent-hover: #7FA068;
-  --accent-bg: #22291C;
-  --blue: #6E8C58;
-  --blue-hover: #7FA068;
-  --blue-bg: #22291C;
+  --bg: #121212; /* Dark background */
+  --bg-card: #1E1E1E; /* Darker charcoal card background */
+  --sidebar-bg: #0A0A0A; /* Pure black sidebar */
+  --sidebar-text: #8E8E8E;
+  --sidebar-active: #E5A93C; /* Gold */
+  --text-primary: #ECECEC;
+  --text-secondary: #B0B0B0;
+  --text-muted: #707070;
+  --border: #2E2E2E;
+  --border-light: #242424;
+  --accent: #E5A93C; /* Gold */
+  --accent-hover: #FFB300;
+  --accent-bg: rgba(229, 169, 60, 0.12);
+  --blue: #2E2E2E; /* Charcoal dark */
+  --blue-hover: #3E3E3E;
+  --blue-bg: rgba(255, 255, 255, 0.04);
   --red: #E05C5C;
   --red-bg: #351C1C;
   --amber: #E5A93C;
