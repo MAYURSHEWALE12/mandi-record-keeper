@@ -172,7 +172,14 @@ exports.storeDispatch = async (req, res) => {
     const { data: records, error: recError } = await supabase.from('records').select('*');
     if (recError) throw recError;
     const totalInward = records.reduce((sum, r) => {
-      const isMakka = r.crop === "मका" || (r.commodity && r.commodity.includes("मका"));
+      let isMakka = false;
+      if (r.commodity) {
+        if (Array.isArray(r.commodity)) {
+          isMakka = r.commodity.includes("मका");
+        } else if (typeof r.commodity === "string") {
+          isMakka = r.commodity.includes("मका") || r.commodity === "मका";
+        }
+      }
       return sum + (isMakka ? Number(r.weight || r.quantity || 0) / 10 : 0);
     }, 0);
 
@@ -357,6 +364,43 @@ exports.destroyPayment = async (req, res) => {
     res.json(toCamel(data));
   } catch (error) {
     console.error('Error deleting payment:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.getAvailableStock = async (req, res) => {
+  try {
+    const { data: records, error: recError } = await supabase.from('records').select('weight, commodity');
+    if (recError) throw recError;
+    const totalInward = records.reduce((sum, r) => {
+      let isMakka = false;
+      if (r.commodity) {
+        if (Array.isArray(r.commodity)) {
+          isMakka = r.commodity.includes("मका");
+        } else if (typeof r.commodity === "string") {
+          isMakka = r.commodity.includes("मका") || r.commodity === "मका";
+        }
+      }
+      return sum + (isMakka ? Number(r.weight || 0) / 10 : 0);
+    }, 0);
+
+    const { data: allOrders, error: ordersError } = await supabase.from('dealer_orders').select('dispatches');
+    if (ordersError) throw ordersError;
+    const totalAlreadyDispatched = allOrders.reduce((sum, o) => {
+      return sum + (o.dispatches || []).reduce((s, d) => s + Number(d.weight || d.quantity || 0), 0);
+    }, 0);
+
+    const availableStockTons = Math.max(0, totalInward - totalAlreadyDispatched);
+    const availableStockQuintals = availableStockTons * 10;
+
+    res.json({
+      availableStockTons,
+      availableStockQuintals,
+      totalInwardTons: totalInward,
+      totalOutwardTons: totalAlreadyDispatched
+    });
+  } catch (error) {
+    console.error('Error calculating available stock:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };

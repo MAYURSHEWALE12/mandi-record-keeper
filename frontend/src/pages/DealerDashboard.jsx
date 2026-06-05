@@ -1,514 +1,209 @@
-import React, { useState, useEffect, useRef } from "react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import React, { useState, useEffect } from "react";
 import api from "../api";
 import toast from "react-hot-toast";
 import PageWrapper from "../components/layout/PageWrapper";
-import { Truck, Plus, FileText, Trash2, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Truck, FileText } from "lucide-react";
+
+import DealerStatsCards from "../components/dealer/DealerStatsCards";
+import DealerOrderForm from "../components/dealer/DealerOrderForm";
+import DispatchForm from "../components/dealer/DispatchForm";
+import CompanyProfile from "../components/dealer/CompanyProfile";
+import CuttingModal from "../components/dealer/CuttingModal";
+import PaymentModal from "../components/dealer/PaymentModal";
+import InvoicePreview from "../components/dealer/InvoicePreview";
 import AllTrucksLog from "../components/dealer/AllTrucksLog";
 
-// ── Inline Companies List Tab ──
-const DealersTab = ({ orders }) => {
-  const [dealers, setDealers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [newName, setNewName] = useState("");
-  const [newPlace, setNewPlace] = useState("");
-  const [newVillage, setNewVillage] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState(null); // ← NEW
-  const [profileTab, setProfileTab] = useState("orders");       // ← NEW
-
-  const fetchDealers = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get("/api/dealers");
-      const data = res.data;
-      setDealers(Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : []);
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
-  };
-
-  useEffect(() => { fetchDealers(); }, []);
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    if (!newName.trim()) { toast.error("कंपनीचे नाव भरा."); return; }
-    try {
-      setSaving(true);
-      await api.post("/api/dealers", { name: newName, place: newPlace, village: newVillage });
-      toast.success("कंपनी नोंदवली ✅");
-      setNewName(""); setNewPlace(""); setNewVillage("");
-      fetchDealers();
-    } catch (e) { toast.error("नोंदणी अयशस्वी झाली."); }
-    finally { setSaving(false); }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("ही कंपनी कायमची हटवायची आहे?")) return;
-    try {
-      await api.delete(`/api/dealers/${id}`);
-      toast.success("हटवली ✅");
-      fetchDealers();
-    } catch (e) { toast.error("हटवताना चूक झाली."); }
-  };
-
-  // ── Company Profile View ──
-  if (selectedCompany) {
-    const companyOrders = orders.filter(o =>
-      (o.dealerName || "").toLowerCase() === selectedCompany.name.toLowerCase()
-    );
-    const companyDispatches = companyOrders.flatMap(o =>
-      (o.dispatches || []).map(d => ({ ...d, orderId: o.id, poNo: o.poNo }))
-    );
-    const companyPayments = companyOrders.flatMap(o =>
-      (o.payments || []).map(p => ({ ...p, orderId: o.id, poNo: o.poNo }))
-    );
-    const totalSent = companyDispatches.reduce((s, d) => s + Number(d.amount || 0), 0);
-    const totalCuts = companyDispatches.reduce((s, d) => s + Number(d.lossAmt || 0), 0);
-    const totalPassed = totalSent - totalCuts;
-    const totalPaid = companyPayments.reduce((s, p) => s + Number(p.amount || 0), 0);
-    const totalBalance = totalPassed - totalPaid;
-
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        {/* Back Button + Title */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <button className="primary-btn btn-ghost btn-sm" onClick={() => setSelectedCompany(null)}>
-            <ArrowLeft size={15} /> कंपन्या यादीकडे जा
-          </button>
-          <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700", color: "#2B2F2A" }}>
-            🏢 {selectedCompany.name}
-          </h2>
-          <span style={{ fontSize: "12px", color: "#828B7E" }}>
-            {selectedCompany.place}, {selectedCompany.village}
-          </span>
-        </div>
-
-        {/* Summary Cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "14px" }}>
-          {[
-            { label: "एकूण माल (Sent)", value: `₹${totalSent.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: "#007bff" },
-            { label: "एकूण घट (Cuts)", value: `₹${totalCuts.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: "#C94A4A" },
-            { label: "कंपनी मंजूर (Passed)", value: `₹${totalPassed.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: "#2e7d32" },
-            { label: "जमा पेमेंट (Paid)", value: `₹${totalPaid.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: "#D49A2E" },
-            { label: "येणे बाकी (Due)", value: `₹${totalBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: totalBalance > 0 ? "#ff9800" : "#2e7d32" },
-          ].map(card => (
-            <div key={card.label} className="card" style={{ margin: 0, padding: "14px", borderLeft: `4px solid ${card.color}` }}>
-              <span style={{ fontSize: "11px", color: "#828B7E" }}>{card.label}</span>
-              <div style={{ fontWeight: "700", fontSize: "17px", marginTop: "4px", color: card.color }}>{card.value}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Profile Sub-tabs */}
-        <div style={{ display: "flex", gap: "8px", borderBottom: "2px solid #E6E1D8", paddingBottom: "8px" }}>
-          {[
-            { key: "orders", label: `📄 ऑर्डर्स (${companyOrders.length})` },
-            { key: "trucks", label: `🚚 ट्रक्स (${companyDispatches.length})` },
-            { key: "payments", label: `💰 पेमेंट्स (${companyPayments.length})` },
-          ].map(tab => (
-            <button
-              key={tab.key}
-              className={`primary-btn ${profileTab === tab.key ? "" : "btn-ghost"}`}
-              style={{ padding: "6px 12px", fontSize: "13px" }}
-              onClick={() => setProfileTab(tab.key)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Orders Sub-tab */}
-        {profileTab === "orders" && (
-          <div className="card" style={{ margin: 0, padding: "20px" }}>
-            {companyOrders.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणतीही ऑर्डर नाही.</div>
-            ) : (
-              <div className="table-responsive">
-                <table className="records-table">
-                  <thead>
-                    <tr>
-                      <th>P.O. नं.</th><th>तारीख</th><th>एकूण वजन</th><th>लोड केलेले</th><th>बाकी वजन</th><th>स्थिती</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {companyOrders.map(o => (
-                      <tr key={o.id}>
-                        <td data-label="P.O.">{o.poNo || "N/A"}</td>
-                        <td data-label="तारीख">{o.orderDate}</td>
-                        <td data-label="एकूण वजन">{o.totalOrderedWeight} Tons</td>
-                        <td data-label="लोड केलेले">{(o.fulfilledWeight || 0).toFixed(2)} Tons</td>
-                        <td data-label="बाकी वजन">{(o.remainingWeight || 0).toFixed(2)} Tons</td>
-                        <td data-label="स्थिती">
-                          <span className={`badge ${o.status === "fulfilled" ? "badge-paid" : o.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
-                            {o.status === "fulfilled" ? "पूर्ण" : o.status === "partially_fulfilled" ? "अंशतः पूर्ण" : "बाकी"}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Trucks Sub-tab */}
-        {profileTab === "trucks" && (
-          <div className="card" style={{ margin: 0, padding: "20px" }}>
-            {companyDispatches.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणतीही ट्रक नोंद नाही.</div>
-            ) : (
-              <div className="table-responsive">
-                <table className="records-table" style={{ fontSize: "13px" }}>
-                  <thead>
-                    <tr>
-                      <th>बिल / तारीख</th><th>गाडी नं.</th><th>माल / गोण्या</th>
-                      <th>वजन (Tons)</th><th>किंमत (₹)</th><th>घट (₹)</th><th>मंजूर (₹)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {companyDispatches.map(d => (
-                      <tr key={d.id}>
-                        <td data-label="बिल">
-                          <strong>#{d.billNo}</strong>
-                          <div style={{ fontSize: "11px", color: "#828B7E" }}>{d.date}</div>
-                        </td>
-                        <td data-label="गाडी"><strong>{d.truckNo}</strong></td>
-                        <td data-label="माल">{d.cropType} / {d.bagsCount || 0} गोण्या</td>
-                        <td data-label="वजन">{d.weight} → {d.compWeight !== undefined ? `${d.compWeight} T` : <span style={{ color: "#828B7E" }}>प्रलंबित</span>}</td>
-                        <td data-label="किंमत">₹{Number(d.amount || 0).toLocaleString("en-IN")}</td>
-                        <td data-label="घट" style={{ color: "red" }}>{d.lossAmt ? `₹${Number(d.lossAmt).toLocaleString("en-IN")}` : "-"}</td>
-                        <td data-label="मंजूर" style={{ color: "#2e7d32", fontWeight: "bold" }}>
-                          {d.passedAmt ? `₹${Number(d.passedAmt).toLocaleString("en-IN")}` : <span style={{ color: "#ff9800" }}>तपासणी बाकी</span>}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Payments Sub-tab */}
-        {profileTab === "payments" && (
-          <div className="card" style={{ margin: 0, padding: "20px" }}>
-            {companyPayments.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणताही पेमेंट व्यवहार नाही.</div>
-            ) : (
-              <div className="table-responsive">
-                <table className="records-table">
-                  <thead>
-                    <tr><th>दिनांक</th><th>P.O. नं.</th><th>प्रकार</th><th>रेफरन्स</th><th>रक्कम</th></tr>
-                  </thead>
-                  <tbody>
-                    {companyPayments.map(p => (
-                      <tr key={p.id}>
-                        <td data-label="दिनांक">{p.date}</td>
-                        <td data-label="P.O.">{p.poNo || "N/A"}</td>
-                        <td data-label="प्रकार">{p.mode}</td>
-                        <td data-label="रेफरन्स">{p.refNo || "-"}</td>
-                        <td data-label="रक्कम" style={{ fontWeight: "bold", color: "#2e7d32" }}>
-                          ₹{Number(p.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // ── Companies List View (default) ──
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-      {/* Register Form */}
-      <div className="card">
-        <h3 style={{ marginBottom: "16px" }}>नवीन कंपनी / डीलर नोंदणी (नोंदवा)</h3>
-        <form onSubmit={handleRegister} style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "flex-end" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: "1 1 200px" }}>
-            <label style={{ fontSize: "12px", fontWeight: "600" }}>कंपनीचे नाव (Company Name) *</label>
-            <input className="filter-input" value={newName} onChange={e => setNewName(e.target.value)} placeholder="नाव टाका" required />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: "1 1 180px" }}>
-            <label style={{ fontSize: "12px", fontWeight: "600" }}>शहर / तालुकाचे ठिकाण (Place)</label>
-            <input className="filter-input" value={newPlace} onChange={e => setNewPlace(e.target.value)} placeholder="ठिकाणा एन्टर करा" />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: "1 1 180px" }}>
-            <label style={{ fontSize: "12px", fontWeight: "600" }}>गाव (Village)</label>
-            <input className="filter-input" value={newVillage} onChange={e => setNewVillage(e.target.value)} placeholder="गावाचे नाव एन्टर करा" />
-          </div>
-          <button type="submit" className="primary-btn" disabled={saving}>
-            {saving ? "नोंदवत आहे..." : "नोंदवा (Register)"}
-          </button>
-        </form>
-      </div>
-
-      {/* Companies Table */}
-      <div className="card">
-        <h3 style={{ margin: "0 0 16px 0" }}>नोंदवलेल्या कंपन्या / डीलर्स ({dealers.length})</h3>
-        {loading ? (
-          <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>🔄 लोड होत आहे...</div>
-        ) : dealers.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणतीही कंपनी नोंदवलेली नाही.</div>
-        ) : (
-          <div className="table-responsive">
-            <table className="records-table">
-              <thead>
-                <tr>
-                  <th>कंपनीचे नाव (Company Name)</th>
-                  <th>ठिकाण (Place)</th>
-                  <th>गाव (Village)</th>
-                  <th>कृती (Actions)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dealers.map(d => (
-                  <tr key={d.id}>
-                    <td data-label="नाव">
-                      <button
-                        style={{ background: "none", border: "none", color: "#007bff", fontWeight: "bold", cursor: "pointer", textAlign: "left", fontSize: "14px" }}
-                        onClick={() => { setSelectedCompany(d); setProfileTab("orders"); }}
-                      >
-                        {d.name} →
-                      </button>
-                    </td>
-                    <td data-label="ठिकाण">{d.place || "-"}</td>
-                    <td data-label="गाव">{d.village || "-"}</td>
-                    <td data-label="कृती">
-                      <button
-                        className="primary-btn btn-sm"
-                        style={{ background: "#C94A4A", color: "#fff", border: "none", padding: "4px 10px", borderRadius: "4px", cursor: "pointer" }}
-                        onClick={() => handleDelete(d.id)}
-                      >
-                        <Trash2 size={13} /> हटवा
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-
 const DealerDashboard = () => {
-  // Active tab driven by sidebar nav
+  // Navigation / Tabs State
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem("dealer_activeTab") || "orders";
   });
 
-  // Listen for sidebar tab changes
-  useEffect(() => {
-    const handleTabChange = () => {
-      setActiveTab(localStorage.getItem("dealer_activeTab") || "orders");
-    };
-    window.addEventListener("dealer-tab-changed", handleTabChange);
-    return () => window.removeEventListener("dealer-tab-changed", handleTabChange);
-  }, []);
-
-  // States
+  // Data States
   const [orders, setOrders] = useState([]);
+  const [dealers, setDealers] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [loadingDealers, setLoadingDealers] = useState(true);
+
+  // Selected entities for drill-down views
+  const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [profileTab, setProfileTab] = useState("orders");
+
+  // Stock States
+  const [availableStockTons, setAvailableStockTons] = useState(0);
+  const [availableStockQuintals, setAvailableStockQuintals] = useState(0);
+
+  // Form States for Registering Company
+  const [newName, setNewName] = useState("");
+  const [newPlace, setNewPlace] = useState("");
+  const [newVillage, setNewVillage] = useState("");
+  const [savingDealer, setSavingDealer] = useState(false);
+
+  // Modal Visibility States
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [showDispatchForm, setShowDispatchForm] = useState(false);
   const [showInvoicePreview, setShowInvoicePreview] = useState(false);
+  const [showCuttingModal, setShowCuttingModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  // Modal Specific Data States
   const [selectedDispatchForPreview, setSelectedDispatchForPreview] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [selectedDispatchForCutting, setSelectedDispatchForCutting] = useState(null);
+  const [cuttingDispatchOrderId, setCuttingDispatchOrderId] = useState(null);
+  const [paymentOrderId, setPaymentOrderId] = useState("");
 
-  // New Order Form States
-  const [poNo, setPoNo] = useState("");
-  const [dealerName, setDealerName] = useState("");
-  const [place, setPlace] = useState("");
-  const [village, setVillage] = useState("");
-  const [totalOrderedWeight, setTotalOrderedWeight] = useState("");
-
-  // New Dispatch Form States
-  const [dispatchBillNo, setDispatchBillNo] = useState("");
-  const [dispatchDate, setDispatchDate] = useState(new Date().toISOString().split("T")[0]);
-  const [deliveryPlace, setDeliveryPlace] = useState("");
-  const [brokerName, setBrokerName] = useState("");
-  const [transportAgent, setTransportAgent] = useState("");
-  const [truckNo, setTruckNo] = useState("");
-  const [ownerName, setOwnerName] = useState("");
-  const [driverName, setDriverName] = useState("");
-  const [driverLicense, setDriverLicense] = useState("");
-  const [driverVillage, setDriverVillage] = useState("");
-  const [driverMobile, setDriverMobile] = useState("");
-  const [cropType, setCropType] = useState("मका");
-  const [bagsCount, setBagsCount] = useState("");
-  const [weight, setWeight] = useState("");
-  const [rate, setRate] = useState("");
-  const [moisture, setMoisture] = useState("");
-  const [freightRate, setFreightRate] = useState("");
-  const [paidFreight, setPaidFreight] = useState("");
-  const [note, setNote] = useState("");
-
-  const invoiceRef = useRef();
-
-  // Load orders
+  // Fetching Data
   const fetchOrders = async () => {
     try {
-      setLoading(true);
+      setLoadingOrders(true);
       const res = await api.get(`/api/dealer-orders`);
       const data = res.data;
       setOrders(Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : []);
-      setLoading(false);
     } catch (err) {
       console.error("Error fetching dealer orders:", err);
-      setLoading(false);
+      toast.error("ऑर्डर्स लोड करताना एरर आला.");
+    } finally {
+      setLoadingOrders(false);
     }
   };
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+  const fetchDealers = async () => {
+    try {
+      setLoadingDealers(true);
+      const res = await api.get("/api/dealers");
+      const data = res.data;
+      setDealers(Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching dealers:", err);
+    } finally {
+      setLoadingDealers(false);
+    }
+  };
 
-  // Fetch full details of selected order (including dispatches)
+  const fetchAvailableStock = async () => {
+    try {
+      const res = await api.get("/api/dealer-orders/available-stock");
+      if (res.data) {
+        setAvailableStockTons(res.data.availableStockTons || 0);
+        setAvailableStockQuintals(res.data.availableStockQuintals || 0);
+      }
+    } catch (err) {
+      console.error("Error fetching available stock:", err);
+    }
+  };
+
   const loadOrderDetails = async (id) => {
     try {
       const res = await api.get(`/api/dealer-orders/${id}`);
-      const data = res.data;
-      setSelectedOrder(data?.data || data);
+      const data = res.data?.data || res.data;
+      setSelectedOrder(data);
     } catch (err) {
       console.error("Error fetching order details:", err);
     }
   };
 
-  const handleOrderSelect = (orderId) => {
-    loadOrderDetails(orderId);
-  };
+  // Lifecycle Hooks
+  useEffect(() => {
+    fetchOrders();
+    fetchDealers();
+    fetchAvailableStock();
+  }, []);
 
-  // Submit New Order
-  const handleAddOrder = async (e) => {
-    e.preventDefault();
-    if (!dealerName || !totalOrderedWeight) {
-      toast.error("कृपया आवश्यक माहिती भरा.");
-      return;
-    }
+  // Listen to sidebar & layout navigation changes
+  useEffect(() => {
+    const handleTabChange = () => {
+      const tab = localStorage.getItem("dealer_activeTab") || "orders";
+      setActiveTab(tab);
 
-    try {
-      const res = await api.post(`/api/dealer-orders`, {
-        poNo,
-        dealerName,
-        place,
-        village,
-        totalOrderedWeight: Number(totalOrderedWeight),
-      });
-
-      if (res.status === 200 || res.status === 201) {
-        toast.success("डीलर ऑर्डर यशस्वीरित्या तयार केली ✅");
-        setPoNo("");
-        setDealerName("");
-        setPlace("");
-        setVillage("");
-        setTotalOrderedWeight("");
-        setShowOrderForm(false);
-        fetchOrders();
+      // Check if another component requested showing an order
+      const savedOrder = localStorage.getItem("dealer_selectedOrder");
+      if (savedOrder) {
+        try {
+          const parsed = JSON.parse(savedOrder);
+          setSelectedOrder(parsed);
+          localStorage.removeItem("dealer_selectedOrder");
+        } catch (e) {
+          console.error(e);
+        }
       } else {
-        toast.error("ऑर्डर सेव्ह करताना चूक झाली.");
+        const savedCompany = localStorage.getItem("dealer_selectedCompany");
+        if (savedCompany) {
+          try {
+            setSelectedCompany(JSON.parse(savedCompany));
+            localStorage.removeItem("dealer_selectedCompany");
+          } catch (e) {
+            console.error(e);
+          }
+        } else {
+          // Reset internal views when switching base tabs
+          setSelectedOrder(null);
+          setSelectedCompany(null);
+        }
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("सर्व्हरशी संपर्क होऊ शकला नाही.");
-    }
-  };
-
-  // Submit New Dispatch
-  const handleAddDispatch = async (e) => {
-    e.preventDefault();
-    if (!truckNo || !weight || !rate) {
-      alert("कृपया ट्रक नंबर, वजन आणि भाव भरा.");
-      return;
-    }
-
-    const calculatedAmount = Number(weight) * Number(rate);
-    const calculatedTotalFreight = bagsCount && freightRate ? Number(bagsCount) * Number(freightRate) : 0;
-    const calculatedDueFreight = calculatedTotalFreight - Number(paidFreight || 0);
-
-    const dispatchData = {
-      billNo: dispatchBillNo ? Number(dispatchBillNo) : undefined,
-      date: dispatchDate,
-      deliveryPlace,
-      brokerName,
-      transportAgent,
-      truckNo,
-      ownerName,
-      driverName,
-      driverLicense,
-      driverVillage,
-      driverMobile,
-      cropType,
-      bagsCount: bagsCount ? Number(bagsCount) : undefined,
-      weight: Number(weight),
-      rate: Number(rate),
-      amount: calculatedAmount,
-      moisture: moisture ? Number(moisture) : undefined,
-      freightRate: freightRate ? Number(freightRate) : undefined,
-      totalFreight: calculatedTotalFreight || undefined,
-      paidFreight: paidFreight ? Number(paidFreight) : undefined,
-      dueFreight: calculatedDueFreight || undefined,
-      note,
     };
 
-    try {
-      const res = await api.post(`/api/dealer-orders/${selectedOrder.id}/dispatch`, dispatchData);
+    window.addEventListener("dealer-tab-changed", handleTabChange);
+    return () => window.removeEventListener("dealer-tab-changed", handleTabChange);
+  }, []);
 
-      if (res.status === 200 || res.status === 201) {
-        toast.success("ट्रक लोडिंग नोंद यशस्वी झाली ✅");
-        // Reset form
-        setDispatchBillNo("");
-        setDeliveryPlace("");
-        setBrokerName("");
-        setTransportAgent("");
-        setTruckNo("");
-        setOwnerName("");
-        setDriverName("");
-        setDriverLicense("");
-        setDriverVillage("");
-        setDriverMobile("");
-        setBagsCount("");
-        setWeight("");
-        setRate("");
-        setMoisture("");
-        setFreightRate("");
-        setPaidFreight("");
-        setNote("");
-        setShowDispatchForm(false);
-        // Refresh Order dispatches
-        loadOrderDetails(selectedOrder.id);
-        fetchOrders();
-      } else {
-        toast.error("लोडिंग नोंद सेव्ह करताना चूक झाली.");
-      }
+  // Action Handlers
+  const handleRegisterCompany = async (e) => {
+    e.preventDefault();
+    if (!newName.trim()) {
+      toast.error("कंपनीचे नाव भरा.");
+      return;
+    }
+    try {
+      setSavingDealer(true);
+      await api.post("/api/dealers", { name: newName, place: newPlace, village: newVillage });
+      toast.success("नवीन कंपनी नोंदवली ✅");
+      setNewName("");
+      setNewPlace("");
+      setNewVillage("");
+      fetchDealers();
     } catch (err) {
-      console.error(err);
-      toast.error("लोडिंग नोंद सेव्ह करताना चूक झाली.");
+      toast.error("कंपनी नोंदणी अयशस्वी झाली.");
+    } finally {
+      setSavingDealer(false);
     }
   };
 
-  // Delete Dispatch
+  const handleDeleteDealer = async (id) => {
+    if (!window.confirm("ही कंपनी कायमची हटवायची आहे?")) return;
+    try {
+      await api.delete(`/api/dealers/${id}`);
+      toast.success("कंपनी हटवली ✅");
+      fetchDealers();
+    } catch (err) {
+      toast.error("कंपनी हटवताना चूक झाली.");
+    }
+  };
+
+  const handleDeleteOrder = async (id) => {
+    if (!window.confirm("ही ऑर्डर कायमची हटवायची आहे?")) return;
+    try {
+      await api.delete(`/api/dealer-orders/${id}`);
+      toast.success("ऑर्डर यशस्वीरित्या हटवली ✅");
+      setSelectedOrder(null);
+      fetchOrders();
+      fetchAvailableStock();
+    } catch (err) {
+      toast.error("ऑर्डर हटवताना एरर आला.");
+    }
+  };
+
   const handleDeleteDispatch = async (dispatchId) => {
     if (!window.confirm("तुम्हाला खात्री आहे की ही नोंद हटवायची आहे?")) return;
-
     try {
       const res = await api.delete(`/api/dealer-dispatches/${dispatchId}`);
-
       if (res.status === 200) {
-        toast.success("नोंद यशस्वीरित्या हटवली ✅");
-        loadOrderDetails(selectedOrder.id);
+        toast.success("वाहतूक नोंद यशस्वीरित्या हटवली ✅");
+        if (selectedOrder) {
+          loadOrderDetails(selectedOrder.id);
+        }
         fetchOrders();
-      } else {
-        toast.error("नोंद हटवताना चूक झाली.");
+        fetchAvailableStock();
       }
     } catch (err) {
       console.error(err);
@@ -516,233 +211,197 @@ const DealerDashboard = () => {
     }
   };
 
-  // PDF Download for Bill
-  const downloadReceiptPDF = async () => {
-    const element = invoiceRef.current;
-    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
-    const imgData = canvas.toDataURL("image/png");
-    
-    // Create PDF in A4 landscape format as it holds two vertical slips side-by-side
-    const pdf = new jsPDF("l", "mm", "a4");
-    const imgWidth = 297;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-    pdf.save(`Truck_Loading_Receipt_Bill_${selectedDispatchForPreview.billNo}.pdf`);
+  const handleDeletePayment = async (orderId, paymentId) => {
+    if (!window.confirm("हा पेमेंट व्यवहार हटवायचा आहे?")) return;
+    try {
+      const res = await api.delete(`/api/dealer-orders/${orderId}/payment/${paymentId}`);
+      if (res.status === 200) {
+        toast.success("पेमेंट व्यवहार हटवला ✅");
+        fetchOrders();
+        // If we are looking at a company profile, let it refresh
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("पेमेंट हटवताना एरर आला.");
+    }
   };
 
-  // Total stats for dealer portal
+  // Calculations for Stats
   const totalOrdersCount = orders.length;
   const totalOrderedTons = orders.reduce((sum, o) => sum + (o.totalOrderedWeight || 0), 0);
   const totalFulfilledTons = orders.reduce((sum, o) => sum + (o.fulfilledWeight || 0), 0);
   const totalPendingTons = Math.max(0, totalOrderedTons - totalFulfilledTons);
 
+  // All Payments computation for "सर्व पेमेंट्स" tab
+  const allPayments = orders.flatMap(o =>
+    (o.payments || []).map(p => ({
+      ...p,
+      orderId: o.id,
+      dealerName: o.dealerName,
+      poNo: o.poNo
+    }))
+  );
+  allPayments.sort((a, b) => new Date(b.date) - new Date(a.date));
+
   return (
     <PageWrapper title="🚚 डीलर ऑर्डर्स व ट्रक लोडिंग व्यवस्थापन">
-
+      
       {/* ── TAB: All Trucks Log ── */}
       {activeTab === "all_trucks" && (
         <AllTrucksLog 
           orders={orders}
-          onShowInvoice={() => {}}
-          onSelectOrder={() => {}}
+          onShowInvoice={(d) => {
+            setSelectedDispatchForPreview(d);
+            setShowInvoicePreview(true);
+          }}
+          onSelectOrder={(o) => {
+            setSelectedOrder(o);
+          }}
         />
-      )}
-
-      {/* ── TAB: Companies ── */}
-      {activeTab === "companies" && (
-        <DealersTab orders={orders} />
       )}
 
       {/* ── TAB: All Payments ── */}
       {activeTab === "all_payments" && (
-        <div className="card" style={{ padding: "30px", textAlign: "center", color: "#828B7E" }}>
-          <h2 style={{ marginBottom: "12px" }}>💰 सर्व पेमेंट्स (All Payments)</h2>
-          <p>या टॅबमध्ये पेमेंट माहिती लवकरच उपलब्ध होईल.</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #E6E1D8", paddingBottom: "14px" }}>
+            <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>💰 सर्व जमा पेमेंट्स रेकॉर्ड्स (All Payments Log)</h2>
+          </div>
+          <div className="card" style={{ padding: "20px", margin: 0 }}>
+            {allPayments.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणताही पेमेंट व्यवहार व्यवहार नोंदवलेला नाही.</div>
+            ) : (
+              <div className="table-responsive">
+                <table className="records-table">
+                  <thead>
+                    <tr>
+                      <th>दिनांक (Date)</th>
+                      <th>कंपनीचे नाव (Company Name)</th>
+                      <th>P.O. नं. (PO)</th>
+                      <th>पेमेंट प्रकार (Mode)</th>
+                      <th>रेफरन्स (Ref No)</th>
+                      <th>तपशील / नोट (Note)</th>
+                      <th>रक्कम (Amount)</th>
+                      <th>कृती</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allPayments.map(p => (
+                      <tr key={p.id}>
+                        <td data-label="दिनांक">{p.date}</td>
+                        <td data-label="कंपनी"><strong>{p.dealerName}</strong></td>
+                        <td data-label="P.O.">{p.poNo || "N/A"}</td>
+                        <td data-label="प्रकार">{p.mode}</td>
+                        <td data-label="रेफरन्स">{p.refNo || "-"}</td>
+                        <td data-label="नोट">{p.note || "-"}</td>
+                        <td data-label="रक्कम" style={{ fontWeight: "bold", color: "#2e7d32" }}>
+                          ₹{Number(p.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td data-label="कृती">
+                          <button
+                            className="primary-btn btn-danger btn-sm"
+                            style={{ padding: "4px 8px", background: "#C94A4A" }}
+                            onClick={() => handleDeletePayment(p.orderId, p.id)}
+                          >
+                            <Trash2 size={13} /> हटवा
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      {/* ── TAB: Orders (default) ── */}
-      {(activeTab === "orders" || !activeTab) && (
-        <>
-      {/* Analytics Grid */}
-      <div className="stats-grid" style={{ marginBottom: "30px" }}>
-        <div className="stat-card" style={{ borderLeft: "4px solid #4E653C" }}>
-          <h3>एकूण डीलर ऑर्डर्स</h3>
-          <p>{totalOrdersCount}</p>
-        </div>
-        <div className="stat-card" style={{ borderLeft: "4px solid #D49A2E" }}>
-          <h3>एकूण ऑर्डर वजन (Tons)</h3>
-          <p>{totalOrderedTons.toFixed(2)} T</p>
-        </div>
-        <div className="stat-card" style={{ borderLeft: "4px solid #2e7d32" }}>
-          <h3>पूर्ण झालेले वजन (Tons)</h3>
-          <p style={{ color: "#2e7d32" }}>{totalFulfilledTons.toFixed(2)} T</p>
-        </div>
-        <div className="stat-card" style={{ borderLeft: "4px solid #C94A4A" }}>
-          <h3>बाकी वजन (Tons)</h3>
-          <p style={{ color: "#C94A4A" }}>{totalPendingTons.toFixed(2)} T</p>
-        </div>
-      </div>
-
-      {/* Conditional Rendering: Main Dashboard or Selected Order Details */}
-      {!selectedOrder ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          
-          {/* Header Action */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>डीलर ऑर्डर्स यादी (Dealers)</h2>
-            <button className="primary-btn" onClick={() => setShowOrderForm(true)}>
-              <Plus size={16} /> नवीन ऑर्डर नोंदवा (Add Order)
-            </button>
-          </div>
-
-          {/* Orders List Layout */}
-          {loading ? (
-            <div style={{ padding: "50px", textAlign: "center", color: "#828B7E" }}>🔄 ऑर्डर्स लोड होत आहेत...</div>
-          ) : orders.length === 0 ? (
-            <div className="card" style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
-              नोंदवलेली कोणतीही डीलर ऑर्डर सापडली नाही. नवीन ऑर्डर जोडण्यासाठी वरील बटणावर क्लिक करा.
-            </div>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "20px" }}>
-              {orders.map((o) => {
-                const fulfilledWt = o.fulfilledWeight || 0;
-                const orderedWt = o.totalOrderedWeight || 0;
-                const pct = orderedWt > 0 ? (fulfilledWt / orderedWt) * 100 : 0;
-                return (
-                  <div key={o.id} className="card" style={{ margin: 0, padding: "20px", display: "flex", flexDirection: "column", gap: "12px", border: "1px solid #E6E1D8", position: "relative" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                      <div>
-                        <span style={{ fontSize: "12px", color: "#828B7E", fontWeight: "600", textTransform: "uppercase" }}>P.O. नं: {o.poNo || "N/A"}</span>
-                        <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#2B2F2A", margin: "2px 0 0 0" }}>{o.dealerName}</h3>
-                      </div>
-                      <span className={`badge ${o.status === "fulfilled" ? "badge-paid" : o.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
-                        {o.status === "fulfilled" ? "पूर्ण" : o.status === "partially_fulfilled" ? "अंशतः पूर्ण" : "बाकी"}
-                      </span>
-                    </div>
-
-                    <div style={{ fontSize: "14px", color: "#4A5148" }}>
-                      📍 <strong>ठिकाण:</strong> {o.place || "-"}, {o.village || "-"}
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div style={{ marginTop: "5px" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#828B7E", marginBottom: "4px" }}>
-                        <span>प्रगती (Progress)</span>
-                        <span>{fulfilledWt.toFixed(1)} / {orderedWt.toFixed(1)} Tons ({pct.toFixed(0)}%)</span>
-                      </div>
-                      <div style={{ width: "100%", height: "8px", background: "#F0EDE6", borderRadius: "4px", overflow: "hidden" }}>
-                        <div style={{ width: `${Math.min(100, pct)}%`, height: "100%", background: o.status === "fulfilled" ? "#2e7d32" : "#4E653C" }}></div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-                      <button className="primary-btn btn-ghost btn-sm" style={{ flex: 1, justifyContent: "center" }} onClick={() => handleOrderSelect(o.id)}>
-                        तपशील & ट्रक नोंदी 📜
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      ) : (
-        /* Selected Order Details Portal */
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          
-          {/* Back button and title */}
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <button className="back-btn" onClick={() => setSelectedOrder(null)}>
-              <ArrowLeft size={16} /> ऑर्डर्स यादीकडे जा
-            </button>
-            <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>
-              {selectedOrder.dealerName} — ऑर्डर्स व ट्रक लोडिंग रेकॉर्ड्स
-            </h2>
-          </div>
-
-          <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-            
-            {/* Left Column: Order stats & details */}
-            <div className="card" style={{ flex: "1 1 300px", margin: 0, padding: "20px", display: "flex", flexDirection: "column", gap: "14px" }}>
-              <h3 style={{ fontSize: "16px", fontWeight: "700", borderBottom: "1px solid #E6E1D8", paddingBottom: "8px" }}>ऑर्डर सारांश</h3>
-              <p style={{ margin: 0 }}><strong>P.O. क्रमांक:</strong> {selectedOrder.poNo || "N/A"}</p>
-              <p style={{ margin: 0 }}><strong>डीलर नाव:</strong> {selectedOrder.dealerName}</p>
-              <p style={{ margin: 0 }}><strong>पत्ता:</strong> {selectedOrder.place} / {selectedOrder.village}</p>
-              <p style={{ margin: 0 }}><strong>एकूण ऑर्डर वजन:</strong> {selectedOrder.totalOrderedWeight || 0} Tons</p>
-              <p style={{ margin: 0 }}><strong>पाठवलेले एकूण वजन:</strong> {selectedOrder.fulfilledWeight || 0} Tons</p>
-              <p style={{ margin: 0 }}><strong>बाकी वजन:</strong> {selectedOrder.remainingWeight || 0} Tons</p>
-              <p style={{ margin: 0 }}>
-                <strong>स्थिती:</strong> 
-                <span style={{ marginLeft: "6px" }} className={`badge ${selectedOrder.status === "fulfilled" ? "badge-paid" : selectedOrder.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
-                  {selectedOrder.status === "fulfilled" ? "पूर्ण" : selectedOrder.status === "partially_fulfilled" ? "अंशतः पूर्ण" : "प्रलंबित"}
-                </span>
-              </p>
-
-              <button className="primary-btn" style={{ marginTop: "10px", width: "100%", justifyContent: "center" }} onClick={() => setShowDispatchForm(true)}>
-                <Truck size={16} /> नवीन ट्रक लोड करा (Dispatch Truck)
-              </button>
-            </div>
-
-            {/* Right Column: Dispatch History list */}
-            <div className="card" style={{ flex: "2 1 500px", margin: 0, padding: "20px" }}>
-              <h3 style={{ fontSize: "16px", fontWeight: "700", borderBottom: "1px solid #E6E1D8", paddingBottom: "8px", marginBottom: "15px" }}>
-                पाठवलेल्या ट्रक्स नोंदी (Dispatch Log)
-              </h3>
-
-              {!selectedOrder.dispatches || selectedOrder.dispatches.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
-                  या ऑर्डरवर अजून कोणताही ट्रक लोड केला नाही.
+      {/* ── TAB: Companies ── */}
+      {activeTab === "companies" && (
+        selectedCompany ? (
+          <CompanyProfile 
+            selectedCompany={selectedCompany}
+            orders={orders}
+            profileTab={profileTab}
+            onSetProfileTab={setProfileTab}
+            onBack={() => setSelectedCompany(null)}
+            onOpenCuttingModal={(d, orderId) => {
+              setSelectedDispatchForCutting(d);
+              setCuttingDispatchOrderId(orderId);
+              setShowCuttingModal(true);
+            }}
+            onShowInvoice={(d) => {
+              setSelectedDispatchForPreview(d);
+              setShowInvoicePreview(true);
+            }}
+            onOpenPayment={(orderId) => {
+              setPaymentOrderId(orderId);
+              setShowPaymentModal(true);
+            }}
+            onDeletePayment={handleDeletePayment}
+          />
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            {/* Register Form */}
+            <div className="card">
+              <h3 style={{ marginBottom: "16px" }}>नवीन कंपनी / डीलर नोंदणी</h3>
+              <form onSubmit={handleRegisterCompany} style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "flex-end" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: "1 1 200px" }}>
+                  <label style={{ fontSize: "12px", fontWeight: "600" }}>कंपनीचे नाव (Company Name) *</label>
+                  <input className="filter-input" value={newName} onChange={e => setNewName(e.target.value)} placeholder="नाव टाका" required />
                 </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: "1 1 180px" }}>
+                  <label style={{ fontSize: "12px", fontWeight: "600" }}>शहर / तालुका (Place)</label>
+                  <input className="filter-input" value={newPlace} onChange={e => setNewPlace(e.target.value)} placeholder="ठिकाण एन्टर करा" />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: "1 1 180px" }}>
+                  <label style={{ fontSize: "12px", fontWeight: "600" }}>गाव (Village)</label>
+                  <input className="filter-input" value={newVillage} onChange={e => setNewVillage(e.target.value)} placeholder="गाव एन्टर करा" />
+                </div>
+                <button type="submit" className="primary-btn" disabled={savingDealer}>
+                  {savingDealer ? "नोंदवत आहे..." : "नोंदवा (Register)"}
+                </button>
+              </form>
+            </div>
+
+            {/* Companies Table */}
+            <div className="card">
+              <h3 style={{ margin: "0 0 16px 0" }}>नोंदवलेल्या कंपन्या / डीलर्स ({dealers.length})</h3>
+              {loadingDealers ? (
+                <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>🔄 लोड होत आहे...</div>
+              ) : dealers.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "30px", color: "#828B7E" }}>कोणतीही कंपनी नोंदवलेली नाही.</div>
               ) : (
                 <div className="table-responsive">
                   <table className="records-table">
                     <thead>
                       <tr>
-                        <th>बिल नं.</th>
-                        <th>तारीख</th>
-                        <th>गाडी नंबर</th>
-                        <th>माल प्रकार</th>
-                        <th>वजन (Tons)</th>
-                        <th>भाडे</th>
+                        <th>कंपनीचे नाव (Company Name)</th>
+                        <th>ठिकाण (Place)</th>
+                        <th>गाव (Village)</th>
                         <th>कृती (Actions)</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedOrder.dispatches.map((d) => (
+                      {dealers.map(d => (
                         <tr key={d.id}>
-                          <td data-label="बिल नं.">{d.billNo}</td>
-                          <td data-label="तारीख">{d.date}</td>
-                          <td data-label="गाडी नंबर"><strong>{d.truckNo}</strong></td>
-                          <td data-label="माल प्रकार">{d.cropType}</td>
-                          <td data-label="वजन">{d.weight} Tons</td>
-                          <td data-label="भाडे">
-                            <span style={{ fontSize: "11px", color: "#828B7E" }}>
-                              एकूण: ₹{d.totalFreight || 0}<br />
-                              बाकी: <span style={{ color: d.due_freight > 0 ? "red" : "green" }}>₹{d.due_freight || 0}</span>
-                            </span>
+                          <td data-label="नाव">
+                            <button
+                              style={{ background: "none", border: "none", color: "#007bff", fontWeight: "bold", cursor: "pointer", textAlign: "left", fontSize: "14px" }}
+                              onClick={() => { setSelectedCompany(d); setProfileTab("orders"); }}
+                            >
+                              {d.name} &rarr;
+                            </button>
                           </td>
+                          <td data-label="ठिकाण">{d.place || "-"}</td>
+                          <td data-label="गाव">{d.village || "-"}</td>
                           <td data-label="कृती">
-                            <div style={{ display: "flex", gap: "6px" }}>
-                              <button 
-                                className="primary-btn btn-ghost btn-sm" 
-                                style={{ padding: "4px 8px" }}
-                                onClick={() => {
-                                  setSelectedDispatchForPreview(d);
-                                  setShowInvoicePreview(true);
-                                }}
-                              >
-                                <FileText size={14} /> बिल
-                              </button>
-                              <button 
-                                className="primary-btn btn-danger btn-sm" 
-                                style={{ padding: "4px 8px", background: "#C94A4A" }}
-                                onClick={() => handleDeleteDispatch(d.id)}
-                              >
-                                <Trash2 size={14} /> हटवा
-                              </button>
-                            </div>
+                            <button
+                              className="primary-btn btn-sm"
+                              style={{ background: "#C94A4A", color: "#fff", border: "none", padding: "4px 10px", borderRadius: "4px", cursor: "pointer" }}
+                              onClick={() => handleDeleteDealer(d.id)}
+                            >
+                              <Trash2 size={13} /> हटवा
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -751,531 +410,250 @@ const DealerDashboard = () => {
                 </div>
               )}
             </div>
-
           </div>
-        </div>
+        )
       )}
 
-      {/* MODAL 1: ADD NEW ORDER FORM */}
-      {showOrderForm && (
-        <div className="modal-overlay" style={styles.modalOverlay}>
-          <div className="card modal-content" style={styles.modalContent}>
-            <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px" }}>नवीन डीलर ऑर्डर नोंदणी</h2>
-            <form onSubmit={handleAddOrder} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <div className="form-group">
-                <label>P.O. क्रमांक (P.O. Number)</label>
-                <input type="text" placeholder="उदा. PO-12345" value={poNo} onChange={(e) => setPoNo(e.target.value)} />
+      {/* ── TAB: Orders (default) ── */}
+      {activeTab === "orders" && (
+        selectedOrder ? (
+          /* Order Details View */
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "space-between", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <button className="back-btn" onClick={() => setSelectedOrder(null)}>
+                  <ArrowLeft size={16} /> ऑर्डर्स यादीकडे जा
+                </button>
+                <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>
+                  {selectedOrder.dealerName} — ऑर्डर्स व ट्रक लोडिंग रेकॉर्ड्स
+                </h2>
               </div>
-              <div className="form-group">
-                <label>डीलर / कंपनीचे नाव (Company Name)</label>
-                <input type="text" placeholder="उदा. मे. के.टी. ट्रेडर्स" value={dealerName} onChange={(e) => setDealerName(e.target.value)} required />
-              </div>
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>ठिकाण (City/Taluka)</label>
-                  <input type="text" placeholder="उदा. मालेगाव" value={place} onChange={(e) => setPlace(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>गांव (Village)</label>
-                  <input type="text" placeholder="उदा. निमगाव" value={village} onChange={(e) => setVillage(e.target.value)} />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>एकूण वजन ऑर्डर (Tons मध्ये)</label>
-                <input type="number" step="any" placeholder="उदा. 200" value={totalOrderedWeight} onChange={(e) => setTotalOrderedWeight(e.target.value)} required />
-              </div>
-              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-                <button type="submit" className="primary-btn" style={{ flex: 1, justifyContent: "center" }}>ऑर्डर जतन करा</button>
-                <button type="button" className="primary-btn btn-ghost" style={{ flex: 1, justifyContent: "center" }} onClick={() => setShowOrderForm(false)}>रद्द करा</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 2: ADD NEW TRUCK DISPATCH (TRUCK LOADING) FORM */}
-      {showDispatchForm && (
-        <div className="modal-overlay" style={styles.modalOverlay}>
-          <div className="card modal-content" style={{ ...styles.modalContent, maxWidth: "750px" }}>
-            <h2 style={{ borderBottom: "1px solid #E6E1D8", paddingBottom: "10px", marginBottom: "15px" }}>
-              🚚 नवीन गाडी (ट्रक) लोडिंग नोंदणी
-            </h2>
-            <form onSubmit={handleAddDispatch} style={{ display: "flex", flexDirection: "column", gap: "14px", maxHeight: "80vh", overflowY: "auto", paddingRight: "10px" }}>
-              
-              <h4 style={{ color: "#4E653C", borderBottom: "1px dashed #E6E1D8", paddingBottom: "4px" }}>१. पावती & वाहतूक तपशील</h4>
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>बिल क्रमांक (Bill No. - optional)</label>
-                  <input type="number" placeholder="रिकामे ठेवल्यास ऑटो-जनरेट होईल" value={dispatchBillNo} onChange={(e) => setDispatchBillNo(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>दिनांक (Date)</label>
-                  <input type="date" value={dispatchDate} onChange={(e) => setDispatchDate(e.target.value)} required />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>डिलिव्हरी ठिकाण (Delivery Place)</label>
-                  <input type="text" placeholder="उदा. निमगाव ब्र." value={deliveryPlace} onChange={(e) => setDeliveryPlace(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>दलाल नाव (Broker Name)</label>
-                  <input type="text" placeholder="उदा. शामकांत" value={brokerName} onChange={(e) => setBrokerName(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>ट्रान्सपोर्ट एजंट (Transport Agent)</label>
-                  <input type="text" placeholder="उदा. के.टी. ट्रान्सपोर्ट" value={transportAgent} onChange={(e) => setTransportAgent(e.target.value)} />
-                </div>
-              </div>
-
-              <h4 style={{ color: "#4E653C", borderBottom: "1px dashed #E6E1D8", paddingBottom: "4px", marginTop: "10px" }}>२. वाहन व ड्रायव्हर माहिती</h4>
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>गाडी नंबर (Truck No.)</label>
-                  <input type="text" placeholder="MH-41-AB-1234" value={truckNo} onChange={(e) => setTruckNo(e.target.value)} required />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>मालकाचे नाव (Owner Name)</label>
-                  <input type="text" placeholder="उदा. राहुल पाटील" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>ड्रायव्हर नाव (Driver Name)</label>
-                  <input type="text" placeholder="उदा. सोपान देवरे" value={driverName} onChange={(e) => setDriverName(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>ड्रायव्हर मो. नंबर (Driver Mobile)</label>
-                  <input type="text" maxLength="10" placeholder="१० अंकी नंबर" value={driverMobile} onChange={(e) => setDriverMobile(e.target.value)} />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>लायसन्स नं. (License No.)</label>
-                  <input type="text" placeholder="DL-123456" value={driverLicense} onChange={(e) => setDriverLicense(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>ड्रायव्हरचे गांव (Driver Village)</label>
-                  <input type="text" placeholder="उदा. नांदगाव" value={driverVillage} onChange={(e) => setDriverVillage(e.target.value)} />
-                </div>
-              </div>
-
-              <h4 style={{ color: "#4E653C", borderBottom: "1px dashed #E6E1D8", paddingBottom: "4px", marginTop: "10px" }}>३. मालाचा तपशील व रक्कम</h4>
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>मालाचा प्रकार (Crop Type)</label>
-                  <select value={cropType} onChange={(e) => setCropType(e.target.value)}>
-                    <option>मका</option>
-                    <option>गहू</option>
-                    <option>कांदा</option>
-                    <option>ज्वारी</option>
-                    <option>बाजरी</option>
-                  </select>
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>नग / गोण्या (Bags)</label>
-                  <input type="number" placeholder="उदा. 400" value={bagsCount} onChange={(e) => setBagsCount(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>Moisture %</label>
-                  <input type="number" step="any" placeholder="उदा. 14" value={moisture} onChange={(e) => setMoisture(e.target.value)} />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>निव्वळ वजन (Tons मध्ये)</label>
-                  <input type="number" step="any" placeholder="उदा. 25.4" value={weight} onChange={(e) => setWeight(e.target.value)} required />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>भाव (₹ / क्विंटल किंवा टन)</label>
-                  <input type="number" placeholder="उदा. 2200" value={rate} onChange={(e) => setRate(e.target.value)} required />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>मालाची रक्कम (₹ - ऑटो)</label>
-                  <input type="number" value={weight && rate ? (Number(weight) * Number(rate) * 10).toFixed(2) : 0} readOnly style={{ background: "#f7f5ef" }} />
-                </div>
-              </div>
-
-              <h4 style={{ color: "#4E653C", borderBottom: "1px dashed #E6E1D8", paddingBottom: "4px", marginTop: "10px" }}>४. भाडे हिशोब (Freight details)</h4>
-              <div className="form-row">
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>भाडे दर (₹ / गोणी किंवा टन)</label>
-                  <input type="number" placeholder="उदा. 80" value={freightRate} onChange={(e) => setFreightRate(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>पैकी येथे दिले / ॲडव्हान्स (₹)</label>
-                  <input type="number" placeholder="उदा. 5000" value={paidFreight} onChange={(e) => setPaidFreight(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>भाडे देणे बाकी (₹ - ऑटो)</label>
-                  <input 
-                    type="number" 
-                    value={bagsCount && freightRate ? (Number(bagsCount) * Number(freightRate) - Number(paidFreight || 0)).toFixed(2) : 0} 
-                    readOnly 
-                    style={{ background: "#f7f5ef" }} 
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>टिप / नोट (Note)</label>
-                <input type="text" placeholder="उदा. रस्त्यात वजन तपासून घ्यावे." value={note} onChange={(e) => setNote(e.target.value)} />
-              </div>
-
-              <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
-                <button type="submit" className="primary-btn" style={{ flex: 1, justifyContent: "center" }}>लोडिंग जतन करा</button>
-                <button type="button" className="primary-btn btn-ghost" style={{ flex: 1, justifyContent: "center" }} onClick={() => setShowDispatchForm(false)}>रद्द करा</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 3: DOUBLE BILL PREVIEW MODAL */}
-      {showInvoicePreview && selectedDispatchForPreview && (
-        <div className="modal-overlay" style={styles.modalOverlay}>
-          <div className="card modal-content" style={{ ...styles.modalContent, maxWidth: "1100px", padding: "15px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px", alignItems: "center" }}>
-              <h3 style={{ margin: 0 }}>पावती बिल प्रिव्ह्यू (Invoice Double Slip Preview)</h3>
-              <div style={{ display: "flex", gap: "8px" }}>
-                <button className="primary-btn btn-success" onClick={downloadReceiptPDF}>पीडीएफ डाउनलोड (Download PDF)</button>
-                <button className="primary-btn btn-ghost" onClick={() => setShowInvoicePreview(false)}>बंद करा (Close)</button>
-              </div>
+              <button className="primary-btn btn-danger" style={{ background: "#C94A4A" }} onClick={() => handleDeleteOrder(selectedOrder.id)}>
+                <Trash2 size={16} /> ही ऑर्डर हटवा (Delete Order)
+              </button>
             </div>
 
-            {/* Visual Double Slip Layout matching the uploaded bill image */}
-            <div 
-              ref={invoiceRef} 
-              className="invoice-preview-slips"
-              style={{
-                display: "flex",
-                background: "#fcfbf9",
-                border: "1px solid #ddd",
-                padding: "20px",
-                fontFamily: "sans-serif",
-                color: "#000",
-                gap: "20px",
-                width: "1050px", // A4 Landscape ratio-friendly width
-                margin: "0 auto",
-                boxSizing: "border-box"
-              }}
-            >
-              
-              {/* SLIP LEFT: TRANSPORT FREIGHT RECEIPT */}
-              <div style={styles.billSlipLeft}>
+            <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+              {/* Order Stats */}
+              <div className="card" style={{ flex: "1 1 300px", margin: 0, padding: "20px", display: "flex", flexDirection: "column", gap: "14px" }}>
+                <h3 style={{ fontSize: "16px", fontWeight: "700", borderBottom: "1px solid #E6E1D8", paddingBottom: "8px" }}>ऑर्डर सारांश</h3>
+                <p style={{ margin: 0 }}><strong>P.O. क्रमांक:</strong> {selectedOrder.poNo || "N/A"}</p>
+                <p style={{ margin: 0 }}><strong>पत्ता:</strong> {selectedOrder.place} / {selectedOrder.village}</p>
+                <p style={{ margin: 0 }}><strong>एकूण ऑर्डर वजन:</strong> {selectedOrder.totalOrderedWeight || 0} Tons</p>
+                <p style={{ margin: 0 }}><strong>पाठवलेले एकूण वजन:</strong> {selectedOrder.fulfilledWeight || 0} Tons</p>
+                <p style={{ margin: 0 }}><strong>बाकी वजन:</strong> {selectedOrder.remainingWeight || 0} Tons</p>
+                <p style={{ margin: 0 }}>
+                  <strong>स्थिती:</strong> 
+                  <span style={{ marginLeft: "6px" }} className={`badge ${selectedOrder.status === "fulfilled" ? "badge-paid" : selectedOrder.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
+                    {selectedOrder.status === "fulfilled" ? "पूर्ण" : selectedOrder.status === "partially_fulfilled" ? "अंशतः पूर्ण" : "प्रलंबित"}
+                  </span>
+                </p>
+                {selectedOrder.note && <p style={{ margin: 0 }}><strong>टिप:</strong> {selectedOrder.note}</p>}
                 
-                {/* Header */}
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", borderBottom: "2px solid #000", paddingBottom: "10px" }}>
-                  <div style={styles.logoCircle}>KT</div>
-                  <div style={{ flex: 1 }}>
-                    <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "bold", color: "#8B0000" }}>मे. के.टी. ट्रेडर्स</h2>
-                    <h3 style={{ margin: "2px 0 0 0", fontSize: "16px", fontWeight: "bold" }}>K. T. TRADERS</h3>
-                    <p style={{ margin: 0, fontSize: "10px" }}>जनरल मर्चन्ट अॅन्ड कमिशन एजन्ट</p>
-                  </div>
-                </div>
-
-                <div style={{ fontSize: "9px", margin: "4px 0", borderBottom: "1px solid #000", paddingBottom: "2px" }}>
-                  मार्केट यार्ड, श्री व्यंकटेश बँकच्या मागे, मालेगाव कॅम्प जि. नाशिक. मो. 9850291298, 9767128838
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between", margin: "6px 0", fontSize: "11px" }}>
-                  <div><strong>पावती नं:</strong> No. {selectedDispatchForPreview.billNo}</div>
-                  <div><strong>दिनांक:</strong> {selectedDispatchForPreview.date}</div>
-                </div>
-
-                <div style={styles.slipFieldLine}>
-                  <strong>बिल नं. / P.O. No:</strong> <span style={styles.fieldValue}>{selectedOrder.poNo || "N/A"}</span>
-                </div>
-                <div style={styles.slipFieldLine}>
-                  <strong>श्रीमान:</strong> <span style={styles.fieldValue}>{selectedOrder.dealerName}</span>
-                </div>
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <div style={{ ...styles.slipFieldLine, flex: 1 }}>
-                    <strong>ठिकाण:</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.deliveryPlace || selectedOrder.place}</span>
-                  </div>
-                  <div style={{ ...styles.slipFieldLine, flex: 1 }}>
-                    <strong>गांव:</strong> <span style={styles.fieldValue}>{selectedOrder.village}</span>
-                  </div>
-                </div>
-                
-                <div style={{ margin: "6px 0", fontSize: "10px", fontStyle: "italic" }}>
-                  सप्रेम नमस्कार, आपले ऑर्डर प्रमाणे -
-                </div>
-
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <div style={{ ...styles.slipFieldLine, flex: 1 }}>
-                    <strong>मोटार नं:</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.truckNo}</span>
-                  </div>
-                  <div style={{ ...styles.slipFieldLine, flex: 1 }}>
-                    <strong>मालकाचे नाव:</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.ownerName || "-"}</span>
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <div style={{ ...styles.slipFieldLine, flex: 1.5 }}>
-                    <strong>ड्रायव्हरचे नाव:</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.driverName || "-"}</span>
-                  </div>
-                  <div style={{ ...styles.slipFieldLine, flex: 1 }}>
-                    <strong>ला. नं:</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.driverLicense || "-"}</span>
-                  </div>
-                  <div style={{ ...styles.slipFieldLine, flex: 1 }}>
-                    <strong>गांव:</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.driverVillage || "-"}</span>
-                  </div>
-                </div>
-
-                <div style={styles.slipFieldLine}>
-                  <strong>टिप:</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.note || "-"}</span>
-                </div>
-
-                {/* Table for Left Slip */}
-                <table style={styles.receiptTable}>
-                  <thead>
-                    <tr>
-                      <th style={{ width: "40%" }}>मालाचा तपशील</th>
-                      <th>भाडे दर</th>
-                      <th>एकूण भाडे</th>
-                      <th>पैकी येथे दिले</th>
-                      <th>भाडे देणे बाकी</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr style={{ height: "45px", verticalAlign: "top" }}>
-                      <td>{selectedDispatchForPreview.cropType} (वजन: {selectedDispatchForPreview.weight} Tons, {selectedDispatchForPreview.bagsCount || 0} गोण्या)</td>
-                      <td style={{ textAlign: "center" }}>₹{selectedDispatchForPreview.freightRate || "-"}</td>
-                      <td style={{ textAlign: "center" }}>₹{selectedDispatchForPreview.totalFreight || "-"}</td>
-                      <td style={{ textAlign: "center" }}>₹{selectedDispatchForPreview.paidFreight || "-"}</td>
-                      <td style={{ textAlign: "center", fontWeight: "bold" }}>
-                        ₹{selectedDispatchForPreview.totalFreight && selectedDispatchForPreview.paidFreight 
-                          ? (selectedDispatchForPreview.totalFreight - selectedDispatchForPreview.paidFreight).toFixed(2) 
-                          : "-"}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                <div style={{ fontSize: "10px", margin: "10px 0 5px 0" }}>
-                  <strong>अक्षरी भाडे देणे रुपये:</strong> ............................................................................ देउन माल तपासून उतरवून घ्यावा.
-                </div>
-                <div style={{ fontSize: "8px", background: "#f2f2f2", padding: "4px", borderRadius: "3px", lineHeight: "1.3" }}>
-                  <strong>टिप:</strong> मालाची रस्त्यात आग - अपघात - वादळ अकस्मात कारणाने होणाऱ्या नुकसानीस आम्ही जबाबदार नाही.
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "30px", fontSize: "10px" }}>
-                  <div>
-                    <div><strong>ड्रायव्हर मो. नं:</strong> {selectedDispatchForPreview.driverMobile || "-"}</div>
-                    <div style={{ marginTop: "15px" }}>मोटार लॉरी मालक / ड्रायव्हर</div>
-                  </div>
-                  <div style={{ textAlign: "right", marginTop: "25px" }}>
-                    <strong>तर्फे : के.टी. ट्रेडर्स</strong>
-                  </div>
-                </div>
-
+                <button 
+                  className="primary-btn" 
+                  style={{ marginTop: "10px", width: "100%", justifyContent: "center" }} 
+                  onClick={() => setShowDispatchForm(true)}
+                  disabled={selectedOrder.remainingWeight <= 0}
+                >
+                  <Truck size={16} /> नवीन ट्रक लोड करा (Dispatch Truck)
+                </button>
               </div>
 
-              {/* PERFORATION DIVIDER LINE */}
-              <div style={{ borderLeft: "2px dashed #999", height: "100%", margin: "0 5px" }}></div>
-
-              {/* SLIP RIGHT: LOADING GOODS RECEIPT */}
-              <div style={styles.billSlipRight}>
-                
-                {/* Header */}
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", borderBottom: "2px solid #000", paddingBottom: "10px" }}>
-                  <div style={{ ...styles.logoCircle, background: "#2E8B57" }}>KT</div>
-                  <div style={{ flex: 1 }}>
-                    <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "bold", color: "#2E8B57" }}>मे. के.टी. ट्रेडर्स</h2>
-                    <h3 style={{ margin: "2px 0 0 0", fontSize: "16px", fontWeight: "bold" }}>K. T. TRADERS</h3>
-                    <p style={{ margin: 0, fontSize: "10px" }}>जनरल मर्चन्ट अॅन्ड कमिशन एजन्ट</p>
+              {/* Order Dispatches */}
+              <div className="card" style={{ flex: "2 1 500px", margin: 0, padding: "20px" }}>
+                <h3 style={{ fontSize: "16px", fontWeight: "700", borderBottom: "1px solid #E6E1D8", paddingBottom: "8px", marginBottom: "15px" }}>
+                  पाठवलेल्या ट्रक्स नोंदी (Dispatch Log)
+                </h3>
+                {!selectedOrder.dispatches || selectedOrder.dispatches.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
+                    या ऑर्डरवर अजून कोणताही ट्रक लोड केला नाही.
                   </div>
-                </div>
-
-                <div style={{ fontSize: "9px", margin: "4px 0", borderBottom: "1px solid #000", paddingBottom: "2px" }}>
-                  मार्केट यार्ड, श्री व्यंकटेश बँकच्या मागे, मालेगाव कॅम्प जि. नाशिक. मो. 9850291298, 9767128838
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between", margin: "6px 0", fontSize: "11px" }}>
-                  <div><strong>बिल नं:</strong> {selectedDispatchForPreview.billNo}</div>
-                  <div><strong>ता. (Date):</strong> {selectedDispatchForPreview.date}</div>
-                </div>
-
-                <div style={styles.slipFieldLine}>
-                  <strong>मे. (Company Name):</strong> <span style={styles.fieldValue}>{selectedOrder.dealerName}</span>
-                </div>
-                <div style={styles.slipFieldLine}>
-                  <strong>डिलिव्हरी (Delivery):</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.deliveryPlace || selectedOrder.place}</span>
-                </div>
-                
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <div style={{ ...styles.slipFieldLine, flex: 1.2 }}>
-                    <strong>दलाल (Broker):</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.brokerName || "-"}</span>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="records-table">
+                      <thead>
+                        <tr>
+                          <th>बिल नं.</th>
+                          <th>तारीख</th>
+                          <th>गाडी नंबर</th>
+                          <th>माल प्रकार</th>
+                          <th>वजन (Tons)</th>
+                          <th>कृती (Actions)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedOrder.dispatches.map((d) => (
+                          <tr key={d.id}>
+                            <td data-label="बिल नं.">#{d.billNo}</td>
+                            <td data-label="तारीख">{d.date}</td>
+                            <td data-label="गाडी नंबर"><strong>{d.truckNo}</strong></td>
+                            <td data-label="माल प्रकार">{d.cropType}</td>
+                            <td data-label="वजन">{d.weight} Tons</td>
+                            <td data-label="कृती">
+                              <div style={{ display: "flex", gap: "6px" }}>
+                                <button 
+                                  className="primary-btn btn-ghost btn-sm" 
+                                  style={{ padding: "4px 8px" }}
+                                  onClick={() => {
+                                    setSelectedDispatchForPreview(d);
+                                    setShowInvoicePreview(true);
+                                  }}
+                                >
+                                  <FileText size={14} /> बिल
+                                </button>
+                                <button 
+                                  className="primary-btn btn-danger btn-sm" 
+                                  style={{ padding: "4px 8px", background: "#C94A4A" }}
+                                  onClick={() => handleDeleteDispatch(d.id)}
+                                >
+                                  <Trash2 size={14} /> हटवा
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                  <div style={{ ...styles.slipFieldLine, flex: 1 }}>
-                    <strong>गाडी नं. (Truck No):</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.truckNo}</span>
-                  </div>
-                </div>
-
-                <div style={styles.slipFieldLine}>
-                  <strong>ट्रान्सपोर्ट (Transport):</strong> <span style={styles.fieldValue}>{selectedDispatchForPreview.transportAgent || "-"}</span>
-                </div>
-
-                {/* Table for Right Slip */}
-                <table style={styles.receiptTable}>
-                  <thead>
-                    <tr>
-                      <th style={{ width: "45%" }}>मालाचा प्रकार</th>
-                      <th>नग (Bags)</th>
-                      <th>वजन (Tons)</th>
-                      <th>भाव (Rate)</th>
-                      <th>रक्कम (Amount)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr style={{ height: "60px", verticalAlign: "top" }}>
-                      <td>{selectedDispatchForPreview.cropType}</td>
-                      <td style={{ textAlign: "center" }}>{selectedDispatchForPreview.bagsCount || "-"}</td>
-                      <td style={{ textAlign: "center" }}>{selectedDispatchForPreview.weight} T</td>
-                      <td style={{ textAlign: "center" }}>₹{selectedDispatchForPreview.rate}</td>
-                      <td style={{ textAlign: "center", fontWeight: "bold" }}>₹{selectedDispatchForPreview.amount.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                      <td colSpan="3" style={{ fontSize: "9px" }}>
-                        <strong>P.O. NO:</strong> {selectedOrder.poNo || "N/A"}<br />
-                        <strong>Moisture:</strong> {selectedDispatchForPreview.moisture ? `${selectedDispatchForPreview.moisture}%` : "-"}
-                      </td>
-                      <td style={{ fontWeight: "bold", background: "#f9f9f9" }}>एकूण (Total)</td>
-                      <td style={{ textAlign: "center", fontWeight: "bold", background: "#f9f9f9" }}>₹{selectedDispatchForPreview.amount.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                      <td colSpan="3" style={{ border: "none" }}></td>
-                      <td style={{ fontWeight: "bold" }}>अॅडव्हान्स</td>
-                      <td style={{ textAlign: "center" }}>-</td>
-                    </tr>
-                    <tr>
-                      <td colSpan="3" style={{ border: "none" }}></td>
-                      <td style={{ fontWeight: "bold", borderTop: "2px solid #000" }}>बाकी रु.</td>
-                      <td style={{ textAlign: "center", fontWeight: "bold", borderTop: "2px solid #000" }}>₹{selectedDispatchForPreview.amount.toFixed(2)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                {/* Bank Details */}
-                <div style={{ marginTop: "12px", border: "1px solid #ccc", padding: "6px", borderRadius: "4px", fontSize: "8.5px", background: "#fcfcfc" }}>
-                  <strong>K T TRADERS</strong> | Bank of Maharashtra, Nimgaon Br.<br />
-                  <strong>A/c No:</strong> 60484823811 | <strong>IFS Code:</strong> MAHB0000832
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "15px", fontSize: "10px" }}>
-                  <div style={{ fontStyle: "italic", fontSize: "8.5px", alignSelf: "flex-end" }}>* संगणकीय प्रत</div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: "9px" }}>तर्फे: के.टी. ट्रेडर्स</div>
-                    <div style={{ borderTop: "1px solid #555", width: "80px", marginTop: "20px", display: "inline-block" }}></div>
-                  </div>
-                </div>
-
+                )}
               </div>
-
             </div>
           </div>
-        </div>
+        ) : (
+          /* Main Dashboard: Stats + Orders Grid */
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            <DealerStatsCards 
+              totalOrdersCount={totalOrdersCount}
+              totalOrderedTons={totalOrderedTons}
+              totalFulfilledTons={totalFulfilledTons}
+              totalPendingTons={totalPendingTons}
+              availableStockTons={availableStockTons}
+              availableStockQuintals={availableStockQuintals}
+            />
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#2B2F2A", margin: 0 }}>डीलर ऑर्डर्स यादी</h2>
+              <button className="primary-btn" onClick={() => setShowOrderForm(true)}>
+                <Plus size={16} /> नवीन ऑर्डर नोंदवा (Add Order)
+              </button>
+            </div>
+
+            {loadingOrders ? (
+              <div style={{ padding: "50px", textAlign: "center", color: "#828B7E" }}>🔄 ऑर्डर्स लोड होत आहेत...</div>
+            ) : orders.length === 0 ? (
+              <div className="card" style={{ textAlign: "center", padding: "40px", color: "#828B7E" }}>
+                नोंदवलेली कोणतीही डीलर ऑर्डर सापडली नाही. नवीन ऑर्डर जोडण्यासाठी वरील बटणावर क्लिक करा.
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "20px" }}>
+                {orders.map((o) => {
+                  const fulfilledWt = o.fulfilledWeight || 0;
+                  const orderedWt = o.totalOrderedWeight || 0;
+                  const pct = orderedWt > 0 ? (fulfilledWt / orderedWt) * 100 : 0;
+                  return (
+                    <div key={o.id} className="card" style={{ margin: 0, padding: "20px", display: "flex", flexDirection: "column", gap: "12px", border: "1px solid #E6E1D8", position: "relative" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                        <div>
+                          <span style={{ fontSize: "12px", color: "#828B7E", fontWeight: "600", textTransform: "uppercase" }}>P.O. नं: {o.poNo || "N/A"}</span>
+                          <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#2B2F2A", margin: "2px 0 0 0" }}>{o.dealerName}</h3>
+                        </div>
+                        <span className={`badge ${o.status === "fulfilled" ? "badge-paid" : o.status === "partially_fulfilled" ? "badge-pending" : "badge-due"}`}>
+                          {o.status === "fulfilled" ? "पूर्ण" : o.status === "partially_fulfilled" ? "अंशतः पूर्ण" : "बाकी"}
+                        </span>
+                      </div>
+
+                      <div style={{ fontSize: "14px", color: "#4A5148" }}>
+                        📍 <strong>ठिकाण:</strong> {o.place || "-"}, {o.village || "-"}
+                      </div>
+
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#828B7E", marginBottom: "4px" }}>
+                          <span>प्रगती (Progress)</span>
+                          <span>{fulfilledWt.toFixed(1)} / {orderedWt.toFixed(1)} Tons ({pct.toFixed(0)}%)</span>
+                        </div>
+                        <div style={{ width: "100%", height: "8px", background: "#F0EDE6", borderRadius: "4px", overflow: "hidden" }}>
+                          <div style={{ width: `${Math.min(100, pct)}%`, height: "100%", background: o.status === "fulfilled" ? "#2e7d32" : "#4E653C" }}></div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                        <button className="primary-btn btn-ghost btn-sm" style={{ flex: 1, justifyContent: "center" }} onClick={() => loadOrderDetails(o.id)}>
+                          तपशील & ट्रक नोंदी 📜
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )
       )}
 
-        </> 
-      )}
+      {/* ── MODALS ── */}
+
+      <DealerOrderForm 
+        show={showOrderForm}
+        dealers={dealers}
+        availableStockTons={availableStockTons}
+        onClose={() => setShowOrderForm(false)}
+        onOrderAdded={() => {
+          fetchOrders();
+          fetchAvailableStock();
+        }}
+      />
+
+      <DispatchForm 
+        show={showDispatchForm}
+        selectedOrder={selectedOrder}
+        physicalStockTons={availableStockTons}
+        onClose={() => setShowDispatchForm(false)}
+        onDispatchAdded={() => {
+          if (selectedOrder) {
+            loadOrderDetails(selectedOrder.id);
+          }
+          fetchOrders();
+          fetchAvailableStock();
+        }}
+      />
+
+      <InvoicePreview 
+        show={showInvoicePreview}
+        selectedDispatchForPreview={selectedDispatchForPreview}
+        currentOrderForPreview={orders.find(o => o.id === selectedDispatchForPreview?.orderId) || selectedOrder}
+        onClose={() => setShowInvoicePreview(false)}
+      />
+
+      <CuttingModal 
+        show={showCuttingModal}
+        selectedDispatchForCutting={selectedDispatchForCutting}
+        cuttingDispatchOrderId={cuttingDispatchOrderId}
+        onClose={() => setShowCuttingModal(false)}
+        onSaveSuccess={(updatedDispatch) => {
+          // If viewing details, reload order
+          if (selectedOrder) {
+            loadOrderDetails(selectedOrder.id);
+          }
+          fetchOrders();
+          fetchAvailableStock();
+        }}
+      />
+
+      <PaymentModal 
+        show={showPaymentModal}
+        orders={orders}
+        selectedCompany={selectedCompany}
+        paymentOrderId={paymentOrderId}
+        onSetPaymentOrderId={setPaymentOrderId}
+        onClose={() => setShowPaymentModal(false)}
+        onPaymentAdded={() => {
+          fetchOrders();
+        }}
+      />
 
     </PageWrapper>
   );
 };
-
-const styles = {
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(44, 53, 36, 0.4)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 999,
-    padding: "20px",
-  },
-  modalContent: {
-    width: "100%",
-    maxWidth: "500px",
-    background: "#ffffff",
-    maxHeight: "95vh",
-    overflowY: "auto",
-    boxShadow: "0 12px 30px rgba(0, 0, 0, 0.15)",
-    margin: 0,
-  },
-  billSlipLeft: {
-    flex: 1,
-    padding: "10px",
-    boxSizing: "border-box"
-  },
-  billSlipRight: {
-    flex: 1,
-    padding: "10px",
-    boxSizing: "border-box"
-  },
-  logoCircle: {
-    width: "36px",
-    height: "36px",
-    borderRadius: "50%",
-    background: "#8B0000",
-    color: "#fff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "14px",
-    fontWeight: "bold"
-  },
-  slipFieldLine: {
-    borderBottom: "1px dotted #555",
-    paddingBottom: "3px",
-    marginBottom: "8px",
-    fontSize: "11px",
-    display: "flex",
-    alignItems: "center"
-  },
-  fieldValue: {
-    marginLeft: "6px",
-    fontWeight: "600",
-    color: "#222"
-  },
-  receiptTable: {
-    width: "100%",
-    borderCollapse: "collapse",
-    marginTop: "12px",
-    fontSize: "10px",
-  },
-  receiptTableTh: {
-    border: "1px solid #000",
-    padding: "6px",
-    background: "#e8e8e8",
-    fontWeight: "bold"
-  },
-  receiptTableTd: {
-    border: "1px solid #000",
-    padding: "6px"
-  }
-};
-
-// Add standard inline CSS styles to inject direct table styling on receiptTable
-const injectStyles = () => {
-  const style = document.createElement("style");
-  style.innerHTML = `
-    .receipt-table-style table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    table {
-      border-collapse: collapse;
-    }
-  `;
-  document.head.appendChild(style);
-};
-injectStyles();
 
 export default DealerDashboard;

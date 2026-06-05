@@ -120,6 +120,7 @@ module.exports = function createApp() {
 
   app.get('/api/dealer-orders', auth, orderCtrl.index);
   app.post('/api/dealer-orders', auth, orderCtrl.store);
+  app.get('/api/dealer-orders/available-stock', auth, orderCtrl.getAvailableStock);
   app.get('/api/dealer-orders/:id', auth, orderCtrl.show);
   app.post('/api/dealer-orders/:id/dispatch', auth, orderCtrl.storeDispatch);
   app.put('/api/dealer-orders/:orderId/dispatch/:dispatchId', auth, orderCtrl.updateDispatch);
