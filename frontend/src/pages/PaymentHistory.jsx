@@ -406,7 +406,7 @@ const PaymentHistory = () => {
 
                   {paymentsWithRemaining.map((p, idx) => (
                     <div key={idx} style={historyStyles.tableRow}>
-                      <div>{p.date}</div>
+                      <div>{p.paymentDate ? new Date(p.paymentDate).toLocaleDateString("en-IN") : p.date}</div>
                       <div style={historyStyles.amountPaid}>+ ₹{p.amount}</div>
                       <div style={{ textAlign: "right" }}>
                         {p.remaining <= 0 ? (

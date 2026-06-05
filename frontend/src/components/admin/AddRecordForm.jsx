@@ -62,7 +62,7 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
       quantity: Number(quantity), 
       rate: Number(rate), 
       totalAmount: Number(totalAmount),
-      remainingPayment: isEditing ? Number(remainingPayment || 0) : 0,
+      newPayment: isEditing ? Number(remainingPayment || 0) : 0,
       paidAmount: Number(paidAmount) 
     };
 

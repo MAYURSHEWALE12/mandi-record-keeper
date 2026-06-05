@@ -126,6 +126,9 @@ exports.update = async (req, res) => {
     if (isNaN(paid)) paid = existing.paid_amount;
 
     let payments = existing.payments || [];
+    if (payments.length === 0 && existing.paid_amount > 0) {
+      payments = [{ paymentDate: existing.created_at || new Date().toISOString(), amount: existing.paid_amount, note: 'Initial payment' }];
+    }
     if (req.body.newPayment && Number(req.body.newPayment) > 0) {
       payments = [...payments, { paymentDate: new Date().toISOString(), amount: Number(req.body.newPayment), note: req.body.paymentNote || '' }];
       paid = payments.reduce((s, p) => s + p.amount, 0);
