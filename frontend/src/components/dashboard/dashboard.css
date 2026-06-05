@@ -96,14 +96,39 @@ input[type=number] {
 /* ---------- Buttons ---------- */
 .submit-btn {
   width: 100%;
-  padding: 12px;
-  background-color: #2196F3;
-  color: #fff;
+  padding: 13.5px;
+  background: linear-gradient(135deg, #FFB300 0%, #FF6F00 100%) !important; /* Premium Gold/Orange gradient matching login page */
+  color: #12160F !important;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 16.5px;
+  box-shadow: 0 4px 15px rgba(255, 111, 0, 0.25);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-btn:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 20px rgba(255, 111, 0, 0.45);
+  opacity: 0.95;
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+.submit-btn.download-btn {
+  background: linear-gradient(135deg, #4E653C 0%, #3E5130 100%) !important; /* Premium Forest Green gradient */
+  color: #fff !important;
+  box-shadow: 0 4px 15px rgba(78, 101, 60, 0.25);
+}
+
+.submit-btn.download-btn:hover {
+  box-shadow: 0 6px 20px rgba(78, 101, 60, 0.45);
 }
 
 /* ---------- Preview Table ---------- */

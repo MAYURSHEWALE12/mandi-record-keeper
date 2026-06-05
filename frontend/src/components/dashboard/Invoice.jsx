@@ -443,8 +443,8 @@ const Invoice = () => {
             <button 
               type="button" 
               onClick={downloadPDF} 
-              className="submit-btn" 
-              style={{ marginTop: "12px", backgroundColor: "#4CAF50" }}
+              className="submit-btn download-btn" 
+              style={{ marginTop: "12px" }}
             >
               फक्त डाउनलोड करा (PDF)
             </button>
