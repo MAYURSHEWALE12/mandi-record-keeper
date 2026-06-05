@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FileText } from "lucide-react";
+import toast from "react-hot-toast";
 import CustomDropdown from "../common/CustomDropdown";
 
 const AllTrucksLog = ({ orders = [], onShowInvoice, onSelectOrder }) => {
@@ -274,7 +275,7 @@ const AllTrucksLog = ({ orders = [], onShowInvoice, onSelectOrder }) => {
                               onSelectOrder(o);
                               onShowInvoice(d);
                             } else {
-                              alert("ऑर्डर सापडली नाही.");
+                              toast.error("ऑर्डर सापडली नाही.");
                             }
                           }}
                         >

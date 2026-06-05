@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import api from "../../api";
 
 const CuttingModal = ({ show, selectedDispatchForCutting, cuttingDispatchOrderId, onClose, onSaveSuccess }) => {
@@ -45,16 +46,16 @@ const CuttingModal = ({ show, selectedDispatchForCutting, cuttingDispatchOrderId
       const res = await api.put(`/api/dealer-orders/${cuttingDispatchOrderId}/dispatch/${selectedDispatchForCutting.id}`, payload);
 
       if (res.status === 200) {
-        alert("कंपनी अंतिम पावती & घट तपशील यशस्वीरित्या जतन केले ✅");
+        toast.success("कंपनी अंतिम पावती & घट तपशील यशस्वीरित्या जतन केले ✅");
         onClose();
         const updatedDispatch = { ...selectedDispatchForCutting, ...payload };
         onSaveSuccess(updatedDispatch);
       } else {
-        alert("माहिती जतन करताना चूक झाली.");
+        toast.error("माहिती जतन करताना चूक झाली.");
       }
     } catch (err) {
       console.error(err);
-      alert("सर्व्हरशी संपर्क साधू शकला नाही.");
+      toast.error("सर्व्हरशी संपर्क साधू शकला नाही.");
     }
   };
 

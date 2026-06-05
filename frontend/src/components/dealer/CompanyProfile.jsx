@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import toast from "react-hot-toast";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -59,7 +60,7 @@ const CompanyProfile = ({ selectedCompany, orders = [], profileTab, onSetProfile
           className="primary-btn" 
           onClick={() => {
             if (companyOrders.length === 0) {
-              alert("पेमेंट जोडण्यासाठी कंपनीची किमान एक ऑर्डर असणे आवश्यक आहे.");
+              toast.error("पेमेंट जोडण्यासाठी कंपनीची किमान एक ऑर्डर असणे आवश्यक आहे.");
               return;
             }
             onOpenPayment(companyOrders[0].id);

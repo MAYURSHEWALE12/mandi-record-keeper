@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import api from "../../api";
 import CustomDropdown from "../common/CustomDropdown";
 
@@ -26,7 +27,7 @@ const DispatchForm = ({ show, selectedOrder, physicalStockTons, onClose, onDispa
   const handleAddDispatch = async (e) => {
     e.preventDefault();
     if (!truckNo || !weight || !rate) {
-      alert("कृपया ट्रक नंबर, वजन आणि भाव भरा.");
+      toast.error("कृपया ट्रक नंबर, वजन आणि भाव भरा.");
       return;
     }
 
@@ -34,7 +35,7 @@ const DispatchForm = ({ show, selectedOrder, physicalStockTons, onClose, onDispa
     const maxAllowed = Math.min(remaining, physicalStockTons);
 
     if (Number(weight) > maxAllowed + 0.0001) {
-      alert(`चूक: आपण या ऑर्डरच्या उर्वरित वजनापेक्षा किंवा उपलब्ध भौतिक साठ्यापेक्षा (${maxAllowed.toFixed(2)} Tons) जास्त वजन लोड करू शकत नाही!`);
+      toast.error(`चूक: आपण या ऑर्डरच्या उर्वरित वजनापेक्षा किंवा उपलब्ध भौतिक साठ्यापेक्षा (${maxAllowed.toFixed(2)} Tons) जास्त वजन लोड करू शकत नाही!`);
       return;
     }
 
@@ -71,7 +72,7 @@ const DispatchForm = ({ show, selectedOrder, physicalStockTons, onClose, onDispa
       const res = await api.post(`/api/dealer-orders/${selectedOrder.id}/dispatch`, dispatchData);
 
       if (res.status === 201) {
-        alert("ट्रक लोडिंग नोंद यशस्वी झाली ✅");
+        toast.success("ट्रक लोडिंग नोंद यशस्वी झाली ✅");
         setDispatchBillNo("");
         setDeliveryPlace("");
         setBrokerName("");
@@ -92,10 +93,11 @@ const DispatchForm = ({ show, selectedOrder, physicalStockTons, onClose, onDispa
         onClose();
         onDispatchAdded();
       } else {
-        alert("लोडिंग नोंद सेव्ह करताना चूक झाली.");
+        toast.error("लोडिंग नोंद सेव्ह करताना चूक झाली.");
       }
     } catch (err) {
       console.error(err);
+      toast.error("सर्व्हरशी संपर्क साधू शकला नाही.");
     }
   };
 

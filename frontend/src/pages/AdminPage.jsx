@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import StatsCards from "../components/admin/StatsCards";
+import toast from "react-hot-toast";
 import DayStatsCards from "../components/admin/DayStatsCards";
 import AddRecordForm from "../components/admin/AddRecordForm";
 import RecordsTable from "../components/admin/RecordsTable";
@@ -55,14 +56,14 @@ const AdminPage = () => {
       
       const data = res.data;
       if (res.status === 200) {
-        alert("डेटाबेस यशस्वीरित्या रिसेट झाला! ✅");
+        toast.success("डेटाबेस यशस्वीरित्या रिसेट झाला! ✅");
         fetchRecords();
       } else {
-        alert(`रिसेट अयशस्वी: ${data.error || "चूक झाली"}`);
+        toast.error(`रिसेट अयशस्वी: ${data.error || "चूक झाली"}`);
       }
     } catch (err) {
       console.error(err);
-      alert("सर्व्हरशी संपर्क साधू शकला नाही.");
+      toast.error("सर्व्हरशी संपर्क साधू शकला नाही.");
     }
   };
 

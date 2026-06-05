@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf"; 
 import CustomDropdown from "../common/CustomDropdown";
+import toast from "react-hot-toast";
 import { SLIP_STYLES } from "../../constants";
 import BUSINESS_INFO from "../../constants";
 
@@ -75,7 +76,7 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
         };
       });
       if (onRecordsChange) onRecordsChange(importedRecords);
-      alert("डेटा यशस्वीरित्या इंपोर्ट झाला! ✅");
+      toast.success("डेटा यशस्वीरित्या इंपोर्ट झाला! ✅");
     };
     reader.readAsText(file);
   };

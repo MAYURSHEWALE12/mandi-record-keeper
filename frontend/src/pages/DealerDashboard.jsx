@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import api from "../api";
+import toast from "react-hot-toast";
 import PageWrapper from "../components/layout/PageWrapper";
 import { Truck, Plus, FileText, Trash2, ArrowLeft, ChevronDown } from "lucide-react";
 import DealerOrderForm from "../components/dealer/DealerOrderForm";
@@ -174,7 +175,7 @@ const DealerDashboard = () => {
   const handleAddCompany = async (e) => {
     e.preventDefault();
     if (!newCompanyName) {
-      alert("à¤•à¥ƒà¤ªà¤¯à¤¾ à¤•à¤‚à¤ªà¤¨à¥€à¤šà¥‡ à¤¨à¤¾à¤µ à¤­à¤°à¤¾.");
+      toast.error("à¤•à¥ƒà¤ªà¤¯à¤¾ à¤•à¤‚à¤ªà¤¨à¥€à¤šà¥‡ à¤¨à¤¾à¤µ à¤­à¤°à¤¾.");
       return;
     }
 
@@ -190,18 +191,18 @@ const DealerDashboard = () => {
       setCompanyLoading(false);
 
       if (res.status === 201) {
-        alert("à¤¨à¤µà¥€à¤¨ à¤•à¤‚à¤ªà¤¨à¥€ à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¨à¥‹à¤‚à¤¦à¤µà¤²à¥€ âœ…");
+        toast.success("à¤¨à¤µà¥€à¤¨ à¤•à¤‚à¤ªà¤¨à¥€ à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¨à¥‹à¤‚à¤¦à¤µà¤²à¥€ âœ…");
         setNewCompanyName("");
         setNewCompanyPlace("");
         setNewCompanyVillage("");
         fetchDealers();
       } else {
-        alert(data.error || "à¤•à¤‚à¤ªà¤¨à¥€ à¤¸à¥‡à¤µà¥à¤¹ à¤•à¤°à¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
+        toast.error(data.error || "à¤•à¤‚à¤ªà¤¨à¥€ à¤¸à¥‡à¤µà¥à¤¹ à¤•à¤°à¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
       }
     } catch (err) {
       console.error(err);
       setCompanyLoading(false);
-      alert("à¤¸à¤°à¥à¤µà¥à¤¹à¤°à¤¶à¥€ à¤¸à¤‚à¤ªà¤°à¥à¤• à¤¹à¥‹à¤Š à¤¶à¤•à¤²à¤¾ à¤¨à¤¾à¤¹à¥€.");
+      toast.error("à¤¸à¤°à¥à¤µà¥à¤¹à¤°à¤¶à¥€ à¤¸à¤‚à¤ªà¤°à¥à¤• à¤¹à¥‹à¤Š à¤¶à¤•à¤²à¤¾ à¤¨à¤¾à¤¹à¥€.");
     }
   };
 
@@ -212,10 +213,10 @@ const DealerDashboard = () => {
       const res = await api.delete(`/api/dealers/${id}`);
 
       if (res.status === 200) {
-        alert("à¤•à¤‚à¤ªà¤¨à¥€ à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¹à¤Ÿà¤µà¤²à¥€ âœ…");
+        toast.success("à¤•à¤‚à¤ªà¤¨à¥€ à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¹à¤Ÿà¤µà¤²à¥€ âœ…");
         fetchDealers();
       } else {
-        alert("à¤•à¤‚à¤ªà¤¨à¥€ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
+        toast.error("à¤•à¤‚à¤ªà¤¨à¥€ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
       }
     } catch (err) {
       console.error(err);
@@ -262,11 +263,11 @@ const DealerDashboard = () => {
       const res = await api.delete(`/api/dealer-dispatches/${dispatchId}`);
 
       if (res.status === 200) {
-        alert("à¤¨à¥‹à¤‚à¤¦ à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¹à¤Ÿà¤µà¤²à¥€ âœ…");
+        toast.success("à¤¨à¥‹à¤‚à¤¦ à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¹à¤Ÿà¤µà¤²à¥€ âœ…");
         loadOrderDetails(selectedOrder.id);
         fetchOrders();
       } else {
-        alert("à¤¨à¥‹à¤‚à¤¦ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
+        toast.error("à¤¨à¥‹à¤‚à¤¦ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
       }
     } catch (err) {
       console.error(err);
@@ -281,11 +282,11 @@ const DealerDashboard = () => {
       const res = await api.delete(`/api/dealer-orders/${orderId}`);
 
       if (res.status === 200) {
-        alert("à¤‘à¤°à¥à¤¡à¤° à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¹à¤Ÿà¤µà¤²à¥€ âœ…");
+        toast.success("à¤‘à¤°à¥à¤¡à¤° à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¹à¤Ÿà¤µà¤²à¥€ âœ…");
         setSelectedOrder(null);
         fetchOrders();
       } else {
-        alert("à¤‘à¤°à¥à¤¡à¤° à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
+        toast.error("à¤‘à¤°à¥à¤¡à¤° à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
       }
     } catch (err) {
       console.error(err);
@@ -331,10 +332,10 @@ const DealerDashboard = () => {
       const res = await api.delete(`/api/dealer-orders/${orderId}/payment/${paymentId}`);
 
       if (res.status === 200) {
-        alert("à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤µà¥à¤¯à¤µà¤¹à¤¾à¤° à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¹à¤Ÿà¤µà¤²à¤¾ à¤—à¥‡à¤²à¤¾ âœ…");
+        toast.success("à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤µà¥à¤¯à¤µà¤¹à¤¾à¤° à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¤¿à¤¤à¥à¤¯à¤¾ à¤¹à¤Ÿà¤µà¤²à¤¾ à¤—à¥‡à¤²à¤¾ âœ…");
         refreshData();
       } else {
-        alert("à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
+        toast.error("à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
       }
     } catch (err) {
       console.error(err);
@@ -401,7 +402,7 @@ const DealerDashboard = () => {
                               if (res.status === 200) {
                                 refreshData();
                               } else {
-                                alert("à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
+                                toast.error("à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤¹à¤Ÿà¤µà¤¤à¤¾à¤¨à¤¾ à¤šà¥‚à¤• à¤à¤¾à¤²à¥€.");
                               }
                             } catch (err) {
                               console.error(err);

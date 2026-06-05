@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./LoginPage.css";
 import api from "../../api";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import BUSINESS_INFO from "../../constants";
 import { User, Lock, Eye, EyeOff, ArrowRight, Sun, Moon, Phone, Shield, Award, Users, Truck } from "lucide-react";
@@ -41,7 +42,7 @@ const LoginPage = () => {
       localStorage.setItem("token", res.data.token);
       navigate("/select-dashboard");
     } catch (err) {
-      alert("❌ Invalid Email or Password");
+      toast.error("❌ Invalid Email or Password");
     }
   };
 

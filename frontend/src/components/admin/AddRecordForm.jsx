@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import api from "../../api";
 import CustomDropdown from "../common/CustomDropdown";
 
@@ -42,14 +43,14 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
     if (isSubmitting) return;
     
     if (Number(quantity) < 0 || Number(rate) < 0 || Number(paidAmount) < 0) {
-      alert("कृपया वजा (-) रक्कम टाकू नका.");
+      toast.error("कृपया वजा (-) रक्कम टाकू नका.");
       return;
     }
 
     const isEditing = editingRecord && (editingRecord.id || editingRecord._id);
 
     if (isEditing && Number(remainingPayment) > currentDue) {
-      alert(`चूक: तुम्ही बाकी रकमेपेक्षा (₹${currentDue.toFixed(2)}) जास्त रक्कम भरू शकत नाही.`);
+      toast.error(`चूक: तुम्ही बाकी रकमेपेक्षा (₹${currentDue.toFixed(2)}) जास्त रक्कम भरू शकत नाही.`);
       return;
     }
     
@@ -73,15 +74,15 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
       const res = await api[method](url, recordData);
 
       if (res.status === 200 || res.status === 201) {
-        alert(isEditing ? "रेकॉर्ड यशस्वीरित्या अपडेट झाला ✅" : "रेकॉर्ड यशस्वीरित्या जोडला ✅");
+        toast.success(isEditing ? "रेकॉर्ड यशस्वीरित्या अपडेट झाला ✅" : "रेकॉर्ड यशस्वीरित्या जोडला ✅");
         resetForm();
         if (onRecordAdded) onRecordAdded(); 
       } else {
-        alert("काहीतरी चूक झाली! सर्व्हर तपासा.");
+        toast.error("काहीतरी चूक झाली! सर्व्हर तपासा.");
       }
     } catch (err) { 
       console.error("Fetch Error:", err); 
-      alert("सर्व्हरशी संपर्क होऊ शकला नाही.");
+      toast.error("सर्व्हरशी संपर्क होऊ शकला नाही.");
     } finally {
       setIsSubmitting(false);
     }

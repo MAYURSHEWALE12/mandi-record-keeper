@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import CustomDropdown from "../common/CustomDropdown";
+import toast from "react-hot-toast";
 import { SLIP_STYLES } from "../../constants";
 import BUSINESS_INFO from "../../constants";
 
@@ -90,7 +91,7 @@ const RecordsTable = ({ records = [], onRecordsChange, onEditClick }) => {
         return { _id: Math.random().toString(36).substr(2, 9), date, farmerName, mobile, crop, quantity: Number(quantity), rate: Number(rate), totalAmount: Number(totalAmount), paidAmount: Number(paidAmount) };
       });
       if (onRecordsChange) onRecordsChange(importedRecords);
-      alert("डेटा यशस्वीरित्या इंपोर्ट झाला! ✅");
+      toast.success("डेटा यशस्वीरित्या इंपोर्ट झाला! ✅");
     };
     reader.readAsText(file);
   };

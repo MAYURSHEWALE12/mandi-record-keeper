@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import api from "../../api";
 import CustomDropdown from "../common/CustomDropdown";
 
@@ -12,12 +13,12 @@ const DealerOrderForm = ({ show, dealers, availableStockTons, onClose, onOrderAd
   const handleAddOrder = async (e) => {
     e.preventDefault();
     if (!dealerName || !totalOrderedWeight) {
-      alert("कृपया आवश्यक माहिती भरा.");
+      toast.error("कृपया आवश्यक माहिती भरा.");
       return;
     }
 
     if (Number(totalOrderedWeight) > availableStockTons) {
-      alert(`चूक: शिल्लक मका साठ्यापेक्षा (${availableStockTons.toFixed(2)} Tons) जास्त ऑर्डर वजन नोंदवू शकत नाही!`);
+      toast.error(`चूक: शिल्लक मका साठ्यापेक्षा (${availableStockTons.toFixed(2)} Tons) जास्त ऑर्डर वजन नोंदवू शकत नाही!`);
       return;
     }
 
@@ -31,7 +32,7 @@ const DealerOrderForm = ({ show, dealers, availableStockTons, onClose, onOrderAd
       });
 
       if (res.status === 201) {
-        alert("डीलर ऑर्डर यशस्वीरित्या तयार केली ✅");
+        toast.success("डीलर ऑर्डर यशस्वीरित्या तयार केली ✅");
         setPoNo("");
         setDealerName("");
         setPlace("");
@@ -40,11 +41,11 @@ const DealerOrderForm = ({ show, dealers, availableStockTons, onClose, onOrderAd
         onClose();
         onOrderAdded();
       } else {
-        alert("ऑर्डर सेव्ह करताना चूक झाली.");
+        toast.error("ऑर्डर सेव्ह करताना चूक झाली.");
       }
     } catch (err) {
       console.error(err);
-      alert("सर्व्हरशी संपर्क होऊ शकला नाही.");
+      toast.error("सर्व्हरशी संपर्क होऊ शकला नाही.");
     }
   };
 

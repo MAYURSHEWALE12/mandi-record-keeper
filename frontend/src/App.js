@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import "./styles/modern.css";
 
 import LoginPage from "./components/loginpage/LoginPage";
@@ -32,6 +33,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Toaster position="top-center" toastOptions={{ duration: 3000, style: { fontFamily: "sans-serif" } }} />
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />

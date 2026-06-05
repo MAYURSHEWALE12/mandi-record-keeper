@@ -6,6 +6,7 @@ import api from "../../api";
 import "./dashboard.css";
 import InvoiceRecordsTable from "./InvoiceRecordsTable"; 
 import CustomDropdown from "../common/CustomDropdown";
+import toast from "react-hot-toast";
 import { SLIP_STYLES } from "../../constants";
 import BUSINESS_INFO from "../../constants";
 
@@ -220,7 +221,7 @@ const Invoice = () => {
       const res = await api.post("/api/add-record", recordData);
 
       if (res.status === 201) {
-        alert("बिल तयार झाले आणि डेटाबेसमध्ये सेव्ह झाले! ✅");
+        toast.success("बिल तयार झाले आणि डेटाबेसमध्ये सेव्ह झाले! ✅");
         setPreviewData({
           date, customer, farmerContact, crop, rate, quantity, totalAmount, paidAmount,
           billNo: Date.now().toString().slice(-5)
@@ -236,11 +237,11 @@ const Invoice = () => {
         setError("");
         await loadData(); 
       } else {
-        alert("डेटा सेव्ह करताना त्रुटी आली.");
+        toast.error("डेटा सेव्ह करताना त्रुटी आली.");
       }
     } catch (err) {
       console.error("Fetch Error:", err);
-      alert("सर्व्हरशी संपर्क होऊ शकला नाही.");
+      toast.error("सर्व्हरशी संपर्क होऊ शकला नाही.");
     } finally {
       setIsSubmitting(false);
     }

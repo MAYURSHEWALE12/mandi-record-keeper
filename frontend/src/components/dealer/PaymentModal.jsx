@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import api from "../../api";
 import CustomDropdown from "../common/CustomDropdown";
 
@@ -12,7 +13,7 @@ const PaymentModal = ({ show, orders = [], selectedCompany, paymentOrderId, onSe
   const handleAddPayment = async (e) => {
     e.preventDefault();
     if (!paymentOrderId || !paymentAmount) {
-      alert("कृपया आवश्यक माहिती भरा.");
+      toast.error("कृपया आवश्यक माहिती भरा.");
       return;
     }
 
@@ -26,18 +27,18 @@ const PaymentModal = ({ show, orders = [], selectedCompany, paymentOrderId, onSe
       });
 
       if (res.status === 201) {
-        alert("कंपनी पेमेंट व्यवहार यशस्वीरित्या जोडला गेला ✅");
+        toast.success("कंपनी पेमेंट व्यवहार यशस्वीरित्या जोडला गेला ✅");
         setPaymentAmount("");
         setPaymentRefNo("");
         setPaymentNote("");
         onClose();
         onPaymentAdded();
       } else {
-        alert("पेमेंट जतन करताना चूक झाली.");
+        toast.error("पेमेंट जतन करताना चूक झाली.");
       }
     } catch (err) {
       console.error(err);
-      alert("सर्व्हरशी संपर्क साधू शकला नाही.");
+      toast.error("सर्व्हरशी संपर्क साधू शकला नाही.");
     }
   };
 
