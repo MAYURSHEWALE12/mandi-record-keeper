@@ -2,9 +2,24 @@ const supabase = require('../db');
 
 exports.index = async (req, res) => {
   try {
-    const { data, error } = await supabase.from('dealers').select('*').order('name', { ascending: true });
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 100));
+    const offset = (page - 1) * limit;
+
+    const { data, error, count } = await supabase
+      .from('dealers')
+      .select('*', { count: 'exact' })
+      .order('name', { ascending: true })
+      .range(offset, offset + limit - 1);
+
     if (error) throw error;
-    res.json(data);
+    res.json({
+      data,
+      page,
+      limit,
+      total: count,
+      totalPages: Math.ceil((count || 0) / limit),
+    });
   } catch (error) {
     console.error('Error fetching dealers:', error);
     res.status(500).json({ error: 'Server error' });

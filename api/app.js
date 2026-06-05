@@ -6,6 +6,7 @@ const authCtrl = require('./controllers/authController');
 const recordCtrl = require('./controllers/recordController');
 const orderCtrl = require('./controllers/dealerOrderController');
 const dealerCtrl = require('./controllers/dealerController');
+const auth = require('./middleware/auth');
 
 let seeded = false;
 
@@ -57,6 +58,20 @@ module.exports = function createApp() {
 
   app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'KT Traders API', version: '1.0.0' }));
 
+  // Market rates proxy (no auth required - public data)
+  app.get('/api/market-rates', async (req, res) => {
+    try {
+      const apiKey = process.env.MARKET_API_KEY || '579b464db66ec23bdd000001dc6ef7663e8746615667305510709d20';
+      const url = `https://api.data.gov.in/resource/9ef27131-652a-4a3a-a3a3-705074e767c7?api-key=${apiKey}&format=json&limit=20`;
+      const response = await fetch(url);
+      const data = await response.json();
+      res.json(data.records || []);
+    } catch (error) {
+      console.error('Market rates fetch error:', error);
+      res.json([]);
+    }
+  });
+
   app.post('/api/reset-database-kt-traders', async (req, res) => {
     try {
       const { password } = req.body;
@@ -96,25 +111,25 @@ module.exports = function createApp() {
   app.post('/api/admin/forgot-password', authCtrl.forgotPassword);
   app.post('/api/admin/reset-password/:token', authCtrl.resetPassword);
 
-  // Data routes (no auth middleware - frontend doesn't send tokens)
-  app.get('/api/records', recordCtrl.index);
-  app.post('/api/add-record', recordCtrl.store);
-  app.put('/api/update-record/:id', recordCtrl.update);
+  // Data routes (protected with JWT auth)
+  app.get('/api/records', auth, recordCtrl.index);
+  app.post('/api/add-record', auth, recordCtrl.store);
+  app.put('/api/update-record/:id', auth, recordCtrl.update);
 
-  app.get('/api/dealer-orders', orderCtrl.index);
-  app.post('/api/dealer-orders', orderCtrl.store);
-  app.get('/api/dealer-orders/:id', orderCtrl.show);
-  app.post('/api/dealer-orders/:id/dispatch', orderCtrl.storeDispatch);
-  app.put('/api/dealer-orders/:orderId/dispatch/:dispatchId', orderCtrl.updateDispatch);
-  app.post('/api/dealer-orders/:id/payment', orderCtrl.storePayment);
-  app.delete('/api/dealer-orders/:orderId/payment/:paymentId', orderCtrl.destroyPayment);
-  app.delete('/api/dealer-dispatches/:id', orderCtrl.destroyDispatch);
-  app.delete('/api/dealer-orders/:id', orderCtrl.destroy);
+  app.get('/api/dealer-orders', auth, orderCtrl.index);
+  app.post('/api/dealer-orders', auth, orderCtrl.store);
+  app.get('/api/dealer-orders/:id', auth, orderCtrl.show);
+  app.post('/api/dealer-orders/:id/dispatch', auth, orderCtrl.storeDispatch);
+  app.put('/api/dealer-orders/:orderId/dispatch/:dispatchId', auth, orderCtrl.updateDispatch);
+  app.post('/api/dealer-orders/:id/payment', auth, orderCtrl.storePayment);
+  app.delete('/api/dealer-orders/:orderId/payment/:paymentId', auth, orderCtrl.destroyPayment);
+  app.delete('/api/dealer-dispatches/:id', auth, orderCtrl.destroyDispatch);
+  app.delete('/api/dealer-orders/:id', auth, orderCtrl.destroy);
 
   // Registered Dealers/Companies routes
-  app.get('/api/dealers', dealerCtrl.index);
-  app.post('/api/dealers', dealerCtrl.store);
-  app.delete('/api/dealers/:id', dealerCtrl.destroy);
+  app.get('/api/dealers', auth, dealerCtrl.index);
+  app.post('/api/dealers', auth, dealerCtrl.store);
+  app.delete('/api/dealers/:id', auth, dealerCtrl.destroy);
 
   return app;
 };

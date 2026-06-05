@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Counter extends Model
 {
@@ -15,14 +16,16 @@ class Counter extends Model
 
     public static function getNextBillNo(): int
     {
-        $counter = self::where('name', 'billNo')->first();
+        return DB::transaction(function () {
+            $counter = self::where('name', 'billNo')->lockForUpdate()->first();
 
-        if (!$counter) {
-            $counter = self::create(['name' => 'billNo', 'seq' => 1]);
-            return 1;
-        }
+            if (!$counter) {
+                $counter = self::create(['name' => 'billNo', 'seq' => 1]);
+                return 1;
+            }
 
-        $counter->increment('seq');
-        return $counter->seq;
+            $counter->increment('seq');
+            return $counter->fresh()->seq;
+        });
     }
 }

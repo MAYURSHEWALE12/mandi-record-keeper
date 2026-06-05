@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api";
 import PageWrapper from "../layout/PageWrapper";
-import API_URL from "../../config";
 import CustomDropdown from "../common/CustomDropdown";
 
 const DuePaymentsTable = ({ onEditClick }) => {
@@ -22,11 +21,8 @@ const DuePaymentsTable = ({ onEditClick }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`${API_URL}/api/records`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setRecords(Array.isArray(response.data) ? response.data : response.data.records || []);
+        const response = await api.get("/api/records");
+        setRecords(Array.isArray(response.data) ? response.data : []);
         setLoading(false);
       } catch (error) {
         console.error("डेटा एरर:", error);

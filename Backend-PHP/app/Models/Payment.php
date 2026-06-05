@@ -10,9 +10,13 @@ class Payment extends Model
 
     protected $fillable = [
         'record_id',
+        'dealer_order_id',
         'amount',
         'date',
         'remaining',
+        'mode',
+        'ref_no',
+        'note',
     ];
 
     protected $casts = [
@@ -23,5 +27,10 @@ class Payment extends Model
     public function record()
     {
         return $this->belongsTo(Record::class, 'record_id');
+    }
+
+    public function dealerOrder()
+    {
+        return $this->belongsTo(DealerOrder::class, 'dealer_order_id');
     }
 }

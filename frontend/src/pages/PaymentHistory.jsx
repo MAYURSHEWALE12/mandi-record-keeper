@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PageWrapper from "../components/layout/PageWrapper";
-import API_URL from "../config";
+import api from "../api";
 import { ArrowLeft, Printer, Phone, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
 
 // Inline styles for the Flat Organic Theme
@@ -234,9 +234,8 @@ const PaymentHistory = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/records`);
-        const data = await response.json();
-        const recordsList = Array.isArray(data) ? data : [];
+        const response = await api.get("/api/records");
+        const recordsList = Array.isArray(response.data) ? response.data : [];
         setAllRecords(recordsList);
         
         if (farmerName) {

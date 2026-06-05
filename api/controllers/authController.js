@@ -43,7 +43,7 @@ exports.forgotPassword = async (req, res) => {
 
     await supabase.from('admins').update({ reset_password_token: resetToken, reset_password_expires: expires }).eq('id', admin.id);
 
-    res.json({ message: 'Reset link sent to email', resetToken });
+    res.json({ message: 'Reset link sent to email' });
   } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({ error: 'Server error' });

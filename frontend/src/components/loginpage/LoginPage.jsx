@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./LoginPage.css";
-import axios from "axios";
+import api from "../../api";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../../config";
+import BUSINESS_INFO from "../../constants";
 import { User, Lock, Eye, EyeOff, ArrowRight, Sun, Moon, Phone, Shield, Award, Users, Truck } from "lucide-react";
 
 const LoginPage = () => {
@@ -37,10 +37,7 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        `${API_URL}/api/admin/login`,
-        { email, password }
-      );
+      const res = await api.post("/api/admin/login", { email, password });
       localStorage.setItem("token", res.data.token);
       navigate("/select-dashboard");
     } catch (err) {
@@ -110,7 +107,7 @@ const LoginPage = () => {
             <div className="help-info">
               <p className="help-title">Need Help?</p>
               <p className="help-desc">Our support team is here for you.</p>
-              <p className="help-phone">+91 98502 92298</p>
+              <p className="help-phone">{BUSINESS_INFO.supportPhone}</p>
             </div>
           </div>
         </div>

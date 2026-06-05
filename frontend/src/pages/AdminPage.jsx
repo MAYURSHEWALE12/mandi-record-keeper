@@ -4,7 +4,7 @@ import StatsCards from "../components/admin/StatsCards";
 import DayStatsCards from "../components/admin/DayStatsCards";
 import AddRecordForm from "../components/admin/AddRecordForm";
 import RecordsTable from "../components/admin/RecordsTable";
-import API_URL from "../config";
+import api from "../api";
 
 const AdminPage = () => {
   const location = useLocation();
@@ -22,9 +22,8 @@ const AdminPage = () => {
 
   const fetchRecords = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/records`);
-      const data = await res.json();
-      setRecords(Array.isArray(data) ? data : []);
+      const res = await api.get("/api/records");
+      setRecords(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error fetching records:", err);
     }
@@ -52,14 +51,10 @@ const AdminPage = () => {
     if (!password) return;
 
     try {
-      const res = await fetch(`${API_URL}/api/reset-database-kt-traders`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password })
-      });
+      const res = await api.post("/api/reset-database-kt-traders", { password });
       
-      const data = await res.json();
-      if (res.ok) {
+      const data = res.data;
+      if (res.status === 200) {
         alert("डेटाबेस यशस्वीरित्या रिसेट झाला! ✅");
         fetchRecords();
       } else {

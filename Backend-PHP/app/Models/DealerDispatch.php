@@ -32,6 +32,14 @@ class DealerDispatch extends Model
         'paid_freight',
         'due_freight',
         'note',
+        'comp_weight',
+        'comp_rate',
+        'comp_damage_cut',
+        'comp_moisture_cut',
+        'comp_other_cut',
+        'passed_amt',
+        'loss_amt',
+        'comp_note',
     ];
 
     protected $casts = [
@@ -44,6 +52,13 @@ class DealerDispatch extends Model
         'total_freight' => 'float',
         'paid_freight' => 'float',
         'due_freight' => 'float',
+        'comp_weight' => 'float',
+        'comp_rate' => 'float',
+        'comp_damage_cut' => 'float',
+        'comp_moisture_cut' => 'float',
+        'comp_other_cut' => 'float',
+        'passed_amt' => 'float',
+        'loss_amt' => 'float',
     ];
 
     public function order()

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Invoice from "../components/dashboard/Invoice";
+import api from "../api";
 import { Zap } from "lucide-react";
 import "../styles/modern.css";
 
@@ -9,13 +10,11 @@ const Dashboard = () => {
   useEffect(() => {
     const getLiveMarketData = async () => {
       try {
-        const apiKey = "579b464db66ec23bdd000001dc6ef7663e8746615667305510709d20";
-        const url = `https://api.data.gov.in/resource/9ef27131-652a-4a3a-a3a3-705074e767c7?api-key=${apiKey}&format=json&limit=20`;
-        const response = await fetch(url);
-        const data = await response.json();
+        const res = await api.get("/api/market-rates");
+        const data = res.data;
 
-        if (data && data.records && data.records.length > 0) {
-          const formattedData = data.records.map(item =>
+        if (data && data.length > 0) {
+          const formattedData = data.map(item =>
             `${item.commodity} (${item.market}): ₹${item.modal_price}`
           ).join("   |   ");
           setLiveBhav(formattedData + "   |   के.टी. ट्रेडर्स Live Update   |   ");

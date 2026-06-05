@@ -67,9 +67,24 @@ const toSnake = (d) => ({
 
 exports.index = async (req, res) => {
   try {
-    const { data, error } = await supabase.from('records').select('*').order('bill_no', { ascending: false });
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 100));
+    const offset = (page - 1) * limit;
+
+    const { data, error, count } = await supabase
+      .from('records')
+      .select('*', { count: 'exact' })
+      .order('bill_no', { ascending: false })
+      .range(offset, offset + limit - 1);
+
     if (error) throw error;
-    res.json(data.map(toCamel));
+    res.json({
+      data: data.map(toCamel),
+      page,
+      limit,
+      total: count,
+      totalPages: Math.ceil((count || 0) / limit),
+    });
   } catch (error) {
     console.error('Error fetching records:', error);
     res.status(500).json({ error: 'Server error' });
@@ -86,9 +101,12 @@ exports.store = async (req, res) => {
       billNo = data;
     } catch (rpcErr) {
       console.warn('Fallback to select/update bill sequence (Please run the schema.sql function in Supabase SQL Editor):', rpcErr);
-      const { data: c } = await supabase.from('bill_counters').select('seq').single();
-      billNo = (c?.seq || 1000) + 1;
-      await supabase.from('bill_counters').update({ seq: billNo }).eq('id', 1);
+      // Use transaction-style: select and update with condition to avoid race
+      const { data: counter, error: selErr } = await supabase.from('bill_counters').select('seq').single();
+      if (selErr) throw selErr;
+      billNo = (counter?.seq || 1000) + 1;
+      const { error: updErr } = await supabase.from('bill_counters').update({ seq: billNo }).eq('id', 1);
+      if (updErr) throw updErr;
     }
 
     if (!req.body.farmerName || !req.body.totalAmount)

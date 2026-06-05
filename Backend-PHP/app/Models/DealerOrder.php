@@ -11,19 +11,30 @@ class DealerOrder extends Model
     protected $fillable = [
         'po_no',
         'dealer_name',
+        'dealer_phone',
         'place',
         'village',
         'total_ordered_weight',
+        'order_date',
+        'expected_delivery',
         'status',
+        'note',
     ];
 
     protected $casts = [
         'total_ordered_weight' => 'float',
+        'order_date' => 'date',
+        'expected_delivery' => 'date',
     ];
 
     public function dispatches()
     {
         return $this->hasMany(DealerDispatch::class, 'dealer_order_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'dealer_order_id');
     }
 
     public function getFulfilledWeightAttribute(): float

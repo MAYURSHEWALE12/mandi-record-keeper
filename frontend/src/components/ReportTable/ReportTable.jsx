@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PageWrapper from "../layout/PageWrapper";
-import API_URL from "../../config";
+import api from "../../api";
 import CustomDropdown from "../common/CustomDropdown";
 import "./ReportTable.css";
 
@@ -22,9 +22,8 @@ const ReportTable = () => {
   const onlyPaid = false;
 
   useEffect(() => {
-    fetch(`${API_URL}/api/records`)
-      .then(res => res.json())
-      .then(data => setRecords(data))
+    api.get("/api/records")
+      .then(res => setRecords(res.data))
       .catch(err => console.error(err));
   }, []);
 

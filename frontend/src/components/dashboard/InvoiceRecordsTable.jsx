@@ -2,118 +2,10 @@ import React, { useState, useRef } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf"; 
 import CustomDropdown from "../common/CustomDropdown";
+import { SLIP_STYLES } from "../../constants";
+import BUSINESS_INFO from "../../constants";
 
-const slipStyles = {
-  container: {
-    width: "100%",
-    maxWidth: "500px",
-    background: "#fcfbf9",
-    border: "1.5px solid #000",
-    padding: "24px",
-    fontFamily: "sans-serif",
-    color: "#000",
-    boxSizing: "border-box",
-    margin: "0 auto",
-    borderRadius: "12px",
-    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08)"
-  },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    borderBottom: "2px solid #000",
-    paddingBottom: "10px"
-  },
-  logoCircle: {
-    width: "36px",
-    height: "36px",
-    borderRadius: "50%",
-    background: "#8B0000",
-    color: "#fff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "14px",
-    fontWeight: "bold"
-  },
-  titleArea: {
-    flex: 1
-  },
-  mainTitle: {
-    margin: 0,
-    fontSize: "20px",
-    fontWeight: "bold",
-    color: "#8B0000"
-  },
-  subTitle: {
-    margin: "2px 0 0 0",
-    fontSize: "12px",
-    fontWeight: "bold",
-    color: "#555"
-  },
-  addressLine: {
-    fontSize: "9px",
-    margin: "4px 0",
-    borderBottom: "1px solid #000",
-    paddingBottom: "2px",
-    color: "#444"
-  },
-  metaLine: {
-    display: "flex",
-    justifyContent: "space-between",
-    margin: "8px 0",
-    fontSize: "11px"
-  },
-  fieldLine: {
-    borderBottom: "1px dotted #555",
-    paddingBottom: "3px",
-    marginBottom: "8px",
-    fontSize: "11px",
-    display: "flex",
-    alignItems: "center"
-  },
-  fieldLabel: {
-    fontWeight: "bold"
-  },
-  fieldValue: {
-    marginLeft: "6px",
-    fontWeight: "600",
-    color: "#222"
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    marginTop: "12px",
-    fontSize: "11px"
-  },
-  th: {
-    border: "1px solid #000",
-    padding: "6px",
-    background: "#e8e8e8",
-    fontWeight: "bold",
-    textAlign: "center"
-  },
-  td: {
-    border: "1px solid #000",
-    padding: "6px",
-    textAlign: "center"
-  },
-  summaryArea: {
-    marginTop: "15px",
-    fontSize: "11px"
-  },
-  balanceText: {
-    color: "#C94A4A",
-    fontWeight: "bold",
-    fontSize: "13px"
-  },
-  footerSignatures: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: "35px",
-    fontSize: "11px"
-  }
-};
+const slipStyles = SLIP_STYLES;
 
 const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
   const [searchName, setSearchName] = useState("");
@@ -300,13 +192,13 @@ const InvoiceRecordsTable = ({ records, onEditClick, onRecordsChange }) => {
             <div style={slipStyles.header}>
               <div style={slipStyles.logoCircle}>KT</div>
               <div style={slipStyles.titleArea}>
-                <h2 style={slipStyles.mainTitle}>मे. के.टी. ट्रेडर्स</h2>
-                <h3 style={slipStyles.subTitle}>K. T. TRADERS</h3>
+                <h2 style={slipStyles.mainTitle}>{BUSINESS_INFO.name}</h2>
+                <h3 style={slipStyles.subTitle}>{BUSINESS_INFO.nameEn}</h3>
               </div>
             </div>
 
             <div style={slipStyles.addressLine}>
-              मार्केट यार्ड, श्री व्यंकटेश बँकच्या मागे, मालेगाव कॅम्प जि. नाशिक. मो. 9850291298, 9767128838
+              {BUSINESS_INFO.address} मो. {BUSINESS_INFO.phone1}, {BUSINESS_INFO.phone2}
             </div>
 
             <div style={slipStyles.metaLine}>

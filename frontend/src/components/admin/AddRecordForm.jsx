@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../../config";
+import api from "../../api";
 import CustomDropdown from "../common/CustomDropdown";
 
 const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
@@ -67,15 +67,12 @@ const AddRecordForm = ({ onRecordAdded, editingRecord, setEditingRecord }) => {
     };
 
     try {
-      const url = isEditing ? `${API_URL}/api/update-record/${(editingRecord.id || editingRecord._id)}` : `${API_URL}/api/add-record`;
+      const url = isEditing ? `/api/update-record/${(editingRecord.id || editingRecord._id)}` : "/api/add-record";
+      const method = isEditing ? "put" : "post";
       
-      const res = await fetch(url, {
-        method: isEditing ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(recordData),
-      });
+      const res = await api[method](url, recordData);
 
-      if (res.ok) {
+      if (res.status === 200 || res.status === 201) {
         alert(isEditing ? "रेकॉर्ड यशस्वीरित्या अपडेट झाला ✅" : "रेकॉर्ड यशस्वीरित्या जोडला ✅");
         resetForm();
         if (onRecordAdded) onRecordAdded(); 

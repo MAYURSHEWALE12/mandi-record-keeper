@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../api";
 import PageWrapper from "../layout/PageWrapper";
-import API_URL from "../../config";
 import CustomDropdown from "../common/CustomDropdown";
 
 const PaidPaymentsTable = () => {
@@ -18,7 +17,7 @@ const PaidPaymentsTable = () => {
   useEffect(() => {
     const fetchRecords = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/records`);
+        const response = await api.get("/api/records");
         setRecords(response.data);
         setLoading(false);
       } catch (err) {
