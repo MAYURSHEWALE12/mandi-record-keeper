@@ -4,7 +4,7 @@
 body {
   margin: 0;
   font-family: 'Tiro Devanagari Marathi', 'Poppins', 'Mukta', sans-serif;
-  background: #f4f6f8;
+  background: var(--bg);
 }
 
 /* ---------- Page Wrapper (Full Screen) ---------- */
@@ -36,26 +36,19 @@ body {
   flex: 1;
   background: var(--bg-card);
   color: var(--text-primary);
-  padding: 25px;
-  border-radius: 16px;
-  
-  /* Suruvatila border nako (transparent thevli aahe layout halu naye mhanun) */
-  border: 2px solid var(--border); 
-  
-  /* Smooth animation sathi */
-  transition: all 0.3s ease;
-  
-  /* Standard light shadow */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid var(--border); 
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 /* ---------- Hover Effect (Fakt Hover var Border yenar) ---------- */
 .invoice-left:hover,
 .invoice-right:hover {
-  transform: translateY(-5px);
-  /* Mouse hover kelyavar black border disel */
- /* border: 0.5px solid #000000; 
-  box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.1);*/
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(229, 169, 60, 0.25); /* Subtle golden hover border */
 }
 
 /* ---------- Form Elements ---------- */
@@ -73,14 +66,21 @@ body {
 
 input,
 select {
-  padding: 10px;
+  padding: 12px 14px;
   margin-top: 6px;
   border: 1.5px solid var(--border);
   background: var(--bg-card);
   color: var(--text-primary);
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 14px;
   outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus {
+  border-color: #E5A93C; /* Match login gold accent */
+  box-shadow: 0 0 0 3px rgba(229, 169, 60, 0.15);
 }
 
 /* Number arrows kadhun takla */
