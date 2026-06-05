@@ -8,15 +8,15 @@
 :root {
   --bg: #FAF7F2;
   --bg-card: #ffffff;
-  --sidebar-bg: #2C3524;
+  --sidebar-bg: #12160F; /* Match login page's dark forest tint */
   --sidebar-text: #A3B19B;
-  --sidebar-active: #D49A2E;
+  --sidebar-active: #E5A93C; /* Match login page's gold accent */
   --text-primary: #2B2F2A;
   --text-secondary: #4A5148;
   --text-muted: #828B7E;
   --border: #E6E1D8;
   --border-light: #F0EDE6;
-  --accent: #4E653C;
+  --accent: #4E653C; /* Match login page's forest green */
   --accent-hover: #3E5130;
   --accent-bg: #F0F4EC;
   --blue: #4E653C;
@@ -24,11 +24,11 @@
   --blue-bg: #F0F4EC;
   --red: #C94A4A;
   --red-bg: #FDF2F2;
-  --amber: #D49A2E;
+  --amber: #E5A93C; /* Match login page's gold accent */
   --amber-bg: #FEF9EB;
-  --shadow-sm: 0 1px 2px rgba(44,53,36,0.02);
-  --shadow-md: 0 4px 10px rgba(44,53,36,0.04);
-  --shadow-lg: 0 8px 20px rgba(44,53,36,0.06);
+  --shadow-sm: 0 1px 2px rgba(18,22,15,0.02);
+  --shadow-md: 0 4px 10px rgba(18,22,15,0.04);
+  --shadow-lg: 0 8px 20px rgba(18,22,15,0.06);
   --radius-sm: 4px;
   --radius: 8px;
   --radius-lg: 12px;
