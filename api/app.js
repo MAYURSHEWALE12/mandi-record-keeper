@@ -57,6 +57,28 @@ module.exports = function createApp() {
 
   app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'KT Traders API', version: '1.0.0' }));
 
+  app.post('/api/reset-database-kt-traders', async (req, res) => {
+    try {
+      const { password } = req.body;
+      if (password !== 'admin123') {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      
+      const { error: err1 } = await supabase.from('records').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      const { error: err2 } = await supabase.from('dealer_orders').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      const { error: err3 } = await supabase.from('bill_counters').update({ seq: 1000 }).eq('id', 1);
+
+      if (err1 || err2 || err3) {
+        return res.status(500).json({ error: 'Supabase reset failed', details: { err1, err2, err3 } });
+      }
+
+      res.json({ success: true, message: 'All transactional data cleared and bill sequence reset successfully!' });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
+
   app.get('/api/debug', async (req, res) => {
     const { data, error } = await supabase.from('admins').select('id, email').limit(10);
     res.json({
