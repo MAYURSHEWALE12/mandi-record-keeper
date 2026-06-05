@@ -234,15 +234,15 @@
 .glass-login-card {
   width: 100%;
   max-width: 440px;
-  background: rgba(255, 255, 255, 0.15); /* Brighter frosted white */
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.35); /* Stronger white border */
+  background: rgba(255, 255, 255, 0.28); /* More opaque frosted white overlay */
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.45); /* Stronger white border */
   border-radius: 24px;
   padding: 45px 35px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
   text-align: center;
-  color: #12160F; /* Dark text default for contrast */
+  color: #000000; /* Pure black text default for maximum contrast */
   animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -264,13 +264,13 @@
 .badge-logo-text {
   font-size: 14px;
   font-weight: 800;
-  color: #2C3524;
+  color: #000000;
 }
 
 .welcome-heading {
   font-size: 15px;
   font-weight: 600;
-  color: #2C3524; /* Darker heading */
+  color: #000000; /* Pure black */
   margin-bottom: 2px;
 }
 
@@ -291,7 +291,7 @@
 
 .subheading-line {
   height: 1px;
-  background: rgba(44, 53, 36, 0.3); /* Darker line */
+  background: rgba(0, 0, 0, 0.4); /* Stronger separator line */
   flex: 1;
   max-width: 40px;
 }
@@ -299,14 +299,14 @@
 .portal-subheading {
   font-size: 13.5px;
   font-weight: 700;
-  color: #2C3524; /* Darker text */
+  color: #000000; /* Pure black text */
   text-transform: uppercase;
   letter-spacing: 1.5px;
 }
 
 .secure-access-text {
   font-size: 12.5px;
-  color: rgba(44, 53, 36, 0.7); /* Highly readable dark text */
+  color: rgba(0, 0, 0, 0.8); /* High contrast dark grey text */
   margin-bottom: 28px;
 }
 
@@ -320,22 +320,22 @@
   width: 100%;
   padding: 13.5px 44px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.55); /* White translucent input background */
-  border: 1px solid rgba(44, 53, 36, 0.2);
-  color: #12160F; /* Dark text input */
+  background: rgba(255, 255, 255, 0.75); /* More opaque white input background */
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  color: #000000; /* Pure black input text */
   font-size: 14.5px;
   outline: none;
   transition: all 0.25s ease;
 }
 
 .glass-input-group input:focus {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.95);
   border-color: #F57C00;
-  box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.15);
+  box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.18);
 }
 
 .glass-input-group input::placeholder {
-  color: rgba(44, 53, 36, 0.6); /* Readable placeholder */
+  color: rgba(0, 0, 0, 0.6); /* Readable placeholder */
 }
 
 
@@ -344,7 +344,7 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(44, 53, 36, 0.6); /* Readable green/grey icon in light mode */
+  color: rgba(0, 0, 0, 0.65); /* Highly readable black/grey icon */
   pointer-events: none;
 }
 
@@ -355,13 +355,13 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: rgba(44, 53, 36, 0.6);
+  color: rgba(0, 0, 0, 0.65);
   cursor: pointer;
   padding: 4px;
 }
 
 .password-toggle-btn:hover {
-  color: #12160F;
+  color: #000000;
 }
 
 /* Checkbox & Options */
@@ -379,7 +379,7 @@
   gap: 8px;
   cursor: pointer;
   user-select: none;
-  color: #2C3524; /* Highly readable dark label */
+  color: #000000; /* Pure black */
 }
 
 .remember-me-checkbox input[type="checkbox"] {
@@ -677,10 +677,10 @@ body.dark-theme .help-widget {
   align-items: center;
   justify-content: space-between;
   padding: 16px 22px;
-  background: rgba(255, 255, 255, 0.45); /* Bright translucent in light theme */
-  border: 1px solid rgba(44, 53, 36, 0.15);
+  background: rgba(255, 255, 255, 0.72); /* Solid frosted white background for readability */
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 16px;
-  color: #12160F;
+  color: #000000; /* Pure black text */
   cursor: pointer;
   transition: all 0.25s ease;
   text-align: left;
@@ -688,9 +688,9 @@ body.dark-theme .help-widget {
 
 .glass-selection-btn:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.95);
   border-color: #E5A93C;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .btn-portal-content {
@@ -707,17 +707,17 @@ body.dark-theme .help-widget {
 .btn-portal-text-wrap h4 {
   font-size: 14.5px;
   font-weight: 700;
-  color: #2C3524;
+  color: #000000; /* Pure black */
   margin-bottom: 2px;
 }
 
 .btn-portal-text-wrap p {
   font-size: 11.5px;
-  color: rgba(44, 53, 36, 0.7);
+  color: rgba(0, 0, 0, 0.8); /* Readable dark description */
 }
 
 .btn-arrow {
-  color: rgba(44, 53, 36, 0.4);
+  color: rgba(0, 0, 0, 0.55);
   transition: transform 0.25s ease, color 0.25s ease;
 }
 
