@@ -1652,9 +1652,20 @@ const DealerDashboard = () => {
                 </span>
               </p>
 
-              <button className="primary-btn" style={{ marginTop: "10px", width: "100%", justifyContent: "center" }} onClick={() => setShowDispatchForm(true)}>
-                <Truck size={16} /> नवीन ट्रक लोड करा (Dispatch Truck)
-              </button>
+              {selectedOrder.status === "fulfilled" || Number(selectedOrder.remainingWeight || 0) <= 0 ? (
+                <button 
+                  className="primary-btn btn-ghost" 
+                  style={{ marginTop: "10px", width: "100%", justifyContent: "center", cursor: "not-allowed", opacity: 0.6 }} 
+                  disabled
+                  title="ऑर्डर पूर्ण झाली आहे, त्यामुळे नवीन ट्रक लोड करता येणार नाही."
+                >
+                  <Truck size={16} /> ऑर्डर पूर्ण झाली (Order Fulfilled)
+                </button>
+              ) : (
+                <button className="primary-btn" style={{ marginTop: "10px", width: "100%", justifyContent: "center" }} onClick={() => setShowDispatchForm(true)}>
+                  <Truck size={16} /> नवीन ट्रक लोड करा (Dispatch Truck)
+                </button>
+              )}
 
               <button 
                 className="primary-btn btn-danger" 
