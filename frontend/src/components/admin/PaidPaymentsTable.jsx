@@ -18,7 +18,7 @@ const PaidPaymentsTable = () => {
     const fetchRecords = async () => {
       try {
         const response = await api.get("/api/records");
-        setRecords(response.data);
+        setRecords(Array.isArray(response.data?.data) ? response.data.data : (Array.isArray(response.data) ? response.data : []));
         setLoading(false);
       } catch (err) {
         console.error("डेटा लोड झाला नाही:", err);

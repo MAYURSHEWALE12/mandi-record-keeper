@@ -23,7 +23,7 @@ const AdminPage = () => {
   const fetchRecords = async () => {
     try {
       const res = await api.get("/api/records");
-      setRecords(Array.isArray(res.data) ? res.data : []);
+      setRecords(Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []));
     } catch (err) {
       console.error("Error fetching records:", err);
     }

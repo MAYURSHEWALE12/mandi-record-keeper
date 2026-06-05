@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import api from "../../api";
 import CustomDropdown from "../common/CustomDropdown";
 
-const PaymentModal = ({ show, orders, selectedCompany, paymentOrderId, onSetPaymentOrderId, onClose, onPaymentAdded }) => {
+const PaymentModal = ({ show, orders = [], selectedCompany, paymentOrderId, onSetPaymentOrderId, onClose, onPaymentAdded }) => {
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split("T")[0]);
   const [paymentMode, setPaymentMode] = useState("Bank Transfer");

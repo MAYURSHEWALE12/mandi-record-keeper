@@ -22,7 +22,7 @@ const DuePaymentsTable = ({ onEditClick }) => {
     const fetchData = async () => {
       try {
         const response = await api.get("/api/records");
-        setRecords(Array.isArray(response.data) ? response.data : []);
+        setRecords(Array.isArray(response.data?.data) ? response.data.data : (Array.isArray(response.data) ? response.data : []));
         setLoading(false);
       } catch (error) {
         console.error("डेटा एरर:", error);

@@ -23,7 +23,7 @@ const ReportTable = () => {
 
   useEffect(() => {
     api.get("/api/records")
-      .then(res => setRecords(res.data))
+      .then(res => setRecords(Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : [])))
       .catch(err => console.error(err));
   }, []);
 

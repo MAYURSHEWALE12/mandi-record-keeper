@@ -235,7 +235,7 @@ const PaymentHistory = () => {
     const fetchHistory = async () => {
       try {
         const response = await api.get("/api/records");
-        const recordsList = Array.isArray(response.data) ? response.data : [];
+        const recordsList = Array.isArray(response.data?.data) ? response.data.data : (Array.isArray(response.data) ? response.data : []);
         setAllRecords(recordsList);
         
         if (farmerName) {

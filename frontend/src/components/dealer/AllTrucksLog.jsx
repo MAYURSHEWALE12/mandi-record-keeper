@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FileText } from "lucide-react";
 import CustomDropdown from "../common/CustomDropdown";
 
-const AllTrucksLog = ({ orders, onShowInvoice, onSelectOrder }) => {
+const AllTrucksLog = ({ orders = [], onShowInvoice, onSelectOrder }) => {
   const [truckFilterInterval, setTruckFilterInterval] = useState("all");
   const [truckFilterStartDate, setTruckFilterStartDate] = useState("");
   const [truckFilterEndDate, setTruckFilterEndDate] = useState("");

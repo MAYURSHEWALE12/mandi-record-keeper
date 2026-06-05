@@ -3,7 +3,7 @@ import { ArrowLeft, Trash2 } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
-const CompanyProfile = ({ selectedCompany, orders, profileTab, onSetProfileTab, onBack, onOpenCuttingModal, onShowInvoice, onOpenPayment, onDeletePayment }) => {
+const CompanyProfile = ({ selectedCompany, orders = [], profileTab, onSetProfileTab, onBack, onOpenCuttingModal, onShowInvoice, onOpenPayment, onDeletePayment }) => {
   const ledgerRef = useRef();
 
   const companyOrders = orders.filter(o => o.dealerName === selectedCompany.name);

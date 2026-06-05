@@ -107,7 +107,7 @@ const Invoice = () => {
   const fetchRecords = async () => {
     try {
       const response = await api.get("/api/records");
-      setRecords(response.data);
+      setRecords(Array.isArray(response.data) ? response.data : (Array.isArray(response.data?.data) ? response.data.data : []));
     } catch (err) {
       console.error("डेटा लोड करताना एरर आली:", err);
     }
@@ -116,7 +116,7 @@ const Invoice = () => {
   const fetchDealerOrders = async () => {
     try {
       const response = await api.get("/api/dealer-orders");
-      setDealerOrders(Array.isArray(response.data) ? response.data : []);
+      setDealerOrders(Array.isArray(response.data?.data) ? response.data.data : (Array.isArray(response.data) ? response.data : []));
     } catch (err) {
       console.error("डीलर ऑर्डर्स लोड करताना एरर आली:", err);
     }
