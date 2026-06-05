@@ -31,14 +31,31 @@ exports.index = async (req, res) => {
     if (error) throw error;
 
     const crypto = require('crypto');
+    let maxBill = 1000;
+    for (const r of data) {
+      const dispatches = r.dispatches || [];
+      for (const d of dispatches) {
+        const num = Number(d.billNo || d.bill_no || 0);
+        if (num > maxBill) maxBill = num;
+      }
+    }
+
     const updatedData = [];
     for (const r of data) {
       let modified = false;
       const dispatches = (r.dispatches || []).map(d => {
+        let changed = false;
         if (!d.id && !d._id) {
           d.id = crypto.randomUUID();
-          modified = true;
+          changed = true;
         }
+        if (!d.billNo && !d.bill_no) {
+          maxBill = maxBill + 1;
+          d.billNo = maxBill;
+          d.bill_no = maxBill;
+          changed = true;
+        }
+        if (changed) modified = true;
         return d;
       });
       if (modified) {
@@ -63,11 +80,32 @@ exports.show = async (req, res) => {
     let r = data;
     let modified = false;
     const crypto = require('crypto');
+
+    let maxBill = 1000;
+    const { data: allOrders } = await supabase.from('dealer_orders').select('dispatches');
+    if (allOrders) {
+      for (const o of allOrders) {
+        const dispatches = o.dispatches || [];
+        for (const d of dispatches) {
+          const num = Number(d.billNo || d.bill_no || 0);
+          if (num > maxBill) maxBill = num;
+        }
+      }
+    }
+
     const dispatches = (r.dispatches || []).map(d => {
+      let changed = false;
       if (!d.id && !d._id) {
         d.id = crypto.randomUUID();
-        modified = true;
+        changed = true;
       }
+      if (!d.billNo && !d.bill_no) {
+        maxBill = maxBill + 1;
+        d.billNo = maxBill;
+        d.bill_no = maxBill;
+        changed = true;
+      }
+      if (changed) modified = true;
       return d;
     });
     if (modified) {
