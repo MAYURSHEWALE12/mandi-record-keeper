@@ -221,6 +221,8 @@ const historyStyles = {
 
 const PaymentHistory = () => {
   const [history, setHistory] = useState([]);
+  const [allRecords, setAllRecords] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
@@ -233,21 +235,54 @@ const PaymentHistory = () => {
     const fetchHistory = async () => {
       try {
         const response = await fetch(`${API_URL}/api/records`);
-        const allRecords = await response.json();
-        const filtered = allRecords.filter(
-          (rec) => rec.farmerName?.trim().toLowerCase() === farmerName?.toLowerCase() ||
-                   rec.farmerName?.trim() === farmerName?.trim()
-        );
-        setHistory(filtered);
+        const data = await response.json();
+        const recordsList = Array.isArray(data) ? data : [];
+        setAllRecords(recordsList);
+        
+        if (farmerName) {
+          const filtered = recordsList.filter(
+            (rec) => rec.farmerName?.trim().toLowerCase() === farmerName?.toLowerCase() ||
+                     rec.farmerName?.trim() === farmerName?.trim()
+          );
+          setHistory(filtered);
+        }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching history:", error);
         setLoading(false);
       }
     };
-    if (farmerName) fetchHistory();
-    else setLoading(false);
+    fetchHistory();
   }, [farmerName]);
+
+  const uniqueFarmers = React.useMemo(() => {
+    const map = {};
+    allRecords.forEach(r => {
+      const name = r.farmerName?.trim();
+      if (!name) return;
+      if (!map[name]) {
+        map[name] = {
+          name,
+          mobile: r.mobile || r.farmerNumber || "",
+          totalAmount: 0,
+          paidAmount: 0,
+          billsCount: 0
+        };
+      }
+      map[name].totalAmount += Number(r.totalAmount || 0);
+      map[name].paidAmount += Number(r.paidAmount || 0);
+      map[name].billsCount += 1;
+      if (r.mobile && !map[name].mobile) {
+        map[name].mobile = r.mobile;
+      }
+    });
+    return Object.values(map);
+  }, [allRecords]);
+
+  const filteredFarmers = uniqueFarmers.filter(f => 
+    f.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    f.mobile.includes(searchTerm)
+  );
 
   const handleDownload = () => window.print();
 
@@ -303,6 +338,64 @@ const PaymentHistory = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  if (!farmerName) {
+    return (
+      <PageWrapper title="शेतकरी पेमेंट हिस्ट्री (Select Farmer)">
+        <div style={historyStyles.container}>
+          <div style={{ background: "#fff", border: "1px solid #e6e1d8", borderRadius: "12px", padding: "24px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)" }}>
+            <h2 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "15px", color: "#2b2f2a" }}>शेतकरी निवडा (Select a Farmer)</h2>
+            <input 
+              className="filter-input" 
+              placeholder="नाव किंवा मोबाईल नंबर शोधा..." 
+              value={searchTerm} 
+              onChange={e => setSearchTerm(e.target.value)} 
+              style={{ width: "100%", padding: "12px 16px", borderRadius: "8px", border: "1px solid #c4beb4", fontSize: "14px", marginBottom: "20px", outline: "none" }}
+            />
+            {filteredFarmers.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "30px", color: "#828b7e" }}>कोणतेही रेकॉर्ड सापडले नाही.</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {filteredFarmers.map((f, i) => {
+                  const due = f.totalAmount - f.paidAmount;
+                  return (
+                    <div 
+                      key={i} 
+                      onClick={() => navigate(`/payment-history?farmer=${encodeURIComponent(f.name)}&mobile=${f.mobile}`)}
+                      style={{ 
+                        display: "flex", 
+                        justifyContent: "space-between", 
+                        alignItems: "center", 
+                        padding: "16px", 
+                        border: "1px solid #e6e1d8", 
+                        borderRadius: "10px", 
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                        background: "#fff"
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#4e653c"; e.currentTarget.style.background = "#fcfbfa"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#e6e1d8"; e.currentTarget.style.background = "#fff"; }}
+                    >
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: "15px", color: "#2b2f2a" }}>{f.name}</h4>
+                        <span style={{ fontSize: "12.5px", color: "#828b7e" }}>📞 {f.mobile || "---"} | {f.billsCount} बिले</span>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <span style={{ fontSize: "12.5px", color: "#828b7e" }}>बाकी रक्कम</span>
+                        <div style={{ fontWeight: "700", color: due > 0 ? "#c94a4a" : "#2e7d32", fontSize: "14.5px" }}>
+                          ₹{due.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </PageWrapper>
