@@ -237,10 +237,12 @@ exports.destroyDispatch = async (req, res) => {
     if (!targetOrder) return res.status(404).json({ error: 'Dispatch not found' });
 
     const updatedDispatches = (targetOrder.dispatches || []).filter(d => d.id !== dispatchId && d._id !== dispatchId);
+    const totalFulfilled = updatedDispatches.reduce((s, d) => s + Number(d.weight || d.quantity || 0), 0);
+    const newStatus = totalFulfilled >= (targetOrder.total_ordered_weight || 0) ? 'fulfilled' : (totalFulfilled > 0 ? 'partially_fulfilled' : 'pending');
 
     const { data, error: updateError } = await supabase
       .from('dealer_orders')
-      .update({ dispatches: updatedDispatches, updated_at: new Date().toISOString() })
+      .update({ dispatches: updatedDispatches, status: newStatus, updated_at: new Date().toISOString() })
       .eq('id', targetOrder.id)
       .select().single();
 
