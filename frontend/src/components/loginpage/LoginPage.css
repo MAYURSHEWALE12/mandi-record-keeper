@@ -670,3 +670,90 @@ body.dark-theme .help-widget {
   border-color: rgba(255, 255, 255, 0.04);
 }
 
+/* ---- Portal Selection Buttons (Light Mode Default) ---- */
+.glass-selection-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  background: rgba(255, 255, 255, 0.45); /* Bright translucent in light theme */
+  border: 1px solid rgba(44, 53, 36, 0.15);
+  border-radius: 16px;
+  color: #12160F;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+}
+
+.glass-selection-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.75);
+  border-color: #E5A93C;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.btn-portal-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-portal-emoji {
+  font-size: 28px;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+.btn-portal-text-wrap h4 {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #2C3524;
+  margin-bottom: 2px;
+}
+
+.btn-portal-text-wrap p {
+  font-size: 11.5px;
+  color: rgba(44, 53, 36, 0.7);
+}
+
+.btn-arrow {
+  color: rgba(44, 53, 36, 0.4);
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.glass-selection-btn:hover .btn-arrow {
+  transform: translateX(4px);
+  color: #E5A93C;
+}
+
+/* Dark mode overrides for selection buttons */
+body.dark-theme .glass-selection-btn {
+  background: rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+body.dark-theme .glass-selection-btn:hover {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: #E5A93C;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-theme .btn-portal-text-wrap h4 {
+  color: #fff;
+}
+
+body.dark-theme .btn-portal-text-wrap p {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+body.dark-theme .btn-arrow {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Logout button hover state */
+.logout-btn-selection:hover {
+  background: rgba(201, 74, 74, 0.1) !important;
+}
+
+

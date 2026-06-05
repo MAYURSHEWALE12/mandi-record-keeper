@@ -1,9 +1,31 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { LogOut, Sun, Moon, Phone, Award, Users, Truck, ArrowRight } from "lucide-react";
+import "../components/loginpage/LoginPage.css";
 
 const DashboardSelection = () => {
   const navigate = useNavigate();
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
+
+  useEffect(() => {
+    if (isDark) {
+      document.body.classList.add("dark-theme");
+    } else {
+      document.body.classList.remove("dark-theme");
+    }
+  }, [isDark]);
+
+  const toggleTheme = (theme) => {
+    if (theme === "dark") {
+      setIsDark(true);
+      localStorage.setItem("theme", "dark");
+    } else {
+      setIsDark(false);
+      localStorage.setItem("theme", "light");
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -12,126 +34,163 @@ const DashboardSelection = () => {
 
   return (
     <div
-      className="dashboard-selection-wrap"
+      className="login-container-wrapper"
       style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        background: "var(--bg)",
-        fontFamily: "'Poppins', 'Mukta', sans-serif",
-        padding: "20px",
-        transition: "background 0.25s ease",
+        background: `url(${process.env.PUBLIC_URL + "/maharashtra-corn-field.png"}) center/cover no-repeat`
       }}
     >
-      <div style={{ textAlign: "center", marginBottom: "40px" }}>
-        <h1 style={{ fontSize: "32px", fontWeight: "800", color: "var(--text-primary)", margin: "0 0 10px 0" }}>
-          के.टी. ट्रेडर्स
-        </h1>
-        <p style={{ fontSize: "16px", color: "var(--text-muted)", margin: 0 }}>
-          धान्य व्यापार व लॉजिस्टिक्स मॅनेजमेंट सिस्टीम
-        </p>
-      </div>
+      <div className="login-split-layout">
+        {/* LEFT PANEL: Branding & Info */}
+        <div className="login-left-pane">
+          <div className="left-brand">
+            <div className="brand-logo-wrap">
+              <span className="logo-icon-corn">🌽</span>
+              <div className="brand-text">
+                <span className="kt-text">KT</span>
+                <span className="traders-text">TRADERS</span>
+              </div>
+            </div>
+            <p className="brand-tagline">Connecting Dealers. Growing Together.</p>
+          </div>
 
-      <div
-        style={{
-          display: "flex",
-          gap: "24px",
-          width: "100%",
-          maxWidth: "700px",
-          flexWrap: "wrap",
-          justifyContent: "center",
-        }}
-      >
-        {/* CARD 1: FARMER RECORDS */}
-        <div
-          onClick={() => navigate("/dashboard")}
-          style={{
-            flex: "1 1 300px",
-            background: "var(--bg-card)",
-            border: "1px solid var(--border)",
-            borderRadius: "12px",
-            padding: "30px",
-            cursor: "pointer",
-            textAlign: "center",
-            boxShadow: "var(--shadow-md)",
-            transition: "transform 150ms ease, border-color 150ms ease, background 0.25s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-4px)";
-            e.currentTarget.style.borderColor = "var(--accent)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.borderColor = "var(--border)";
-          }}
-        >
-          <div style={{ fontSize: "48px", marginBottom: "15px" }}>🌾</div>
-          <h2 style={{ fontSize: "20px", fontWeight: "700", color: "var(--text-primary)", marginBottom: "10px" }}>
-            शेतकरी खाते (मंडी रेकॉर्ड्स)
-          </h2>
-          <p style={{ fontSize: "14px", color: "var(--text-muted)", lineHeight: "1.6" }}>
-            बिल पावती तयार करणे, आवक/जावक नोंदणी, पिकांचे भाव, शेतकरी पेमेंट व बाकी रक्कम व्यवस्थापन.
-          </p>
+          <div className="left-hero-text">
+            <h2>Premium Quality Corn.<br />Stronger Relationships.<br />Sustainable Growth.</h2>
+          </div>
+
+          <div className="features-list">
+            <div className="feature-item">
+              <div className="feature-icon-box">
+                <Award size={20} />
+              </div>
+              <div className="feature-info">
+                <h4>Quality Assured</h4>
+                <p>Best quality corn sourced from trusted farms.</p>
+              </div>
+            </div>
+
+            <div className="feature-item">
+              <div className="feature-icon-box">
+                <Users size={20} />
+              </div>
+              <div className="feature-info">
+                <h4>Dealer First</h4>
+                <p>Dedicated support and exclusive benefits for our dealers.</p>
+              </div>
+            </div>
+
+            <div className="feature-item">
+              <div className="feature-icon-box">
+                <Truck size={20} />
+              </div>
+              <div className="feature-info">
+                <h4>Timely Delivery</h4>
+                <p>Reliable logistics ensuring on-time delivery.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="help-widget">
+            <Phone className="help-icon" size={20} />
+            <div className="help-info">
+              <p className="help-title">Need Help?</p>
+              <p className="help-desc">Our support team is here for you.</p>
+              <p className="help-phone">+91 98502 92298</p>
+            </div>
+          </div>
         </div>
 
-        {/* CARD 2: DEALER DISPATCHES */}
-        <div
-          onClick={() => navigate("/dealer-dashboard")}
-          style={{
-            flex: "1 1 300px",
-            background: "var(--bg-card)",
-            border: "1px solid var(--border)",
-            borderRadius: "12px",
-            padding: "30px",
-            cursor: "pointer",
-            textAlign: "center",
-            boxShadow: "var(--shadow-md)",
-            transition: "transform 150ms ease, border-color 150ms ease, background 0.25s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-4px)";
-            e.currentTarget.style.borderColor = "var(--accent)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.borderColor = "var(--border)";
-          }}
-        >
-          <div style={{ fontSize: "48px", marginBottom: "15px" }}>🚚</div>
-          <h2 style={{ fontSize: "20px", fontWeight: "700", color: "var(--text-primary)", marginBottom: "10px" }}>
-            डीलर ऑर्डर & ट्रक लोडिंग
-          </h2>
-          <p style={{ fontSize: "14px", color: "var(--text-muted)", lineHeight: "1.6" }}>
-            कंपन्यांच्या बल्क ऑर्डर्स (P.O.), ट्रक निहाय लोडिंग नोंदी, ड्रायव्हर/ट्रान्सपोर्ट तपशील व एकूण भाडे हिशोब.
-          </p>
+        {/* RIGHT PANEL: Selection Options & Controls */}
+        <div className="login-right-pane">
+          {/* Top-Right Theme Toggle Switcher */}
+          <div className="top-theme-toggle">
+            <div className="theme-toggle-pill">
+              <button 
+                className={`theme-pill-btn ${!isDark ? "active" : ""}`}
+                onClick={() => toggleTheme("light")}
+              >
+                <Sun size={14} />
+                <span>Light</span>
+              </button>
+              <button 
+                className={`theme-pill-btn ${isDark ? "active" : ""}`}
+                onClick={() => toggleTheme("dark")}
+              >
+                <Moon size={14} />
+                <span>Dark</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="glass-login-card select-portal-card" style={{ maxWidth: "520px" }}>
+            <div className="card-brand-badge">
+              <span className="badge-corn">🌽</span>
+              <span className="badge-logo-text">KT</span>
+            </div>
+
+            <h3 className="welcome-heading">Welcome to</h3>
+            <h2 className="company-heading">KT Traders</h2>
+            
+            <div className="portal-subheading-wrap">
+              <div className="subheading-line"></div>
+              <span className="portal-subheading">Select Portal</span>
+              <div className="subheading-line"></div>
+            </div>
+
+            <p className="secure-access-text">Select the portal dashboard you wish to access.</p>
+
+            <div className="portal-selection-buttons-wrap" style={{ display: "flex", flexDirection: "column", gap: "16px", margin: "20px 0 28px" }}>
+              {/* Option 1: Farmer portal */}
+              <button 
+                onClick={() => navigate("/dashboard")}
+                className="glass-selection-btn"
+              >
+                <div className="btn-portal-content">
+                  <span className="btn-portal-emoji">🌾</span>
+                  <div className="btn-portal-text-wrap">
+                    <h4>शेतकरी खाते (मंडी रेकॉर्ड्स)</h4>
+                    <p>बिल पावती, आवक/जावक, पेमेंट हिशोब</p>
+                  </div>
+                </div>
+                <ArrowRight size={18} className="btn-arrow" />
+              </button>
+
+              {/* Option 2: Dealer portal */}
+              <button 
+                onClick={() => navigate("/dealer-dashboard")}
+                className="glass-selection-btn"
+              >
+                <div className="btn-portal-content">
+                  <span className="btn-portal-emoji">🚚</span>
+                  <div className="btn-portal-text-wrap">
+                    <h4>डीलर ऑर्डर & ट्रक लोडिंग</h4>
+                    <p>कंपनी P.O., ट्रक नोंदी, ट्रान्सपोर्ट भाडे</p>
+                  </div>
+                </div>
+                <ArrowRight size={18} className="btn-arrow" />
+              </button>
+            </div>
+
+            <button 
+              onClick={handleLogout} 
+              className="glass-submit-btn logout-btn-selection"
+              style={{ background: "transparent", border: "1px solid var(--red)", color: "var(--red)", boxShadow: "none" }}
+            >
+              <LogOut size={16} />
+              <span>लॉगआउट (Logout)</span>
+            </button>
+          </div>
+
+          {/* Global Footer */}
+          <footer className="login-footer">
+            <p className="footer-copyright">© 2026 KT Traders. All Rights Reserved.</p>
+            <div className="footer-links">
+              <span>Privacy Policy</span>
+              <span className="divider">|</span>
+              <span>Terms & Conditions</span>
+            </div>
+          </footer>
         </div>
       </div>
-
-      <button
-        onClick={handleLogout}
-        style={{
-          marginTop: "40px",
-          background: "transparent",
-          border: "1px solid var(--border)",
-          padding: "10px 20px",
-          borderRadius: "8px",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          color: "var(--red)",
-          fontWeight: "600",
-          fontSize: "14px",
-          transition: "background 150ms ease, border-color 0.25s ease",
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.background = "var(--red-bg)")}
-        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-      >
-        <LogOut size={16} />
-        <span>लॉगआउट (Logout)</span>
-      </button>
     </div>
   );
 };
