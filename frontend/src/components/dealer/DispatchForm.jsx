@@ -70,7 +70,7 @@ const DispatchForm = ({ show, selectedOrder, physicalStockTons, onClose, onDispa
     try {
       const res = await api.post(`/api/dealer-orders/${selectedOrder.id}/dispatch`, dispatchData);
 
-      if (res.status === 201) {
+      if (res.status === 200 || res.status === 201) {
         toast.success("ट्रक लोडिंग नोंद यशस्वी झाली ✅");
         setDispatchBillNo("");
         setDeliveryPlace("");
