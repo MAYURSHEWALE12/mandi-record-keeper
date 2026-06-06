@@ -31,11 +31,10 @@ const DispatchForm = ({ show, selectedOrder, physicalStockTons, onClose, onDispa
       return;
     }
 
-    const remaining = Number(selectedOrder?.remainingWeight || 0);
-    const maxAllowed = Math.min(remaining, physicalStockTons);
+    const maxAllowed = physicalStockTons;
 
     if (Number(weight) > maxAllowed + 0.0001) {
-      toast.error(`चूक: आपण या ऑर्डरच्या उर्वरित वजनापेक्षा किंवा उपलब्ध भौतिक साठ्यापेक्षा (${maxAllowed.toFixed(2)} Tons) जास्त वजन लोड करू शकत नाही!`);
+      toast.error(`चूक: आपण उपलब्ध भौतिक साठ्यापेक्षा (${maxAllowed.toFixed(2)} Tons) जास्त वजन लोड करू शकत नाही!`);
       return;
     }
 
@@ -199,11 +198,11 @@ const DispatchForm = ({ show, selectedOrder, physicalStockTons, onClose, onDispa
                 निव्वळ वजन (Tons मध्ये) *
                 {selectedOrder && (
                   <span style={{ color: "#E5A93C", fontWeight: "bold", marginLeft: "8px" }}>
-                    (कमाल मर्यादा: {Math.min(Number(selectedOrder.remainingWeight || 0), physicalStockTons).toFixed(2)} Tons)
+                    (कमाल उपलब्ध साठा: {physicalStockTons.toFixed(2)} Tons)
                   </span>
                 )}
               </label>
-              <input type="number" step="any" placeholder={`उदा. कमाल ${Math.min(Number(selectedOrder?.remainingWeight || 0), physicalStockTons).toFixed(2)} Tons`} value={weight} onChange={(e) => setWeight(e.target.value)} required />
+              <input type="number" step="any" placeholder={`उदा. कमाल ${physicalStockTons.toFixed(2)} Tons`} value={weight} onChange={(e) => setWeight(e.target.value)} required />
             </div>
             <div className="form-group" style={{ flex: 1 }}>
               <label>भाव (₹ / क्विंटल किंवा टन)</label>
