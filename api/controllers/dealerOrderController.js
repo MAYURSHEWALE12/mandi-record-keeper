@@ -216,6 +216,7 @@ exports.storeDispatch = async (req, res) => {
     }, 0);
 
     const physicalStock = Math.max(0, totalInward - totalAlreadyDispatched);
+    const existingDispatches = order.dispatches || [];
     const maxAllowed = physicalStock;
 
     if (inputWeight > maxAllowed + 0.0001) {
